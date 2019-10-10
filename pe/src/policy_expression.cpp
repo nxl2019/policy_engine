@@ -36,12 +36,13 @@ void AstConstantValue::SetValue(const std::string& value){    u._other_data = st
 int  AstConstantValue::GetValueAsInt(){ return atoi(u._other_data); }
 
 ///-------------AstColumnRef-----------------------------------
-AstColumnRef::AstColumnRef(const AstIds& ids):AstExpr(EXPR_COLUMN_REF), _ids(ids){}
+AstColumnRef::AstColumnRef(COL_TYPE col_type, const AstIds& ids):AstExpr(EXPR_COLUMN_REF), _col_type(col_type), _ids(ids){}
 AstColumnRef::~AstColumnRef(){
     for (auto ids:_ids) {
         if (ids) delete ids;
     }
 }
+AstColumnRef::COL_TYPE AstColumnRef::GetColType() { return _col_type; }
 void    AstColumnRef::SetColumn(const AstIds& ids){    _ids = ids; }
 const AstIds&   AstColumnRef::GetColumn(){    return  _ids; }
 

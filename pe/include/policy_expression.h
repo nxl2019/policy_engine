@@ -76,13 +76,15 @@ typedef std::vector<AstId*>                 AstIds;
 
 class AstColumnRef : public AstExpr {
 public:
-    AstColumnRef(const AstIds& ids);
+    enum COL_TYPE { RES, SUB, ACTION };
+    AstColumnRef(COL_TYPE col_type, const AstIds& ids);
     ~AstColumnRef();
+    COL_TYPE                    GetColType();
     void                        SetColumn(const AstIds& ids);
-
-    const AstIds&  GetColumn();
+    const AstIds&               GetColumn();
 private:
-    AstIds  _ids;
+    COL_TYPE    _col_type;
+    AstIds      _ids;
 };
 
 
