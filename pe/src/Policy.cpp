@@ -251,14 +251,16 @@ AstExpr * parse_from_expression(const Json::Value & action_components) {
 
 
 PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
-
-    Json::Reader read;
-    //Json::CharReaderBuilder read;
+    Json::CharReaderBuilder builder;
+    Json::CharReader *pread = builder.newCharReader();
     Json::Value root;
-    if (!read.parse(json_string, root)) {
+    if (!pread->parse(json_string.c_str(), json_string.c_str() + json_string.length(), &root, nullptr)) {
+        delete (pread);
         printf("json string is incorrect");
         return POLICY_ENGINE_FAIL;
     }
+    delete (pread);
+    pread = nullptr;
     //subject
     Json::Value subject_components = root["subjectComponents"];
     AstExpr * pexp_subject_comps = parse_from_subject_components(subject_components);
