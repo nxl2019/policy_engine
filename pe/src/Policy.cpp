@@ -75,10 +75,6 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
     return pexpr;
 }
 
-
-
-
-
 AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::COL_TYPE type) {
     Json::Value js_cond = conditions[0];
     ///BinaryExpr
@@ -149,7 +145,7 @@ AstExpr * parse_from_subject_components(const Json::Value & subject_components) 
     return pexp;
 }
 
-AstExpr * ParseFromResourceComponents(const Json::Value & resource_components){
+AstExpr * parse_from_resource_components(const Json::Value & resource_components){
     if (resource_components.size() == 0) {
         return  new AstConstantValue(AstExpr::C_TRUE);
     }
@@ -213,7 +209,6 @@ AstExpr * parse_from_components_for_action(const Json::Value & components, AstCo
         pexp = new AstUnaryOpExpr(AstExpr::NOT, pexpr_temp);
     }
 
-
     return  pexp;
 }
 
@@ -236,7 +231,6 @@ AstExpr * parse_from_action_components(const Json::Value & action_components){
         AstExpr * pexp_temp = pexp;
         pexp = new AstBinaryOpExpr(AstExpr::OR, pexp_temp, pexp_sub);
     }
-
 
     return  pexp;
 }
@@ -269,12 +263,11 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
     AstExpr * pexp_action_comps = parse_from_action_components(actions_components);
     //resource
     Json::Value resource_components = root["fromResourceComponents"];
-    AstExpr * pexp_resource_comps = ParseFromResourceComponents(resource_components);
+    AstExpr * pexp_resource_comps = parse_from_resource_components(resource_components);
     //advance
     Json::Value expression = root["expression"];
     AstExpr * pexp_expression = parse_from_expression(expression);
 
-    /* to do */
     AstExpr * pexp_sa = new AstBinaryOpExpr(AstExpr::AND, pexp_subject_comps, pexp_action_comps);
     AstExpr * pexp_sar = new AstBinaryOpExpr(AstExpr::AND, pexp_sa, pexp_resource_comps);
     _expr = new AstBinaryOpExpr(AstExpr::AND, pexp_sar, pexp_expression);
