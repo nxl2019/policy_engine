@@ -1,91 +1,288 @@
-#include <stdio.h>
-#include "policy_engine.h"
-#include "Policy.h"
+#include "policy_expression.h"
 #include "Handle.h"
-#include "Value.h"
-#include "PolicyEngine.h"
+#include "eval_expression.h"
+#include "translate.h"
+#include <time.h>
+#include "microtest.h"
 
-int main() {
-    /* Module init */
-    PolicyEngineReturn r = policy_engine_module_init("", "", "", "", "", 86400);
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
+
+TEST(EVAL_EXPRESSION_CASE_1) {
+    AstExpr *expr = nullptr;
+    {
+        //(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15
+        AstId *m = new AstId("M");
+        AstExpr *refm = new AstColumnRef(AstColumnRef::SUB, {m});
+        AstConstantValue *c10 = new AstConstantValue(AstExpr::C_STRING);
+        c10->SetValue("10");
+        AstExpr *egt = new AstBinaryOpExpr(AstExpr::COMP_GT, refm, c10);
+
+        AstId *n = new AstId("N");
+        AstExpr *refn = new AstColumnRef(AstColumnRef::SUB, {n});
+        AstConstantValue *cbd = new AstConstantValue(AstExpr::C_STRING);
+        cbd->SetValue("www.baidu.com");
+        AstExpr *eeq = new AstBinaryOpExpr(AstExpr::COMP_EQ, refn, cbd);
+
+        AstId *m1 = new AstId("M");
+        AstExpr *refm1 = new AstColumnRef(AstColumnRef::SUB, {m1});
+        AstConstantValue *c15 = new AstConstantValue(AstExpr::C_STRING);
+        c15->SetValue("15");
+        AstExpr *elt = new AstBinaryOpExpr(AstExpr::COMP_LT, refm1, c15);
+
+        AstExpr *or_expr = new AstBinaryOpExpr(AstExpr::OR, egt, eeq);
+        AstExpr *and_expr = new AstBinaryOpExpr(AstExpr::AND, or_expr, elt);
+        expr = and_expr;
     }
-
-    PolicyEngineStringList subjects = nullptr;
-    PolicyEngineStringList actions = nullptr;
-
-    /*  */
-    r = policy_engine_subjects_actions_analyze(&subjects, &actions);
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
+    std::vector<Instruction*> instructions;
+    {
+        gen_code(expr, instructions);
     }
-
-    r = POLICY_ENGINE_SUCCESS;
-    for (PolicyEngineStringList it = subjects; it != nullptr && r == POLICY_ENGINE_SUCCESS; r = policy_engine_string_list_next(it, &it)) {
-        const char *str = nullptr;
-        r = policy_engine_string_list_current(it, &str);
-        if (r != POLICY_ENGINE_SUCCESS) {
-            /* error occured */
-            break;
-        }
-        printf("%s\n", str);
+    Subject subject;
+    {
+        subject.InsertValue("M", "15");
+        subject.InsertValue("N", "www.baidu.com");
     }
-
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
-    }
-
-    r = POLICY_ENGINE_SUCCESS;
-    for (PolicyEngineStringList it = actions; it != nullptr && r == POLICY_ENGINE_SUCCESS; r = policy_engine_string_list_next(it, &it)) {
-        const char *str = nullptr;
-        r = policy_engine_string_list_current(it, &str);
-        if (r != POLICY_ENGINE_SUCCESS) {
-            /* error occured */
-            break;
-        }
-        printf("%s\n", str);
-    }
-
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
-    }
-
-    PolicyEngineHandle subject_attr = nullptr;
-    r = policy_engine_create_subject_handle(&subject_attr);
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
-    }
-
-    r = policy_engine_insert_into_subject(subject_attr, "username", "JOKE");
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
-    }
-
-    POLICY_ENGINE_MATCH_RESULT result;
-    r = policy_engine_match(subject_attr, "open", nullptr, &result);
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
-    }
-
-    if (result == PE_NO_MATCHED) {
-        /* blabla */
-    } else {
-        /* blabla */
-    }
-
-
-    r = policy_engine_module_exit();
-    if (r != POLICY_ENGINE_SUCCESS) {
-        /* error occured */
-        return -1;
-    }
-    return 0;
+    BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
+    BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+    delete (expr);
+    free_code(instructions);
+    ASSERT_TRUE(b_e == b_i);
+    ASSERT_TRUE(b_i == B_FALSE);
+    std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(15),N(www.baidu.com) ----FALSE";
+    mt::printOk(info.c_str());
 }
+
+TEST(EVAL_EXPRESSION_CASE_2) {
+    AstExpr *expr = nullptr;
+    {
+        //(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15
+        AstId *m = new AstId("M");
+        AstExpr *refm = new AstColumnRef(AstColumnRef::SUB, {m});
+        AstConstantValue *c10 = new AstConstantValue(AstExpr::C_STRING);
+        c10->SetValue("10");
+        AstExpr *egt = new AstBinaryOpExpr(AstExpr::COMP_GT, refm, c10);
+
+        AstId *n = new AstId("N");
+        AstExpr *refn = new AstColumnRef(AstColumnRef::SUB, {n});
+        AstConstantValue *cbd = new AstConstantValue(AstExpr::C_STRING);
+        cbd->SetValue("www.baidu.com");
+        AstExpr *eeq = new AstBinaryOpExpr(AstExpr::COMP_EQ, refn, cbd);
+
+        AstId *m1 = new AstId("M");
+        AstExpr *refm1 = new AstColumnRef(AstColumnRef::SUB, {m1});
+        AstConstantValue *c15 = new AstConstantValue(AstExpr::C_STRING);
+        c15->SetValue("15");
+        AstExpr *elt = new AstBinaryOpExpr(AstExpr::COMP_LT, refm1, c15);
+
+        AstExpr *or_expr = new AstBinaryOpExpr(AstExpr::OR, egt, eeq);
+        AstExpr *and_expr = new AstBinaryOpExpr(AstExpr::AND, or_expr, elt);
+        expr = and_expr;
+    }
+    std::vector<Instruction*> instructions;
+    {
+        gen_code(expr, instructions);
+    }
+    Subject subject;
+    {
+        subject.InsertValue("M", "12");
+    }
+    BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
+    BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+    delete (expr);
+    free_code(instructions);
+    ASSERT_TRUE(b_e == b_i);
+    ASSERT_TRUE(b_i == B_TRUE);
+    std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(12),N(NIL) ---- TRUE";
+    mt::printOk(info.c_str());
+}
+
+TEST(EVAL_EXPRESSION_CASE_3) {
+    AstExpr *expr = nullptr;
+    {
+        //(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15
+        AstId *m = new AstId("M");
+        AstExpr *refm = new AstColumnRef(AstColumnRef::SUB, {m});
+        AstConstantValue *c10 = new AstConstantValue(AstExpr::C_STRING);
+        c10->SetValue("10");
+        AstExpr *egt = new AstBinaryOpExpr(AstExpr::COMP_GT, refm, c10);
+
+        AstId *n = new AstId("N");
+        AstExpr *refn = new AstColumnRef(AstColumnRef::SUB, {n});
+        AstConstantValue *cbd = new AstConstantValue(AstExpr::C_STRING);
+        cbd->SetValue("www.baidu.com");
+        AstExpr *eeq = new AstBinaryOpExpr(AstExpr::COMP_EQ, refn, cbd);
+
+        AstId *m1 = new AstId("M");
+        AstExpr *refm1 = new AstColumnRef(AstColumnRef::SUB, {m1});
+        AstConstantValue *c15 = new AstConstantValue(AstExpr::C_STRING);
+        c15->SetValue("15");
+        AstExpr *elt = new AstBinaryOpExpr(AstExpr::COMP_LT, refm1, c15);
+
+        AstExpr *or_expr = new AstBinaryOpExpr(AstExpr::OR, egt, eeq);
+        AstExpr *and_expr = new AstBinaryOpExpr(AstExpr::AND, or_expr, elt);
+        expr = and_expr;
+    }
+    std::vector<Instruction*> instructions;
+    {
+        gen_code(expr, instructions);
+    }
+    Subject subject;
+    {
+        subject.InsertValue("M", "5");
+    }
+    BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
+    BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+    delete (expr);
+    free_code(instructions);
+    ASSERT_TRUE(b_e == b_i);
+    ASSERT_TRUE(b_i == B_UNKNOWN);
+    std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(5),N(NIL) ---- UNKNOWN";
+    mt::printOk(info.c_str());
+}
+
+TEST(EVAL_EXPRESSION_CASE_4) {
+    AstExpr *expr = nullptr;
+    {
+        //(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15
+        AstId *m = new AstId("M");
+        AstExpr *refm = new AstColumnRef(AstColumnRef::SUB, {m});
+        AstConstantValue *c10 = new AstConstantValue(AstExpr::C_STRING);
+        c10->SetValue("10");
+        AstExpr *egt = new AstBinaryOpExpr(AstExpr::COMP_GT, refm, c10);
+
+        AstId *n = new AstId("N");
+        AstExpr *refn = new AstColumnRef(AstColumnRef::SUB, {n});
+        AstConstantValue *cbd = new AstConstantValue(AstExpr::C_STRING);
+        cbd->SetValue("www.baidu.com");
+        AstExpr *eeq = new AstBinaryOpExpr(AstExpr::COMP_EQ, refn, cbd);
+
+        AstId *m1 = new AstId("M");
+        AstExpr *refm1 = new AstColumnRef(AstColumnRef::SUB, {m1});
+        AstConstantValue *c15 = new AstConstantValue(AstExpr::C_STRING);
+        c15->SetValue("15");
+        AstExpr *elt = new AstBinaryOpExpr(AstExpr::COMP_LT, refm1, c15);
+
+        AstExpr *or_expr = new AstBinaryOpExpr(AstExpr::OR, egt, eeq);
+        AstExpr *and_expr = new AstBinaryOpExpr(AstExpr::AND, or_expr, elt);
+        expr = and_expr;
+    }
+    std::vector<Instruction*> instructions;
+    {
+        gen_code(expr, instructions);
+    }
+    Subject subject;
+    {
+        subject.InsertValue("N", "www.yaha.com");
+    }
+    BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
+    BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+    delete (expr);
+    free_code(instructions);
+    ASSERT_TRUE(b_e == b_i);
+    ASSERT_TRUE(b_i == B_UNKNOWN);
+    std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(NIL),N(www.yaha.com) ---- UNKNOWN";
+    mt::printOk(info.c_str());
+}
+
+TEST(EVAL_EXPRESSION_CASE_5) {
+    AstExpr *expr = nullptr;
+    {
+        //(SUB.M > 10 AND SUB.N = 'www.baidu.com') AND SUB.M < 15
+        AstId *m = new AstId("M");
+        AstExpr *refm = new AstColumnRef(AstColumnRef::SUB, {m});
+        AstConstantValue *c10 = new AstConstantValue(AstExpr::C_STRING);
+        c10->SetValue("10");
+        AstExpr *egt = new AstBinaryOpExpr(AstExpr::COMP_GT, refm, c10);
+
+        AstId *n = new AstId("N");
+        AstExpr *refn = new AstColumnRef(AstColumnRef::SUB, {n});
+        AstConstantValue *cbd = new AstConstantValue(AstExpr::C_STRING);
+        cbd->SetValue("www.baidu.com");
+        AstExpr *eeq = new AstBinaryOpExpr(AstExpr::COMP_EQ, refn, cbd);
+
+        AstId *m1 = new AstId("M");
+        AstExpr *refm1 = new AstColumnRef(AstColumnRef::SUB, {m1});
+        AstConstantValue *c15 = new AstConstantValue(AstExpr::C_STRING);
+        c15->SetValue("15");
+        AstExpr *elt = new AstBinaryOpExpr(AstExpr::COMP_LT, refm1, c15);
+
+        AstExpr *or_expr = new AstBinaryOpExpr(AstExpr::AND, egt, eeq);
+        AstExpr *and_expr = new AstBinaryOpExpr(AstExpr::AND, or_expr, elt);
+        expr = and_expr;
+    }
+    std::vector<Instruction*> instructions;
+    {
+        gen_code(expr, instructions);
+    }
+    Subject subject;
+    {
+        subject.InsertValue("N", "www.yaha.com");
+    }
+    BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
+    BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+    delete (expr);
+    free_code(instructions);
+    ASSERT_TRUE(b_e == b_i);
+    ASSERT_TRUE(b_i == B_FALSE);
+    std::string info = "(SUB.M > 10 AND SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(NIL),N(www.yaha.com) ---- FALSE";
+    mt::printOk(info.c_str());
+}
+
+TEST(EVAL_EXPRESSION_CASE_6) {
+    AstExpr *expr = nullptr;
+    {
+        //NOT ((SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15)
+        AstId *m = new AstId("M");
+        AstExpr *refm = new AstColumnRef(AstColumnRef::SUB, {m});
+        AstConstantValue *c10 = new AstConstantValue(AstExpr::C_STRING);
+        c10->SetValue("10");
+        AstExpr *egt = new AstBinaryOpExpr(AstExpr::COMP_GT, refm, c10);
+
+        AstId *n = new AstId("N");
+        AstExpr *refn = new AstColumnRef(AstColumnRef::SUB, {n});
+        AstConstantValue *cbd = new AstConstantValue(AstExpr::C_STRING);
+        cbd->SetValue("www.baidu.com");
+        AstExpr *eeq = new AstBinaryOpExpr(AstExpr::COMP_EQ, refn, cbd);
+
+        AstId *m1 = new AstId("M");
+        AstExpr *refm1 = new AstColumnRef(AstColumnRef::SUB, {m1});
+        AstConstantValue *c15 = new AstConstantValue(AstExpr::C_STRING);
+        c15->SetValue("15");
+        AstExpr *elt = new AstBinaryOpExpr(AstExpr::COMP_LT, refm1, c15);
+
+        AstExpr *or_expr = new AstBinaryOpExpr(AstExpr::OR, egt, eeq);
+        AstExpr *and_expr = new AstBinaryOpExpr(AstExpr::AND, or_expr, elt);
+        expr = new AstUnaryOpExpr(AstExpr::NOT, and_expr);
+    }
+    std::vector<Instruction*> instructions;
+    {
+        gen_code(expr, instructions);
+    }
+    Subject subject;
+    {
+        subject.InsertValue("M", "15");
+        subject.InsertValue("N", "www.baidu.com");
+    }
+    BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
+    BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+    delete (expr);
+    free_code(instructions);
+    ASSERT_TRUE(b_e == b_i);
+    ASSERT_TRUE(b_i == B_TRUE);
+    std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(15),N(www.baidu.com) ---- B_TRUE";
+    mt::printOk(info.c_str());
+}
+
+
+TEST_MAIN()
+
+
+
+
+
+
+
+
+
+
+
+

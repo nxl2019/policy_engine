@@ -51,11 +51,13 @@ private:
 
 class AstConstantValue : public AstExpr {
 public:
+    static bool ConvertToInt(const std::string& src, int& rint);
     AstConstantValue(EXPR_TYPE expr_type);
     ~AstConstantValue();
     void SetValue(int data);
     void SetValue(const std::string& value);
     int  GetValueAsInt();
+    const char *GetValueAsStr() { return u._other_data; }
 private:
     union {
         int _int_data;

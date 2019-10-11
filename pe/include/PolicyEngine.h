@@ -15,6 +15,7 @@ public:
     static PolicyEngineReturn Init(const std::string& cchost, const std::string& ccport, const std::string& ccuser, const std::string& ccpwd, const std::string& tag,
                             unsigned int sync_interval_seconds);
     static PolicyEngineReturn Exit();
+    ~PolicyEngine();
     PolicyEngineReturn Analyze(StringList **psubjects_string_list, StringList **pactions_string_list);  /* thread safe */
     PolicyEngineReturn Match(Subject *subject, const std::string& action, POLICY_ENGINE_MATCH_RESULT *presult); /* thread safe */
 private:

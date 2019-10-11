@@ -33,6 +33,13 @@ PolicyEngineReturn PolicyEngine::Exit() {
     return POLICY_ENGINE_SUCCESS;
 }
 
+PolicyEngine::~PolicyEngine() {
+    for (auto it : _policys) {
+        delete (it);
+    }
+    _policys.clear();
+}
+
 PolicyEngineReturn PolicyEngine::Analyze(StringList **psubjects_string_list, StringList **pactions_string_list) {
     if (!_running_flag) return POLICY_ENGINE_MODULE_NOT_INIT;
     std::set<std::string> subs, acts;

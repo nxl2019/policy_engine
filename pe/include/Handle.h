@@ -5,8 +5,10 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <algorithm>
 #include "Value.h"
 #include "policy_engine.h"
+
 
 class Handle {
 public:
@@ -43,18 +45,24 @@ private:
 class Subject : public Handle {
 public:
     virtual POLICY_ENGINE_HANDLE_TYPE GetHandleType() const override { return PE_SUBJECT; }
-    Value *GetValueAsInt(const std::string& key) {
-        auto fd = _data.find(key);
-        if (fd == _data.end()) return new Value;
-        else return new Value(atoi(fd->second.c_str()));
+    Value GetValueAsInt(const std::string& key) {
+        std::string key1 = key;
+        std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
+        auto fd = _data.find(key1);
+        if (fd == _data.end()) return Value();
+        else return Value(atoi(fd->second.c_str()));
     }
-    Value *GetValueAsString(const std::string& key) {
-        auto fd = _data.find(key);
-        if (fd == _data.end()) return new Value;
-        else return new Value(fd->second.c_str());
+    Value GetValueAsString(const std::string& key) {
+        std::string key1 = key;
+        std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
+        auto fd = _data.find(key1);
+        if (fd == _data.end()) return Value();
+        else return Value(fd->second.c_str());
     }
     void InsertValue(const std::string& key, const std::string& value) {
-        _data[key] = value;
+        std::string key1 = key;
+        std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
+        _data[key1] = value;
     }
 private:
     std::map<std::string, std::string> _data;
