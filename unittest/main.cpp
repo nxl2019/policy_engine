@@ -4,6 +4,7 @@
 #include "translate.h"
 #include <time.h>
 #include "microtest.h"
+#include "policy_parse_test.h"
 
 
 TEST(EVAL_EXPRESSION_CASE_1) {
