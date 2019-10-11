@@ -57,6 +57,7 @@ PolicyEngineReturn policy_engine_destroy_subject(PolicyEngineSubject subject) {
 PolicyEngineReturn policy_engine_insert_into_subject(PolicyEngineSubject subject, const char *attribute_name, const char *attribute_value) {
     Handle *handle = (Handle*)subject;
     if (handle->GetHandleType() != PE_SUBJECT) return POLICY_ENGINE_TYPE_ERROR;
+    if (attribute_name == nullptr || attribute_value == nullptr) return POLICY_ENGINE_FAIL;
     dynamic_cast<Subject*>(handle)->InsertValue(attribute_name, attribute_value);
     return POLICY_ENGINE_SUCCESS;
 }
@@ -66,6 +67,7 @@ PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char 
     Handle *handle = (Handle*)subject;
     if (handle->GetHandleType() != PE_SUBJECT) return POLICY_ENGINE_TYPE_ERROR;
     if (resource != nullptr) return POLICY_ENGINE_FAIL;
-    return PolicyEngine::Ins()->Match(dynamic_cast<Subject*>(handle), action, presult);
+    std::string act = action == nullptr ? "" : action;
+    return PolicyEngine::Ins()->Match(dynamic_cast<Subject*>(handle), act, presult);
 }
 

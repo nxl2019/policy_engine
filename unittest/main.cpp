@@ -5,6 +5,8 @@
 #include <time.h>
 #include "microtest.h"
 #include "policy_parse_test.h"
+#include <thread>
+#include <vector>
 
 
 TEST(EVAL_EXPRESSION_CASE_1) {
@@ -363,6 +365,67 @@ TEST(EVAL_EXPRESSION_CASE_8) {
     mt::printOk(info.c_str());
 }
 
+TEST(EVAL_EXPRESSION_CASE_9_MULTI_THREAD) {
+    AstExpr *expr = nullptr;
+    {
+        //(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15
+        AstId *m = new AstId("M");
+        AstExpr *refm = new AstColumnRef(AstColumnRef::SUB, {m});
+        AstConstantValue *c10 = new AstConstantValue(AstExpr::C_STRING);
+        c10->SetValue("10");
+        AstExpr *egt = new AstBinaryOpExpr(AstExpr::COMP_GT, refm, c10);
+
+        AstId *n = new AstId("N");
+        AstExpr *refn = new AstColumnRef(AstColumnRef::SUB, {n});
+        AstConstantValue *cbd = new AstConstantValue(AstExpr::C_STRING);
+        cbd->SetValue("www.baidu.com");
+        AstExpr *eeq = new AstBinaryOpExpr(AstExpr::COMP_EQ, refn, cbd);
+
+        AstId *m1 = new AstId("M");
+        AstExpr *refm1 = new AstColumnRef(AstColumnRef::SUB, {m1});
+        AstConstantValue *c15 = new AstConstantValue(AstExpr::C_STRING);
+        c15->SetValue("15");
+        AstExpr *elt = new AstBinaryOpExpr(AstExpr::COMP_LT, refm1, c15);
+
+        AstExpr *or_expr = new AstBinaryOpExpr(AstExpr::OR, egt, eeq);
+        AstExpr *and_expr = new AstBinaryOpExpr(AstExpr::AND, or_expr, elt);
+        expr = and_expr;
+    }
+    std::vector<Instruction*> instructions;
+    {
+        gen_code(expr, instructions);
+    }
+    Subject subject;
+    {
+        subject.InsertValue("n", "WWW.BAIDU.COM");
+        subject.InsertValue("M", "5");
+    }
+
+    std::vector<std::thread*> threads;
+    for (unsigned i = 0; i < 8; ++i) {
+        threads.push_back(new std::thread([i, expr, &instructions, &subject](){
+            BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
+            BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+            if (b_e != b_i || b_i != B_TRUE) {
+                std::string info = "EVAL_EXPRESSION_CASE_9_MULTI_THREAD at ";
+                info += std::to_string(i);
+                mt::printFailed(info.c_str());
+            }
+        }));
+    }
+
+    for (auto it : threads) {
+        it->join();
+        delete (it);
+    }
+
+    threads.clear();
+
+    delete (expr);
+    free_code(instructions);
+    std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(12),N(NIL) ---- TRUE";
+    mt::printOk(info.c_str());
+}
 
 TEST_MAIN()
 
