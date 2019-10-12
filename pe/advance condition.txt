@@ -1,0 +1,42 @@
+<boolean expression> ::= <predicate> { <logic op> <predicate> }...
+
+<predicate> ::= <value> <compare op> <value>
+    | <left paren> <boolean expression> <right paren>
+
+<value> ::= <column ref> | <string literal> | <dec number literal>
+
+<column ref> ::= <type> <dot> <identifier list>
+    | <identifier>      /* this means a variable defined in cc  */
+
+<identifier list> ::= <identifier> { <dot> <identifier> }...
+
+<logic op> ::= OR | AND
+
+<compare op> ::= <equal> | <not equal> | <less than> | <less than or equal> | <greater than> | <greater than or equal>
+
+<dot> ::= .
+
+<equal> ::= =
+
+<not equal> ::= !=
+
+<less than> ::= <
+
+<less than or equal> ::= <=
+
+<greater than> ::= >
+
+<greater than or equal> ::= >=
+
+<identifier> ::= <simple identifier>
+    | <string literal>
+
+<simple identifier> ::= !! See the Syntax Rules Of Lex
+
+<string literal> ::= !! See the Syntax Rules Of Lex
+
+<dec number literal> ::= !! See the Syntax Rules Of Lex
+
+<type> ::= HOST | USER | APPLICATION | RESOURCE
+
+
