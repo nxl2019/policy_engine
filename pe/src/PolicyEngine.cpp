@@ -3,6 +3,8 @@
 #include "Handle.h"
 #include <shared_mutex>
 #include <thread>
+#include "CCLoginHelper.h"
+#include "CCPolicyHelper.h"
 
 PolicyEngine *PolicyEngine::_ins = nullptr;
 bool PolicyEngine::_running_flag = false;
@@ -81,8 +83,17 @@ PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& acti
 
 void PolicyEngine::Update() {
     std::vector<Policy*> tmp;
-    std::vector<std::string> jsons;
-    /* todo fecth policy jsons */
+    std::string str_session_cookie = CCLoginHelper::Login(_cchost, _ccport, _ccuser, _ccpwd);
+    if (str_session_cookie.empty()) {
+        printf("cc session cookie is empty.");
+        return ;
+    }
+    std::list<std::string> jsons;
+    if (!CCPolicyHelper::SyncPolicy(_cchost, _ccport, str_session_cookie, _tag, jsons)) {
+        printf("get policies failed.");
+        return ;
+    }
+
     for (auto it : jsons) {
         Policy *policy = new Policy;
         PolicyEngineReturn r = policy->ParseFromJson(it);

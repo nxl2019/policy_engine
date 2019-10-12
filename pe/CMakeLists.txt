@@ -1,4 +1,5 @@
 include_directories(./include)
+include_directories(../policymgr/include)
 include_directories(../tool)
 aux_source_directory(./src SRCS)
 
