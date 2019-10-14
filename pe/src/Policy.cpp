@@ -19,7 +19,7 @@ AstExpr * parse_from_expression(const Json::Value & action_components);
 
 void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::set<std::string> & attributes, std::set<std::string> & resourceattrs); /* actions and attibutes recursive query function */
 
-bool parse_column_ref(const std::string & s, AstIds & ids); /* parser r-value to column-ref */
+bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE type); /* parser r-value to column-ref */
 
 Policy::~Policy() {
     if(_expr) delete (_expr);
@@ -28,7 +28,7 @@ Policy::~Policy() {
     _pres_expr = nullptr;
 }
 
-bool parse_column_ref(const std::string & s, AstIds & ids) {
+bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE type) {
     if(s.length() < 4) return false;
     if(s[0] != '$') return false;
     if(s[1] != '{') return false;
@@ -37,12 +37,34 @@ bool parse_column_ref(const std::string & s, AstIds & ids) {
     if(s[len-1] != '}') return false;
     int i = 2;
     int start = i;
+    int ifirst = i;
+    //filter first dot ,  if type = resource
+    if(type == AstColumnRef::RES) {
+        while(i <= len-1) {
+            if(s[i] == '.'  ) {
+                i++;
+                break;
+            }
+            i++;
+        }
+    }
+    //second dot is resource/subject model name
+    start = i;
     while(i <= len-1) {
-        if(s[i] == '.' || (s[i] == '}' && i == len-1) ) {
+        if (s[i] == '.' ) {
             std::string substr = s.substr(start, i - start);
-            AstId * pid = new AstId(substr);
-            ids.push_back(pid);
-            start = i+1;
+            ids.push_back(new AstId(substr));
+            i++;
+            break;
+        }
+        i++;
+    }
+    //final is attribute name
+    start = i;
+    while (i <= len-1) {
+        if (s[i] == '}' && i == len-1) {
+            std::string substr = s.substr(start, i - start);
+            ids.push_back(new AstId(substr));
         }
         i++;
     }
@@ -70,9 +92,14 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
         pexpr_right = pexpr_temp;
     } else if (rhs_type.compare("SUBJECT") == 0){
         AstIds ids;
-        parse_column_ref(constant_value, ids);
-        pexpr_right = new AstColumnRef(type, ids);
-        /* todo */
+        parse_column_ref(constant_value, ids, AstColumnRef::SUB);
+        pexpr_right = new AstColumnRef(AstColumnRef::SUB, ids);
+
+    } else if (rhs_type.compare("RESOURCE") == 0) {
+        AstIds ids;
+        parse_column_ref(constant_value, ids, AstColumnRef::RES);
+        pexpr_right = new AstColumnRef(AstColumnRef::RES, ids);
+
     }
 
     std::string op_cond = json["operator"].asString();
@@ -301,12 +328,13 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
     //advance
     Json::Value expression = root["expression"];
     AstExpr * pexp_expression = parse_from_expression(expression);
+    printf("aaa=%s\n", expression.asCString());
 
     AstExpr * pexpr_resource_result = NULL; /// resource tree  can't be calculated
     if (AstExpr::C_TRUE != pexp_resource_comps->GetExprType()) {
         pexpr_resource_result = new AstConstantValue(AstExpr::C_UNKNOWN);
     } else {
-        pexpr_resource_result = pexp_resource_comps;
+        pexpr_resource_result = new AstConstantValue(AstExpr::C_TRUE);
     }
 
     AstExpr * pexp_sa = new AstBinaryOpExpr(AstExpr::AND, pexp_action_comps, pexp_subject_comps );
@@ -359,15 +387,15 @@ bool Policy::AnalyzeReference() {
 }
 
 void Policy::GetAction(std::set<std::string>& ractions) {
-    _actions = ractions;
+    ractions.insert(_actions.begin(), _actions.end());
 }
 
 void Policy::GetSubjectAttributes(std::set<std::string>& subjectattrs) {
-    _subjectattrs = subjectattrs;
+    subjectattrs.insert(_subjectattrs.begin(), _subjectattrs.end());
 }
 
 void Policy::GetResourceAttributes(std::set<std::string>& resourceattrs) {
-    _resourceattrs = resourceattrs;
+    resourceattrs.insert(_resourceattrs.begin(), _resourceattrs.end());
 }
 
 PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, BOOLEAN& rboolean) {
@@ -378,11 +406,15 @@ PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& a
 
 std::string print_ids(const AstIds & ids) {
     std::string  ref;
+    ref +="\"";
     for (unsigned int i = 0; i < ids.size(); ++i) {
+
         ref += ids[i]->GetId();
         if (i != ids.size()-1) {
-            ref += ".";
+            ref += "\".";
         }
+        ref +="\"";
+
     }
     return  ref;
 }
