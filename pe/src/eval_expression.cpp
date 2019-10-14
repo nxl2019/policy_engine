@@ -9,6 +9,14 @@
 #include <Instruction.h>
 #include <regex>
 
+struct RunTimeVars {
+    Subject     *_subject;
+    Value       *_action;
+    Resource    *_resource;
+    Host        *_host;
+    App         *_app;
+};
+
 Value *make_action(const char *action) {
     Value *act = nullptr;
     if (action == nullptr || strlen(action) == 0) {
@@ -18,23 +26,23 @@ Value *make_action(const char *action) {
     }
     return act;
 }
-Value eval(AstExpr *expr, Subject *subject, Value *action);
-Value test_int(AstExpr *expr, Subject *subject, Value *action);
-Value test_int_str(AstExpr *expr, Subject *subject, Value *action);
-Value test_like(AstExpr *expr, Subject *subject, Value *action);
+Value eval(AstExpr *expr, RunTimeVars *run_time_vars);
+Value test_int(AstExpr *expr, RunTimeVars *run_time_vars);
+Value test_int_str(AstExpr *expr, RunTimeVars *run_time_vars);
+Value test_like(AstExpr *expr, RunTimeVars *run_time_vars);
 
-Value eval(AstExpr *expr, Subject *subject, Value *action) {
+Value eval(AstExpr *expr, RunTimeVars *run_time_vars) {
     switch (expr->GetExprType()) {
         case AstExpr::OR: {
             AstBinaryOpExpr *or_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-            Value l = eval(or_expr->GetLeft(), subject, action);
+            Value l = eval(or_expr->GetLeft(), run_time_vars);
             if (l.GetType() != Value::V_BOOLEAN) {
                 return Value(B_UNKNOWN);
             }
             if (l.GetValueAsBoolean() == B_TRUE) {
                 return Value(B_TRUE);
             }
-            Value r = eval(or_expr->GetRight(), subject, action);
+            Value r = eval(or_expr->GetRight(), run_time_vars);
             if (r.GetType() != Value::V_BOOLEAN) {
                 return Value(B_UNKNOWN);
             }
@@ -48,14 +56,14 @@ Value eval(AstExpr *expr, Subject *subject, Value *action) {
         } break;
         case AstExpr::AND: {
             AstBinaryOpExpr *and_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-            Value l = eval(and_expr->GetLeft(), subject, action);
+            Value l = eval(and_expr->GetLeft(), run_time_vars);
             if (l.GetType() != Value::V_BOOLEAN) {
                 return Value(B_UNKNOWN);
             }
             if (l.GetValueAsBoolean() == B_FALSE) {
                 return Value(B_FALSE);
             }
-            Value r = eval(and_expr->GetRight(), subject, action);
+            Value r = eval(and_expr->GetRight(), run_time_vars);
             if (r.GetType() != Value::V_BOOLEAN) {
                 return Value(B_UNKNOWN);
             }
@@ -71,19 +79,19 @@ Value eval(AstExpr *expr, Subject *subject, Value *action) {
         case AstExpr::COMP_LT: /* go through */
         case AstExpr::COMP_GE: /* go through */
         case AstExpr::COMP_GT: {
-            return test_int(expr, subject, action);
+            return test_int(expr, run_time_vars);
         } break;
         case AstExpr::COMP_EQ: /* go through */
         case AstExpr::COMP_NEQ: {
-            return test_int_str(expr, subject, action);
+            return test_int_str(expr, run_time_vars);
         } break;
         case AstExpr::LIKE: /* go through */
         case AstExpr::NOT_LIKE: {
-            return test_like(expr, subject, action);
+            return test_like(expr, run_time_vars);
         } break;
         case AstExpr::NOT: {
             AstUnaryOpExpr *not_expr = dynamic_cast<AstUnaryOpExpr*>(expr);
-            Value v = eval(not_expr->GetExpr(), subject, action);
+            Value v = eval(not_expr->GetExpr(), run_time_vars);
             if (v.GetType() != Value::V_BOOLEAN) {
                 return Value(B_UNKNOWN);
             }
@@ -100,11 +108,23 @@ Value eval(AstExpr *expr, Subject *subject, Value *action) {
             if (ref->GetColType() == AstColumnRef::RES) {
                 return Value(B_UNKNOWN);    /* not support */
             } else if (ref->GetColType() == AstColumnRef::ACTION) {
-                return *action;
+                return *(run_time_vars->_action);
+            } else if (ref->GetColType() == AstColumnRef::RES) {
+                auto ids = ref->GetColumn();
+                assert(ids.size() > 0);
+                return run_time_vars->_resource->GetValueAsString(ids.back()->GetId());
+            } else if (ref->GetColType() == AstColumnRef::HOST) {
+                auto ids = ref->GetColumn();
+                assert(ids.size() > 0);
+                return run_time_vars->_host->GetValueAsString(ids.back()->GetId());
+            } else if (ref->GetColType() == AstColumnRef::APP) {
+                auto ids = ref->GetColumn();
+                assert(ids.size() > 0);
+                return run_time_vars->_app->GetValueAsString(ids.back()->GetId());
             } else if (ref->GetColType() == AstColumnRef::SUB) {
                 auto ids = ref->GetColumn();
                 assert(ids.size() > 0);
-                return subject->GetValueAsString(ids.back()->GetId());
+                return run_time_vars->_subject->GetValueAsString(ids.back()->GetId());
             } else {
                 assert(false);
             }
@@ -130,16 +150,16 @@ Value eval(AstExpr *expr, Subject *subject, Value *action) {
     return Value(B_UNKNOWN);
 }
 
-Value test_int(AstExpr *expr, Subject *subject, Value *action) {
+Value test_int(AstExpr *expr, RunTimeVars *run_time_vars) {
     AstExpr::EXPR_TYPE op = expr->GetExprType();
     assert(op == AstExpr::COMP_LE || op == AstExpr::COMP_LT ||
     op == AstExpr::COMP_GE || op == AstExpr::COMP_GT);
     AstBinaryOpExpr *le_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-    Value r = eval(le_expr->GetRight(), subject, action);
+    Value r = eval(le_expr->GetRight(), run_time_vars);
     if (r.GetType() != Value::V_INT && !r.CanConvertToInt()) {
         return Value(B_UNKNOWN);
     }
-    Value l = eval(le_expr->GetLeft(), subject, action);
+    Value l = eval(le_expr->GetLeft(), run_time_vars);
     if (l.GetType() != Value::V_INT && !l.CanConvertToInt()) {
         return Value(B_UNKNOWN);
     }
@@ -177,14 +197,14 @@ Value test_int(AstExpr *expr, Subject *subject, Value *action) {
     return Value(B_UNKNOWN);
 }
 
-Value test_int_str(AstExpr *expr, Subject *subject, Value *action) {
+Value test_int_str(AstExpr *expr, RunTimeVars *run_time_vars) {
     AstExpr::EXPR_TYPE op = expr->GetExprType();
     assert(op == AstExpr::COMP_EQ || op == AstExpr::COMP_NEQ);
     AstBinaryOpExpr *le_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-    Value r = eval(le_expr->GetRight(), subject, action);
+    Value r = eval(le_expr->GetRight(), run_time_vars);
     if (r.GetType() != Value::V_INT && !r.CanConvertToInt()) {
         if (r.GetType() == Value::V_STRING) {
-            Value l = eval(le_expr->GetLeft(), subject, action);
+            Value l = eval(le_expr->GetLeft(), run_time_vars);
             if (l.GetType() != Value::V_STRING) {
                 return Value(B_UNKNOWN);
             }
@@ -200,7 +220,7 @@ Value test_int_str(AstExpr *expr, Subject *subject, Value *action) {
         }
         return Value(B_UNKNOWN);
     }
-    Value l = eval(le_expr->GetLeft(), subject, action);
+    Value l = eval(le_expr->GetLeft(), run_time_vars);
     if (l.GetType() != Value::V_INT && !l.CanConvertToInt()) {
         return Value(B_UNKNOWN);
     }
@@ -238,16 +258,16 @@ std::regex to_regex(const std::string& v) {
     return std::regex(buf.str());
 }
 
-Value test_like(AstExpr *expr, Subject *subject, Value *action) {
+Value test_like(AstExpr *expr, RunTimeVars *run_time_vars) {
     AstExpr::EXPR_TYPE op = expr->GetExprType();
     assert(op == AstExpr::LIKE || op == AstExpr::NOT_LIKE);
     AstBinaryOpExpr *binary_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-    Value r = eval(binary_expr->GetRight(), subject, action);
+    Value r = eval(binary_expr->GetRight(), run_time_vars);
     if (r.GetType() != Value::V_STRING) {
         return Value(B_UNKNOWN);
     }
     std::regex pattern = to_regex(r.GetValueAsStr());
-    Value l = eval(binary_expr->GetLeft(), subject, action);
+    Value l = eval(binary_expr->GetLeft(), run_time_vars);
     if (l.GetType() != Value::V_STRING) {
         return Value(B_UNKNOWN);
     }
@@ -262,12 +282,16 @@ Value test_like(AstExpr *expr, Subject *subject, Value *action) {
 }
 
 
-BOOLEAN eval_expression(AstExpr *expr, Subject *subject, const char *action) {
-    if (expr == nullptr || subject == nullptr) {
+BOOLEAN eval_expression(AstExpr *expr, Subject *subject, const std::string& action, Resource *res, Host *host, App *app) {
+    if (expr == nullptr) {
         return B_UNKNOWN;
     }
-    Value *act = make_action(action);
-    Value v = eval(expr, subject, act);
+    if (subject->size() == 0 && action.length() == 0 && res->size() == 0 && host->size() == 0 && app->size() == 0) {
+        return B_UNKNOWN;
+    }
+    Value *act = make_action(action.c_str());
+    RunTimeVars run_time_vars{ subject, act, res, host, app };
+    Value v = eval(expr, &run_time_vars);
     delete (act);
     if (v.GetType() == Value::V_BOOLEAN) {
         return v.GetValueAsBoolean();
@@ -395,8 +419,11 @@ Value *test_like(Value *left, Value *right, AstExpr::EXPR_TYPE op) {
     }
 }
 
-BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *subject, const char *action) {
-    if (instructions.size() == 0 || subject == nullptr) return B_UNKNOWN;
+BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *subject, const std::string& action, Resource *res, Host *host, App *app) {
+    if (instructions.size() == 0 ) return B_UNKNOWN;
+    if (subject->size() == 0 && action.length() == 0 && res->size() == 0 && host->size() == 0 && app->size() == 0) {
+        return B_UNKNOWN;
+    }
     std::stack<Value*> stk;
     for (size_t i = 0; i < instructions.size();) {
         Instruction *it = instructions[i];
@@ -404,9 +431,13 @@ BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *
             case Instruction::LAB: { ++i; } break;
             case Instruction::PUSH_VAR: {
                 if (it->u._var._var_type == AstColumnRef::RES) {
-                    stk.push(new Value); /* todo */
+                    stk.push(new Value(res->GetValueAsString(it->u._var._var_name)));
+                } else if (it->u._var._var_type == AstColumnRef::HOST) {
+                    stk.push(new Value(host->GetValueAsString(it->u._var._var_name)));
+                } else if (it->u._var._var_type == AstColumnRef::APP) {
+                    stk.push(new Value(app->GetValueAsString(it->u._var._var_name)));
                 } else if (it->u._var._var_type == AstColumnRef::ACTION) {
-                    stk.push(make_action(action));
+                    stk.push(make_action(action.c_str()));
                 } else if (it->u._var._var_type == AstColumnRef::SUB) {
                     stk.push(new Value(subject->GetValueAsString(it->u._var._var_name)));
                 } else {

@@ -65,6 +65,7 @@ public:
         std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
         _data[key1] = value;
     }
+    size_t size() { return _data.size(); }
 private:
     POLICY_ENGINE_HANDLE_TYPE _dictionary_type;
     std::map<std::string, std::string> _data;

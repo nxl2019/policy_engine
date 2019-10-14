@@ -400,7 +400,7 @@ void Policy::GetResourceAttributes(std::set<std::string>& resourceattrs) {
 
 PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, BOOLEAN& rboolean) {
     if (NULL == subject)  return  POLICY_ENGINE_FAIL;
-    rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action.c_str());
+//    rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action.c_str());
     return POLICY_ENGINE_SUCCESS;
 }
 

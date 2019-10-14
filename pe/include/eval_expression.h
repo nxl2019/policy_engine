@@ -8,9 +8,9 @@
 class AstExpr;
 class Instruction;
 
-BOOLEAN eval_expression(AstExpr *expr, Subject *subject, const char *action);
+BOOLEAN eval_expression(AstExpr *expr, Subject *subject, const std::string& action, Resource *res, Host *host, App *app);
 
-BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *subject, const char *action);
+BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *subject, const std::string& action, Resource *res, Host *host, App *app);
 
 
 #endif

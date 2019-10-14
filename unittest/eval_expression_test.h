@@ -39,13 +39,13 @@ TEST(EVAL_EXPRESSION_CASE_1) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("M", "15");
             subject.InsertValue("N", "www.baidu.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -84,12 +84,12 @@ TEST(EVAL_EXPRESSION_CASE_2) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("M", "12");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -128,12 +128,12 @@ TEST(EVAL_EXPRESSION_CASE_3) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("M", "5");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -172,12 +172,12 @@ TEST(EVAL_EXPRESSION_CASE_4) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("N", "www.yaha.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -216,12 +216,12 @@ TEST(EVAL_EXPRESSION_CASE_5) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("N", "www.yaha.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -260,13 +260,13 @@ TEST(EVAL_EXPRESSION_CASE_6) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("M", "15");
             subject.InsertValue("N", "www.baidu.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -306,12 +306,12 @@ TEST(EVAL_EXPRESSION_CASE_7) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("N", "www.yaha.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -350,13 +350,13 @@ TEST(EVAL_EXPRESSION_CASE_8) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("n", "WWW.BAIDU.COM");
             subject.InsertValue("M", "5");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -395,7 +395,7 @@ TEST(EVAL_EXPRESSION_CASE_9_MULTI_THREAD) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("n", "WWW.BAIDU.COM");
             subject.InsertValue("M", "5");
@@ -403,9 +403,9 @@ TEST(EVAL_EXPRESSION_CASE_9_MULTI_THREAD) {
 
         std::vector<std::thread*> threads;
         for (unsigned i = 0; i < 8; ++i) {
-            threads.push_back(new std::thread([i, expr, &instructions, &subject](){
-                BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-                BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+            threads.push_back(new std::thread([i, expr, &instructions, &subject, &resource, &host, &app](){
+                BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+                BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
                 if (b_e != b_i || b_i != B_TRUE) {
                     std::string info = "EVAL_EXPRESSION_CASE_9_MULTI_THREAD at ";
                     info += std::to_string(i);
@@ -449,12 +449,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_1) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("EMAILADDRESS", "james.polk@qapf1.qalab01.nextlabs.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -484,12 +484,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_2) {
         {
             gen_code(expr, instructions);
         }
-        Subject subject(PE_SUBJECT);
+        Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
         {
             subject.InsertValue("EMAILADDRESS", "EMMA.polk@qapf1.qalab01.nextlabs.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN");
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN");
+        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
@@ -519,12 +519,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_3) {
     {
         gen_code(expr, instructions);
     }
-    Subject subject(PE_SUBJECT);
+    Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
     {
         subject.InsertValue("EMAILADDRESS", "james.polk@qapf1.qalab01.nextlabs.com");
     }
-    BOOLEAN b_e = eval_expression(expr, &subject, "EDIT");
-    BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT");
+    BOOLEAN b_e = eval_expression(expr, &subject, "EDIT", &resource, &host, &app);
+    BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT", &resource, &host, &app);
     delete (expr);
     free_code(instructions);
     ASSERT_TRUE(b_e == b_i);
@@ -554,12 +554,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_4) {
     {
         gen_code(expr, instructions);
     }
-    Subject subject(PE_SUBJECT);
+    Subject subject(PE_SUBJECT), resource(PE_RESOURCE), host(PE_HOST), app(PE_APPLICATION);
     {
 
     }
-    BOOLEAN b_e = eval_expression(expr, &subject, "EDIT");
-    BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT");
+    BOOLEAN b_e = eval_expression(expr, &subject, "EDIT", &resource, &host, &app);
+    BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT", &resource, &host, &app);
     delete (expr);
     free_code(instructions);
     ASSERT_TRUE(b_e == b_i);
