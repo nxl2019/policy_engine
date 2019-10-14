@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stack>
 #include <Instruction.h>
+#include <regex>
 
 Value *make_action(const char *action) {
     Value *act = nullptr;
@@ -20,6 +21,7 @@ Value *make_action(const char *action) {
 Value eval(AstExpr *expr, Subject *subject, Value *action);
 Value test_int(AstExpr *expr, Subject *subject, Value *action);
 Value test_int_str(AstExpr *expr, Subject *subject, Value *action);
+Value test_like(AstExpr *expr, Subject *subject, Value *action);
 
 Value eval(AstExpr *expr, Subject *subject, Value *action) {
     switch (expr->GetExprType()) {
@@ -75,6 +77,10 @@ Value eval(AstExpr *expr, Subject *subject, Value *action) {
         case AstExpr::COMP_NEQ: {
             return test_int_str(expr, subject, action);
         } break;
+        case AstExpr::LIKE: /* go through */
+        case AstExpr::NOT_LIKE: {
+            return test_like(expr, subject, action);
+        } break;
         case AstExpr::NOT: {
             AstUnaryOpExpr *not_expr = dynamic_cast<AstUnaryOpExpr*>(expr);
             Value v = eval(not_expr->GetExpr(), subject, action);
@@ -115,6 +121,7 @@ Value eval(AstExpr *expr, Subject *subject, Value *action) {
         case AstExpr::C_NUMBER: {
             return Value(dynamic_cast<AstConstantValue*>(expr)->GetValueAsInt());
         } break;
+        case AstExpr::C_PATTERN: /* go through */
         case AstExpr::C_STRING: {
             return Value(dynamic_cast<AstConstantValue*>(expr)->GetValueAsStr());
         } break;
@@ -215,6 +222,43 @@ Value test_int_str(AstExpr *expr, Subject *subject, Value *action) {
         assert(false);
     }
     return Value(B_UNKNOWN);
+}
+
+std::regex to_regex(const std::string& v) {
+    std::stringstream buf{};
+    for (size_t i = 0; i < v.length(); ++i) {
+        if (v.at(i) == '*' && (i+1 < v.length()) && v.at(i+1) == '*') {
+            buf << ".*";
+            ++i;    /* skip one '*' */
+        } else {
+            buf << v.at(i);
+        }
+    }
+    std::string ttt = buf.str();
+    return std::regex(buf.str());
+}
+
+Value test_like(AstExpr *expr, Subject *subject, Value *action) {
+    AstExpr::EXPR_TYPE op = expr->GetExprType();
+    assert(op == AstExpr::LIKE || op == AstExpr::NOT_LIKE);
+    AstBinaryOpExpr *binary_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
+    Value r = eval(binary_expr->GetRight(), subject, action);
+    if (r.GetType() != Value::V_STRING) {
+        return Value(B_UNKNOWN);
+    }
+    std::regex pattern = to_regex(r.GetValueAsStr());
+    Value l = eval(binary_expr->GetLeft(), subject, action);
+    if (l.GetType() != Value::V_STRING) {
+        return Value(B_UNKNOWN);
+    }
+    bool matched = std::regex_match(l.GetValueAsStr(), pattern);
+    if (op == AstExpr::LIKE) {
+        if (matched) return Value(B_TRUE);
+        else return Value(B_FALSE);
+    } else {
+        if (matched) return Value(B_FALSE);
+        else return Value(B_TRUE);
+    }
 }
 
 
@@ -336,6 +380,21 @@ Value *test_and(Value *left, Value *right) {
     return new Value(B_TRUE);
 }
 
+Value *test_like(Value *left, Value *right, AstExpr::EXPR_TYPE op) {
+    if (left->GetType() != Value::V_STRING || right->GetType() != Value::V_STRING) {
+        return new Value(B_UNKNOWN);
+    }
+    std::regex pattern = to_regex(right->GetValueAsStr());
+    bool matched = std::regex_match(left->GetValueAsStr(), pattern);
+    if (op == AstExpr::LIKE) {
+        if (matched) return new Value(B_TRUE);
+        else return new Value(B_FALSE);
+    } else {
+        if (matched) return new Value(B_FALSE);
+        else return new Value(B_TRUE);
+    }
+}
+
 BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *subject, const char *action) {
     if (instructions.size() == 0 || subject == nullptr) return B_UNKNOWN;
     std::stack<Value*> stk;
@@ -345,7 +404,7 @@ BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *
             case Instruction::LAB: { ++i; } break;
             case Instruction::PUSH_VAR: {
                 if (it->u._var._var_type == AstColumnRef::RES) {
-                    assert(false);  /* not support */
+                    stk.push(new Value); /* todo */
                 } else if (it->u._var._var_type == AstColumnRef::ACTION) {
                     stk.push(make_action(action));
                 } else if (it->u._var._var_type == AstColumnRef::SUB) {
@@ -411,6 +470,14 @@ BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *
                         } break;
                         case AstExpr::AND: {
                             Value *r = test_and(left, right);
+                            stk.push(r);
+                            delete (left); left = nullptr;
+                            delete (right); right = nullptr;
+                            ++i;
+                        } break;
+                        case AstExpr::LIKE: /* go through */
+                        case AstExpr::NOT_LIKE: {
+                            Value *r = test_like(left, right, it->u._op);
                             stk.push(r);
                             delete (left); left = nullptr;
                             delete (right); right = nullptr;

@@ -54,6 +54,8 @@ void translate(AstExpr *expr, std::vector<Instruction*>& rinstructions, unsigned
         case AstExpr::COMP_LT: /* go through */
         case AstExpr::COMP_LE: /* go through */
         case AstExpr::COMP_EQ: /* go through */
+        case AstExpr::LIKE: /* go through */
+        case AstExpr::NOT_LIKE: /* go through */
         case AstExpr::COMP_NEQ: {
             AstBinaryOpExpr *binary_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
             translate(binary_expr->GetLeft(), rinstructions, _lab);
@@ -83,6 +85,7 @@ void translate(AstExpr *expr, std::vector<Instruction*>& rinstructions, unsigned
         case AstExpr::C_NUMBER: {
             assert(false);
         } break;
+        case AstExpr::C_PATTERN: /* go through */
         case AstExpr::C_STRING: {
             AstConstantValue *value = dynamic_cast<AstConstantValue*>(expr);
             rinstructions.push_back(new Instruction(value->GetValueAsStr()));

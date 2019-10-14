@@ -57,7 +57,7 @@ PolicyEngineReturn PolicyEngine::Analyze(StringList **psubjects_string_list, Str
     return POLICY_ENGINE_SUCCESS;
 }
 
-PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& action, POLICY_ENGINE_MATCH_RESULT *presult) {
+PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& action, Resource *res, Host *host, App *app, POLICY_ENGINE_MATCH_RESULT *presult) {
     if (!_running_flag) return POLICY_ENGINE_MODULE_NOT_INIT;
     std::vector<BOOLEAN > booleans;
     {

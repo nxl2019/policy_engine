@@ -18,7 +18,7 @@ public:
         /* UNARY */
                 NOT,
         /* CONSTANT */
-                 C_TRUE, C_FALSE, C_UNKNOWN, C_NULL, C_NUMBER, C_STRING,
+                 C_TRUE, C_FALSE, C_UNKNOWN, C_NULL, C_NUMBER, C_STRING, C_PATTERN,
         /* EXPR_COLUMN_REF */
                 EXPR_COLUMN_REF,
         /* EXPER_NOT_SUPPORT */
@@ -78,7 +78,7 @@ typedef std::vector<AstId*>                 AstIds;
 
 class AstColumnRef : public AstExpr {
 public:
-    enum COL_TYPE { RES, SUB, ACTION };
+    enum COL_TYPE { RES, SUB, APP, HOST, ACTION, OTHER };
     AstColumnRef(COL_TYPE col_type, const AstIds& ids);
     ~AstColumnRef();
     COL_TYPE                    GetColType();

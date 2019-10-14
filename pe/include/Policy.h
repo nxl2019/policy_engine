@@ -5,8 +5,7 @@
 #include <set>
 #include "Value.h"
 #include "policy_engine.h"
-
-class Subject;
+#include "Handle.h"
 
 class AstExpr;
 

@@ -3,8 +3,8 @@
 
 #include <vector>
 #include "Value.h"
+#include "Handle.h"
 
-class Subject;
 class AstExpr;
 class Instruction;
 

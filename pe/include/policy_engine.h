@@ -23,21 +23,23 @@ typedef void* PolicyEngineHandle;
 typedef PolicyEngineHandle PolicyEngineStringList;
 typedef PolicyEngineHandle PolicyEngineSubject;
 typedef PolicyEngineHandle PolicyEngineResource;
+typedef PolicyEngineHandle PolicyEngineHost;
+typedef PolicyEngineHandle PolicyEngineApplication;
 
 #define POLICY_ENGINE_TODO 1
 #define POLICY_ENGINE_SUCCESS 0
 #define POLICY_ENGINE_FAIL -1
 #define POLICY_ENGINE_TYPE_ERROR -2
 #define POLICY_ENGINE_MODULE_NOT_INIT -3
+#define POLICY_ENGINE_INVALID_HANDLE -4
 
 /*
  * pe module will parse and analyze the policy's subject component and action component
  * operator support
  * NUMBER  EQ  NEQ  LT  LE  GT  GE
  * STRING  EQ  NEQ
- * todo resource component and advanced expression
- * todo operator LIKE INCLUDE ...
  * */
+enum POLICY_ENGINE_HANDLE_TYPE { PE_STRING_LIST, PE_SUBJECT, PE_HOST, PE_APPLICATION, PE_RESOURCE };
 
 
 PolicyEngineReturn policy_engine_module_init(const char *cchost, const char *ccport, const char *ccuser, const char *ccpwd, const char *tag,
@@ -49,7 +51,8 @@ PolicyEngineReturn policy_engine_module_exit();
  * return param psubjects_string_list:  all referenced subject attribute names in the policys
  * return param pactions_string_list:   all referenced action names in the policys
  * */
-PolicyEngineReturn policy_engine_subjects_actions_analyze(PolicyEngineStringList *psubjects_string_list, PolicyEngineStringList *pactions_string_list);
+PolicyEngineReturn policy_engine_analyze(PolicyEngineStringList *psubjects_string_list, PolicyEngineStringList *pactions_string_list,
+        PolicyEngineStringList *presource_string_list, PolicyEngineStringList *phost_string_list, PolicyEngineStringList *papp_string_list);
 
 PolicyEngineReturn policy_engine_destroy_string_list(PolicyEngineStringList pstring_list);
 
@@ -63,14 +66,13 @@ PolicyEngineReturn policy_engine_string_list_next(PolicyEngineStringList pstring
 
 
 /*
- * constructor of subject k,v pairs
+ * constructor of k,v pairs like a dictionary
  * */
-enum POLICY_ENGINE_HANDLE_TYPE { PE_STRING_LIST, PE_SUBJECT };
-PolicyEngineReturn policy_engine_create_subject_handle(PolicyEngineSubject *psubject);
+PolicyEngineReturn policy_engine_create_dictionary_handle(POLICY_ENGINE_HANDLE_TYPE dictionary_type, PolicyEngineHandle *pdictionary);
 
-PolicyEngineReturn policy_engine_destroy_subject(PolicyEngineSubject psubject);
+PolicyEngineReturn policy_engine_destroy_dictionary(PolicyEngineHandle dictionary);
 
-PolicyEngineReturn policy_engine_insert_into_subject(PolicyEngineSubject psubject, const char *attribute_name, const char *attribute_value);
+PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dictionary, const char *attribute_name, const char *attribute_value);
 
 
 /*
@@ -88,7 +90,8 @@ PolicyEngineReturn policy_engine_insert_into_subject(PolicyEngineSubject psubjec
  * */
 
 enum POLICY_ENGINE_MATCH_RESULT { PE_NO_MATCHED = 0, PE_NEED_MORE_WORK /* todo */ };
-PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char *action, PolicyEngineResource resource, POLICY_ENGINE_MATCH_RESULT *presult);
+PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char *action, PolicyEngineResource resource,
+        PolicyEngineHost host, PolicyEngineApplication application, POLICY_ENGINE_MATCH_RESULT *presult);
 
 
 #ifdef __cplusplus

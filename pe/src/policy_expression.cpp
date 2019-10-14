@@ -26,7 +26,7 @@ AstExpr* AstBinaryOpExpr::GetRight() { return _right; }
 //-------------AstConstantValue---------------
 AstConstantValue::AstConstantValue(EXPR_TYPE expr_type):AstExpr(expr_type){ }
 AstConstantValue::~AstConstantValue(){
-    if (GetExprType() == C_STRING || GetExprType() == C_NUMBER) {
+    if (GetExprType() == C_STRING || GetExprType() == C_NUMBER || GetExprType() == C_PATTERN) {
         free (u._other_data);
         u._other_data = nullptr;
     }

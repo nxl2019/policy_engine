@@ -42,9 +42,10 @@ private:
     StringList *_next;
 };
 
-class Subject : public Handle {
+class Dictionary : public Handle {
 public:
     virtual POLICY_ENGINE_HANDLE_TYPE GetHandleType() const override { return PE_SUBJECT; }
+    Dictionary(POLICY_ENGINE_HANDLE_TYPE tp) : _dictionary_type(tp) {}
     Value GetValueAsInt(const std::string& key) {
         std::string key1 = key;
         std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
@@ -65,9 +66,13 @@ public:
         _data[key1] = value;
     }
 private:
+    POLICY_ENGINE_HANDLE_TYPE _dictionary_type;
     std::map<std::string, std::string> _data;
 };
 
-
+typedef Dictionary Subject;
+typedef Dictionary Resource;
+typedef Dictionary Host;
+typedef Dictionary App;
 
 #endif

@@ -4,9 +4,8 @@
 #include <vector>
 #include <string>
 #include "policy_engine.h"
+#include "Handle.h"
 
-class StringList;
-class Subject;
 class Policy;
 
 class PolicyEngine {
@@ -17,7 +16,7 @@ public:
     static PolicyEngineReturn Exit();
     ~PolicyEngine();
     PolicyEngineReturn Analyze(StringList **psubjects_string_list, StringList **pactions_string_list);  /* thread safe */
-    PolicyEngineReturn Match(Subject *subject, const std::string& action, POLICY_ENGINE_MATCH_RESULT *presult); /* thread safe */
+    PolicyEngineReturn Match(Subject *subject, const std::string& action, Resource *res, Host *host, App *app, POLICY_ENGINE_MATCH_RESULT *presult); /* thread safe */
 private:
     void Update();
     static void Sync();
