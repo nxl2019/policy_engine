@@ -6,16 +6,12 @@
 #define POLICY_ENGINE_POLICY_PARSE_TEST_H
 
 #include "microtest.h"
-#include "../policymgr/include/CCLoginHelper.h"
-#include "../policymgr/include/CCPolicyHelper.h"
+#include "CCLoginHelper.h"
+#include "CCPolicyHelper.h"
 #include "Policy.h"
 #include "json_string.h"
-
-void get_policy(std::list<std::string> & policies);
-void get_asts(std::list<Policy*> & asts, const std::list<std::string> & policies);
-
-
-
+#include "policy_expression.h"
+#include <list>
 
 TEST(parse_policies)
 {
@@ -64,80 +60,11 @@ TEST(parse_policies)
     delete ppolicy;
 
 
-
-
-//    std::list<std::string>  policies;
-//    get_policy(policies);
-//    std::list<Policy*>  asts;
-//    get_asts(asts, policies);
-//
-//    for (auto poly: asts) {
-////      int ideep = 0 ;
-////      deepness(poly->GetAst(), ideep);
-////      printf("%d\n",ideep);
-////      print(poly->GetAst(), 1);
-//
-//        poly->Dump();
-//        printf("\n---------------------------\n");
-//    }
-
-
-}
-//TEST(XX){
-//    std::list<std::string>  policies;
-//    get_policy(policies);
-//    std::list<Policy*>  asts;
-//    get_asts(asts, policies);
-//
-//    for (auto poly: asts) {
-//        poly->Dump();
-//        printf("\n---------------------------\n");
-//    }
-//}
-
-void get_asts(std::list<Policy*> & asts, const std::list<std::string> & policies) {
-    for (auto poly:policies) {
-        Policy * policy = new Policy();
-        policy->ParseFromJson(poly);
-        asts.push_back(policy);
-    }
 }
 
-void get_policy(std::list<std::string> & policies) {
-    std::string str_port = "443";
-    std::string str_user_name = "administrator";
-    std::string str_pwd = "123blue!";
 
-    std::string str_ccservice = "https://cc85-console.qapf1.qalab01.nextlabs.com";
-    std::string str_policy_tag = "spe";
 
-//    std::string str_ccservice = "https://cc87-console.qapf1.qalab01.nextlabs.com";
-//    std::string str_policy_tag = "emsmb";
-
-    std::string str_session_cookie = CCLoginHelper::Login(str_ccservice, str_port, str_user_name, str_pwd);
-    if (str_session_cookie.empty()) {
-        return ;
-    }
-    std::list<std::string> lst_policy;
-    if (!CCPolicyHelper::SyncPolicy(str_ccservice, str_port, str_session_cookie, str_policy_tag, policies)) {
-        return ;
-    }
-}
-
-TEST(all_process) {
-//    //GetPolicies
-//    std::list<std::string>  policies;
-//    get_policy(policies);
-//    ASSERT_TRUE(policies.size() > 0);
-//
-//    //Parse
-//    std::list<Policy*>  asts;
-//    get_asts(asts, policies);
-//    ASSERT_TRUE(policies.size() == asts.size());
-//
-//    //GetAttributesAndActions
-//    Policy * ppolicy = asts.back();
-
+TEST(internal_api) {
     Policy * ppolicy = new Policy();
     ppolicy->ParseFromJson(JSON_TEST);
 
@@ -149,13 +76,16 @@ TEST(all_process) {
     //TryMatch
     std::string key = "groupid";
     std::string value = "S-1-5-21-2018228179-1005617703-974104760-188953";
-    Subject sub;
+    Dictionary sub(PE_SUBJECT);
     {
         sub.InsertValue(key, value);
     }
+    Dictionary res(PE_RESOURCE);
+    Dictionary host(PE_HOST);
+    Dictionary app(PE_APPLICATION);
     std::string action = "DELETE";
     BOOLEAN blret;
-    ppolicy->TryMatch(&sub, action, blret);
+    ppolicy->TryMatch(&sub, action, &res, &host, &app, blret);
     ppolicy->Dump();
     printf("TryMatch-------------------------------------\n");
     printf("  Input:SUB(%s, %s) ACTION(%s) \n", key.c_str(), value.c_str(), action.c_str());
@@ -170,36 +100,6 @@ TEST(all_process) {
     delete ppolicy;
 }
 
-
-
-
-//void deepness(AstExpr * pexpr, int &  deep) {
-//    deep++;
-//    switch (pexpr->GetExprType()) {
-//        case AstExpr::OR:
-//        case AstExpr::AND:
-//        case AstExpr::LIKE:
-//        case AstExpr::NOT_LIKE:
-//        case AstExpr::COMP_EQ:
-//        case AstExpr::COMP_NEQ:
-//        case AstExpr::COMP_GT:
-//        case AstExpr::COMP_GE:
-//        case AstExpr::COMP_LT:
-//        case AstExpr::COMP_LE:{
-//            int i = deep;
-//            deepness(((AstBinaryOpExpr*)pexpr)->GetLeft(), i);
-//            int j = deep;
-//            deepness(((AstBinaryOpExpr*)pexpr)->GetRight(), j);
-//
-//            i > j?deep = i:deep = j;
-//        } break;
-//        case AstExpr::NOT: {
-//            return ;
-//        } break;
-//        default:
-//            break;
-//    }
-//}
 
 
 

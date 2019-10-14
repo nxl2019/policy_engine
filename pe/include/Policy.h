@@ -17,7 +17,9 @@ public:
     void GetAction(std::set<std::string>& ractions);
     void GetSubjectAttributes(std::set<std::string>& subjectattrs);
     void GetResourceAttributes(std::set<std::string>& resourceattrs);
-    PolicyEngineReturn TryMatch(const Subject *subject, const std::string& action, BOOLEAN& rboolean);
+    void GetHost(std::set<std::string>& host);
+    void GetApp(std::set<std::string>& app);
+    PolicyEngineReturn TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , BOOLEAN & rboolean);
     void Dump();    /* print the policy for debug */
     AstExpr * GetAst() { return  _expr; }
     AstExpr * GetResAst() { return  _pres_expr; }
@@ -31,6 +33,8 @@ private:
     std::set<std::string> _actions;
     std::set<std::string> _subjectattrs;
     std::set<std::string> _resourceattrs;
+    std::set<std::string> _host;
+    std::set<std::string> _app;
 
 };
 

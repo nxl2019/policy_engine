@@ -42,18 +42,25 @@ PolicyEngine::~PolicyEngine() {
     _policys.clear();
 }
 
-PolicyEngineReturn PolicyEngine::Analyze(StringList **psubjects_string_list, StringList **pactions_string_list) {
+PolicyEngineReturn PolicyEngine::Analyze(StringList **psubjects_strlist, StringList **pactions_strlist, StringList **presource_strlist, StringList **phost_strlist, StringList **papp_strlist) {
     if (!_running_flag) return POLICY_ENGINE_MODULE_NOT_INIT;
-    std::set<std::string> subs, acts;
+    std::set<std::string> subs, acts, ress, hosts, apps;
     {
         std::shared_lock<std::shared_timed_mutex> readerLock(__mutex);
         for (auto it : _policys) {
             it->GetAction(acts);
             it->GetSubjectAttributes(subs);
+            it->GetResourceAttributes(ress);
+            it->GetHost(hosts);
+            it->GetApp(apps);
         }
     }
-    *psubjects_string_list = StringList::MakeStringList(subs);
-    *pactions_string_list = StringList::MakeStringList(acts);
+    *psubjects_strlist = StringList::MakeStringList(subs);
+    *pactions_strlist = StringList::MakeStringList(acts);
+    *presource_strlist = StringList::MakeStringList(ress);
+    *phost_strlist = StringList::MakeStringList(hosts);
+    *papp_strlist = StringList::MakeStringList(apps);
+
     return POLICY_ENGINE_SUCCESS;
 }
 
@@ -64,7 +71,7 @@ PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& acti
         std::shared_lock<std::shared_timed_mutex> readerLock(__mutex);
         for (auto it : _policys) {
             BOOLEAN bl = B_UNKNOWN;
-            if (it->TryMatch(subject, action, bl) != POLICY_ENGINE_SUCCESS) {
+            if (it->TryMatch(subject, action, res, host, app, bl) != POLICY_ENGINE_SUCCESS) {
                 booleans.push_back(B_UNKNOWN);
             } else {
                 booleans.push_back(bl);
