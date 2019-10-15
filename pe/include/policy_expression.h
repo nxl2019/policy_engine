@@ -27,9 +27,12 @@ public:
     };
     AstExpr(EXPR_TYPE expr_type);
     EXPR_TYPE GetExprType();
+    AstExpr * GetParent();
     virtual ~AstExpr() {}
+    void SetParent(AstExpr *parent);
 private:
     EXPR_TYPE _expr_type;
+    AstExpr * _expr_parent;
 };
 
 
@@ -39,9 +42,7 @@ class AstBinaryOpExpr : public AstExpr {
 public:
     AstBinaryOpExpr(EXPR_TYPE expr_type, AstExpr *left, AstExpr *right);
     ~AstBinaryOpExpr();
-    void        SetLeft(AstExpr *left);
     AstExpr    *GetLeft();
-    void        SetRight(AstExpr *right);
     AstExpr    *GetRight();
 private:
     AstExpr   *_left;
@@ -95,7 +96,6 @@ class AstUnaryOpExpr : public AstExpr {
 public:
     AstUnaryOpExpr(EXPR_TYPE expr_type, AstExpr *expr);
     ~AstUnaryOpExpr();
-    void        SetExpr(AstExpr *expr);
     AstExpr    *GetExpr();
 private:
     AstExpr     *_expr;

@@ -3,6 +3,10 @@
 #include "policy_expression.h"
 #include "json/json.h"
 #include "eval_expression.h"
+#include "policy_regex.h"
+#include "parse_expression.h"
+#include "Lex.h"
+#include <assert.h>
 
 #define COLUMN_REF_ACTION "ACTION"
 
@@ -77,7 +81,7 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
     std::string constant_value = json["value"].asString();
     std::string rhs_type = json["rhsType"].asString();
     if (rhs_type.compare("CONSTANT") == 0) {
-        if (constant_value.find("**") != std::string::npos ) {
+        if ( is_policy_regex(constant_value) ) {
             AstConstantValue * pexpr_temp = new AstConstantValue(AstExpr::C_PATTERN);
             pexpr_temp->SetValue(constant_value);
             pexpr_right = pexpr_temp;
@@ -303,10 +307,18 @@ AstExpr * parse_from_action_components(const Json::Value & action_components){
 
 AstExpr * parse_from_expression(const Json::Value & action_components) {
     std::string str_expression = action_components.asString();
-    if (str_expression.compare("null")) {
+    if (str_expression.compare("null") == 0) {
         return new AstConstantValue(AstExpr::C_TRUE);
     }
-    return new AstConstantValue(AstExpr::C_UNKNOWN);
+    Lex lex(str_expression);
+    lex.Next();
+    ParseException e;
+    AstExpr *expr = parse_boolean_expr(&lex, &e);
+
+    if (e._code != ParseException::SUCCESS || lex.GetCurrent()->GetType() != Token::TK_END_P) {
+        return  new AstConstantValue(AstExpr::C_UNKNOWN);
+    }
+    return  expr;
 }
 
 
@@ -373,7 +385,11 @@ void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::s
         case AstExpr::EXPR_COLUMN_REF: {
             AstColumnRef * pexpr_col = dynamic_cast<AstColumnRef*>(pexpr);
             if(AstColumnRef::ACTION == pexpr_col->GetColType()) {
-                actions.insert(pexpr_col->GetColumn().back()->GetId());
+
+                AstExpr * pparent = pexpr_col->GetParent();
+                AstExpr * pbrother = dynamic_cast<AstBinaryOpExpr*>(pparent)->GetRight();
+                assert(pbrother->GetExprType() == AstExpr::C_STRING);
+                actions.insert(dynamic_cast<AstConstantValue*>(pbrother)->GetValueAsStr());
             } else if (AstColumnRef::SUB == pexpr_col->GetColType()) {
                 attributes.insert(pexpr_col->GetColumn().back()->GetId());
             } else  if (AstColumnRef::RES == pexpr_col->GetColType()) {

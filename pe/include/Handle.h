@@ -44,7 +44,7 @@ private:
 
 class Dictionary : public Handle {
 public:
-    virtual POLICY_ENGINE_HANDLE_TYPE GetHandleType() const override { return PE_SUBJECT; }
+    virtual POLICY_ENGINE_HANDLE_TYPE GetHandleType() const override { return _dictionary_type; }
     Dictionary(POLICY_ENGINE_HANDLE_TYPE tp) : _dictionary_type(tp) {}
     Value GetValueAsInt(const std::string& key) {
         std::string key1 = key;

@@ -4,7 +4,7 @@
 
 PolicyEngineReturn policy_engine_module_init(const char *cchost, const char *ccport, const char *ccuser, const char *ccpwd, const char *tag,
                                              unsigned int sync_interval_seconds) {
-    if (cchost == nullptr || ccport == nullptr || ccuser == nullptr || ccpwd == nullptr) return POLICY_ENGINE_FAIL;
+    if (cchost == nullptr || ccport == nullptr || ccuser == nullptr || ccpwd == nullptr || tag == nullptr) return POLICY_ENGINE_FAIL;
     return PolicyEngine::Ins()->Init(cchost, ccport, ccuser, ccpwd, tag, sync_interval_seconds);
 }
 
@@ -17,16 +17,36 @@ PolicyEngineReturn policy_engine_analyze(PolicyEngineStringList *psubjects_strin
     StringList *subjects_string_list = nullptr, *actions_string_list = nullptr, *resource_string_list = nullptr,
                 *host_string_list = nullptr, *app_string_list = nullptr;
 
-    if (psubjects_string_list != nullptr) subjects_string_list = (StringList*)(*psubjects_string_list);
-    if (pactions_string_list != nullptr) actions_string_list = (StringList*)(*pactions_string_list);
-    if (presource_string_list != nullptr) resource_string_list = (StringList*)(*presource_string_list);
-    if (phost_string_list != nullptr) host_string_list = (StringList*)(*phost_string_list);
-    if (papp_string_list != nullptr) app_string_list = (StringList*)(*papp_string_list);
-
     PolicyEngineReturn r = POLICY_ENGINE_SUCCESS;
     r = PolicyEngine::Ins()->Analyze(&subjects_string_list, &actions_string_list, &resource_string_list, &host_string_list, &app_string_list);
-    if (r != POLICY_ENGINE_SUCCESS) return r;
-    return POLICY_ENGINE_SUCCESS;
+
+    if (psubjects_string_list != nullptr ) {
+        *psubjects_string_list = subjects_string_list;
+    } else {
+        delete(subjects_string_list);
+    }
+    if (pactions_string_list != nullptr ) {
+        *pactions_string_list = actions_string_list;
+    } else {
+        delete(actions_string_list);
+    }
+    if (presource_string_list != nullptr ) {
+        *presource_string_list = resource_string_list;
+    } else {
+        delete(resource_string_list);
+    }
+    if (phost_string_list != nullptr ) {
+        *phost_string_list = host_string_list;
+    } else {
+        delete(host_string_list);
+    }
+    if (papp_string_list != nullptr ) {
+        *papp_string_list = app_string_list;
+    } else {
+        delete(app_string_list);
+    }
+
+    return r;
 }
 
 PolicyEngineReturn policy_engine_destroy_string_list(PolicyEngineStringList pstring_list) {
@@ -113,6 +133,8 @@ PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dicti
 
 PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char *action, PolicyEngineResource resource,
                                         PolicyEngineHost host, PolicyEngineApplication application, POLICY_ENGINE_MATCH_RESULT *presult) {
+    if (presult == nullptr) return POLICY_ENGINE_FAIL;
+
     Handle *handle_sub = (Handle*)subject;
     Dictionary h_sub(PE_SUBJECT), h_res(PE_RESOURCE), h_host(PE_HOST), h_app(PE_APPLICATION);
     if (handle_sub == nullptr) {
@@ -136,7 +158,7 @@ PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char 
     if (handle_app == nullptr) {
         handle_app = &h_app;
     }
-    if (handle_host->GetHandleType() != PE_APPLICATION) return POLICY_ENGINE_TYPE_ERROR;
+    if (handle_app->GetHandleType() != PE_APPLICATION) return POLICY_ENGINE_TYPE_ERROR;
 
     std::string act = action == nullptr ? "" : action;
     return PolicyEngine::Ins()->Match(dynamic_cast<Subject*>(handle_sub), act, dynamic_cast<Resource*>(handle_res),
