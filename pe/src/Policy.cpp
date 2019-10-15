@@ -73,16 +73,8 @@ bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYP
 AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE type){
 
     AstExpr * pexpr = NULL;
-    std::string column_ref = json["attribute"].asString();
-    AstId * pastid = new AstId(column_ref);
-    AstIds ids;
-    ids.push_back(pastid);
-    AstExpr * pexpr_left = new AstColumnRef(type, ids);
-
-
-    std::string constant_value = json["value"].asString();
-
     AstExpr * pexpr_right = NULL;
+    std::string constant_value = json["value"].asString();
     std::string rhs_type = json["rhsType"].asString();
     if (rhs_type.compare("CONSTANT") == 0) {
         if (constant_value.find("**") != std::string::npos ) {
@@ -105,7 +97,15 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
         parse_column_ref(constant_value, ids, AstColumnRef::RES);
         pexpr_right = new AstColumnRef(AstColumnRef::RES, ids);
 
+    } else {
+        return new AstConstantValue(AstExpr::C_UNKNOWN);
     }
+
+    std::string column_ref = json["attribute"].asString();
+    AstId * pastid = new AstId(column_ref);
+    AstIds ids;
+    ids.push_back(pastid);
+    AstExpr * pexpr_left = new AstColumnRef(type, ids);
 
     std::string op_cond = json["operator"].asString();
     if (op_cond.compare("=") == 0) {
