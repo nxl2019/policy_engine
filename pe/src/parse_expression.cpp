@@ -1,5 +1,6 @@
 #include "parse_expression.h"
 #include "policy_expression.h"
+#include "policy_regex.h"
 #include <assert.h>
 
 const std::vector<Token::TOKEN_TYPE > LOGIC_OP{ Token::TK_OR, Token::TK_AND };
@@ -53,7 +54,8 @@ AstExpr *parse_boolean_expr(Lex *lex, ParseException *e) {
 
 AstExpr *parse_value(Lex *lex, ParseException *e) {
     if (lex->GetCurrent()->GetType() == Token::TK_STR_LITERAL) {
-        if (lex->GetCurrent()->GetWord().find("**") != std::string::npos) {
+        //if (lex->GetCurrent()->GetWord().find("**") != std::string::npos) {
+        if (is_policy_regex(lex->GetCurrent()->GetWord())) {
             AstConstantValue *c = new AstConstantValue(AstExpr::C_PATTERN);
             /* todo parse the pattern */
             c->SetValue(lex->GetCurrent()->GetWord());

@@ -245,6 +245,7 @@ Value test_int_str(AstExpr *expr, RunTimeVars *run_time_vars) {
 }
 
 std::regex to_regex(const std::string& v) {
+    /* todo */
     std::stringstream buf{};
     for (size_t i = 0; i < v.length(); ++i) {
         if (v.at(i) == '*' && (i+1 < v.length()) && v.at(i+1) == '*') {
@@ -259,6 +260,7 @@ std::regex to_regex(const std::string& v) {
 }
 
 Value test_like(AstExpr *expr, RunTimeVars *run_time_vars) {
+#if 0
     AstExpr::EXPR_TYPE op = expr->GetExprType();
     assert(op == AstExpr::LIKE || op == AstExpr::NOT_LIKE);
     AstBinaryOpExpr *binary_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
@@ -279,6 +281,9 @@ Value test_like(AstExpr *expr, RunTimeVars *run_time_vars) {
         if (matched) return Value(B_FALSE);
         else return Value(B_TRUE);
     }
+#else
+    return Value(B_UNKNOWN);
+#endif
 }
 
 

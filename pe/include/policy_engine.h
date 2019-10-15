@@ -34,10 +34,11 @@ typedef PolicyEngineHandle PolicyEngineApplication;
 #define POLICY_ENGINE_INVALID_HANDLE -4
 
 /*
- * pe module will parse and analyze the policy's subject component and action component
- * operator support
- * NUMBER  EQ  NEQ  LT  LE  GT  GE
- * STRING  EQ  NEQ
+ * pe module will parse and analyze the policy's all components
+ * SUBJECT COMPONENTS
+ * ACTION
+ * RESOURCE COMPONENTS
+ * ADVANCED CONDITION
  * */
 enum POLICY_ENGINE_HANDLE_TYPE { PE_STRING_LIST, PE_SUBJECT, PE_HOST, PE_APPLICATION, PE_RESOURCE };
 
@@ -48,8 +49,13 @@ PolicyEngineReturn policy_engine_module_init(const char *cchost, const char *ccp
 PolicyEngineReturn policy_engine_module_exit();
 
 /*
- * return param psubjects_string_list:  all referenced subject attribute names in the policys
- * return param pactions_string_list:   all referenced action names in the policys
+ * param psubjects_string_list:  return all referenced subject attribute names in the policys
+ * param pactions_string_list:   return all referenced action names in the policys
+ * param presource_string_list:  return all referenced resource attribute names in the policys
+ * param phost_string_list:      return all referenced host attribute names in the policys
+ * param papp_string_list:       return all referenced application attributes names in the policys
+ *
+ * input NULL means you don't want to collect this type of attribute names
  * */
 PolicyEngineReturn policy_engine_analyze(PolicyEngineStringList *psubjects_string_list, PolicyEngineStringList *pactions_string_list,
         PolicyEngineStringList *presource_string_list, PolicyEngineStringList *phost_string_list, PolicyEngineStringList *papp_string_list);
@@ -67,6 +73,7 @@ PolicyEngineReturn policy_engine_string_list_next(PolicyEngineStringList pstring
 
 /*
  * constructor of k,v pairs like a dictionary
+ * param pdictionary:           return the specific dictionary handle
  * */
 PolicyEngineReturn policy_engine_create_dictionary_handle(POLICY_ENGINE_HANDLE_TYPE dictionary_type, PolicyEngineHandle *pdictionary);
 
@@ -89,6 +96,10 @@ PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dicti
  *                                          ====> PE_NEED_MORE_WORK
  * */
 
+
+/*
+ * param subject, action, resource, host, application NULL means you an empty dictionary
+ * */
 enum POLICY_ENGINE_MATCH_RESULT { PE_NO_MATCHED = 0, PE_NEED_MORE_WORK /* todo */ };
 PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char *action, PolicyEngineResource resource,
         PolicyEngineHost host, PolicyEngineApplication application, POLICY_ENGINE_MATCH_RESULT *presult);
