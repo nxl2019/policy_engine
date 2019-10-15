@@ -24,7 +24,7 @@ PolicyEngineReturn policy_engine_analyze(PolicyEngineStringList *psubjects_strin
     if (papp_string_list != nullptr) app_string_list = (StringList*)(*papp_string_list);
 
     PolicyEngineReturn r = POLICY_ENGINE_SUCCESS;
-    r = PolicyEngine::Ins()->Analyze(&subjects_string_list, &actions_string_list);  /* todo */
+    r = PolicyEngine::Ins()->Analyze(&subjects_string_list, &actions_string_list, &resource_string_list, &host_string_list, &app_string_list);
     if (r != POLICY_ENGINE_SUCCESS) return r;
     return POLICY_ENGINE_SUCCESS;
 }
@@ -90,6 +90,7 @@ PolicyEngineReturn policy_engine_destroy_dictionary(PolicyEngineHandle dictionar
         } break;
         default: { return POLICY_ENGINE_FAIL; }
     }
+    return POLICY_ENGINE_SUCCESS;
 }
 
 PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dictionary, const char *attribute_name, const char *attribute_value) {
@@ -137,7 +138,6 @@ PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char 
     }
     if (handle_host->GetHandleType() != PE_APPLICATION) return POLICY_ENGINE_TYPE_ERROR;
 
-    if (resource != nullptr) return POLICY_ENGINE_FAIL;
     std::string act = action == nullptr ? "" : action;
     return PolicyEngine::Ins()->Match(dynamic_cast<Subject*>(handle_sub), act, dynamic_cast<Resource*>(handle_res),
                                       dynamic_cast<Host*>(handle_host), dynamic_cast<App*>(handle_app), presult);

@@ -17,7 +17,7 @@ AstExpr * parse_from_action_components(const Json::Value & action_components);
 
 AstExpr * parse_from_expression(const Json::Value & action_components);
 
-void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::set<std::string> & attributes, std::set<std::string> & resourceattrs); /* actions and attibutes recursive query function */
+void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::set<std::string> & attributes, std::set<std::string> & resourceattrs, std::set<std::string> & rhost, std::set<std::string> & rapp); /* actions and attibutes recursive query function */
 
 bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE type); /* parser r-value to column-ref */
 
@@ -37,7 +37,6 @@ bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYP
     if(s[len-1] != '}') return false;
     int i = 2;
     int start = i;
-    int ifirst = i;
     //filter first dot ,  if type = resource
     if(type == AstColumnRef::RES) {
         while(i <= len-1) {
@@ -74,22 +73,20 @@ bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYP
 AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE type){
 
     AstExpr * pexpr = NULL;
-    std::string column_ref = json["attribute"].asString();
-    AstId * pastid = new AstId(column_ref);
-    AstIds ids;
-    ids.push_back(pastid);
-    AstExpr * pexpr_left = new AstColumnRef(type, ids);
-
-
-    std::string constant_value = json["value"].asString();
-
     AstExpr * pexpr_right = NULL;
+    std::string constant_value = json["value"].asString();
     std::string rhs_type = json["rhsType"].asString();
     if (rhs_type.compare("CONSTANT") == 0) {
+        if (constant_value.find("**") != std::string::npos ) {
+            AstConstantValue * pexpr_temp = new AstConstantValue(AstExpr::C_PATTERN);
+            pexpr_temp->SetValue(constant_value);
+            pexpr_right = pexpr_temp;
+        } else {
+            AstConstantValue * pexpr_temp = new AstConstantValue(AstExpr::C_STRING);
+            pexpr_temp->SetValue(constant_value);
+            pexpr_right = pexpr_temp;
+        }
 
-        AstConstantValue * pexpr_temp = new AstConstantValue(AstExpr::C_STRING);
-        pexpr_temp->SetValue(constant_value);
-        pexpr_right = pexpr_temp;
     } else if (rhs_type.compare("SUBJECT") == 0){
         AstIds ids;
         parse_column_ref(constant_value, ids, AstColumnRef::SUB);
@@ -100,18 +97,26 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
         parse_column_ref(constant_value, ids, AstColumnRef::RES);
         pexpr_right = new AstColumnRef(AstColumnRef::RES, ids);
 
+    } else {
+        return new AstConstantValue(AstExpr::C_UNKNOWN);
     }
+
+    std::string column_ref = json["attribute"].asString();
+    AstId * pastid = new AstId(column_ref);
+    AstIds ids;
+    ids.push_back(pastid);
+    AstExpr * pexpr_left = new AstColumnRef(type, ids);
 
     std::string op_cond = json["operator"].asString();
     if (op_cond.compare("=") == 0) {
-        if (constant_value.find("**") != std::string::npos ) {
+        if ( pexpr_right->GetExprType() == AstExpr::C_PATTERN ) {
             pexpr = new AstBinaryOpExpr(AstExpr::LIKE, pexpr_left, pexpr_right);
         } else {
             pexpr = new AstBinaryOpExpr(AstExpr::COMP_EQ, pexpr_left, pexpr_right);
         }
     }
     else if (op_cond.compare("!=") == 0) {
-        if (constant_value.find("**")  != std::string::npos)  {
+        if ( pexpr_right->GetExprType() == AstExpr::C_PATTERN )  {
             pexpr = new AstBinaryOpExpr(AstExpr::NOT_LIKE, pexpr_left, pexpr_right);
         } else {
             pexpr = new AstBinaryOpExpr(AstExpr::COMP_NEQ, pexpr_left, pexpr_right);
@@ -328,7 +333,7 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
     //advance
     Json::Value expression = root["expression"];
     AstExpr * pexp_expression = parse_from_expression(expression);
-    printf("aaa=%s\n", expression.asCString());
+    //printf("aaa=%s\n", expression.asCString());
 
     AstExpr * pexpr_resource_result = NULL; /// resource tree  can't be calculated
     if (AstExpr::C_TRUE != pexp_resource_comps->GetExprType()) {
@@ -347,7 +352,7 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
 
     return POLICY_ENGINE_SUCCESS;
 }
-void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::set<std::string> & attributes, std::set<std::string> & resourceattrs) {
+void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::set<std::string> & attributes, std::set<std::string> & resourceattrs, std::set<std::string> & rhost, std::set<std::string> & rapp) {
     switch(pexpr->GetExprType()) {
         case AstExpr::AND:
         case AstExpr::OR:
@@ -359,11 +364,11 @@ void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::s
         case AstExpr::COMP_GE:
         case AstExpr::COMP_LT:
         case AstExpr::COMP_LE: {
-            analyze_reference(dynamic_cast< AstBinaryOpExpr*>(pexpr)->GetLeft(), actions, attributes, resourceattrs);
-            analyze_reference(dynamic_cast< AstBinaryOpExpr*>(pexpr)->GetRight(), actions, attributes, resourceattrs);
+            analyze_reference(dynamic_cast< AstBinaryOpExpr*>(pexpr)->GetLeft(), actions, attributes, resourceattrs, rhost, rapp);
+            analyze_reference(dynamic_cast< AstBinaryOpExpr*>(pexpr)->GetRight(), actions, attributes, resourceattrs, rhost, rapp);
         } break;
         case AstExpr::NOT: {
-            analyze_reference(dynamic_cast< AstUnaryOpExpr*>(pexpr)->GetExpr(), actions, attributes, resourceattrs);
+            analyze_reference(dynamic_cast< AstUnaryOpExpr*>(pexpr)->GetExpr(), actions, attributes, resourceattrs, rhost, rapp);
         } break;
         case AstExpr::EXPR_COLUMN_REF: {
             AstColumnRef * pexpr_col = dynamic_cast<AstColumnRef*>(pexpr);
@@ -373,6 +378,10 @@ void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::s
                 attributes.insert(pexpr_col->GetColumn().back()->GetId());
             } else  if (AstColumnRef::RES == pexpr_col->GetColType()) {
                 resourceattrs.insert(pexpr_col->GetColumn().back()->GetId());
+            } else  if (AstColumnRef::HOST == pexpr_col->GetColType()) {
+                rhost.insert(pexpr_col->GetColumn().back()->GetId());
+            } else  if (AstColumnRef::APP == pexpr_col->GetColType()) {
+                rapp.insert(pexpr_col->GetColumn().back()->GetId());
             }
         } break;
         default: break;
@@ -380,9 +389,9 @@ void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::s
 }
 
 bool Policy::AnalyzeReference() {
-    analyze_reference(_expr, _actions, _subjectattrs, _resourceattrs);
-    analyze_reference(_pres_expr, _actions, _subjectattrs, _resourceattrs);
-    if(_actions.size() == 0 && _subjectattrs.size() == 0 && _resourceattrs.size() == 0) return  false;
+    analyze_reference(_expr, _actions, _subjectattrs, _resourceattrs, _host, _app);
+    analyze_reference(_pres_expr, _actions, _subjectattrs, _resourceattrs, _host, _app);
+    //if(_actions.size() == 0 && _subjectattrs.size() == 0 && _resourceattrs.size() == 0 && _host.size() == 0 && _app.size() == 0) return  false;
     return  true;
 }
 
@@ -398,9 +407,17 @@ void Policy::GetResourceAttributes(std::set<std::string>& resourceattrs) {
     resourceattrs.insert(_resourceattrs.begin(), _resourceattrs.end());
 }
 
-PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, BOOLEAN& rboolean) {
+void Policy::GetHost(std::set<std::string>& host) {
+    host.insert(_host.begin(), _host.end());
+}
+void Policy::GetApp(std::set<std::string>& app) {
+    app.insert(_app.begin(), _app.end());
+}
+
+PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , BOOLEAN& rboolean) {
     if (NULL == subject)  return  POLICY_ENGINE_FAIL;
-//    rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action.c_str());
+//      rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action.c_str());
+        rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action, const_cast<Resource*>(res), const_cast<Host*>(host), const_cast<App*>(app));
     return POLICY_ENGINE_SUCCESS;
 }
 

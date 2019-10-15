@@ -15,7 +15,7 @@ public:
                             unsigned int sync_interval_seconds);
     static PolicyEngineReturn Exit();
     ~PolicyEngine();
-    PolicyEngineReturn Analyze(StringList **psubjects_string_list, StringList **pactions_string_list);  /* thread safe */
+    PolicyEngineReturn Analyze(StringList **psubjects_strlist, StringList **pactions_strlist, StringList **presource_strlist, StringList **phost_strlist, StringList **papp_strlist);  /* thread safe */
     PolicyEngineReturn Match(Subject *subject, const std::string& action, Resource *res, Host *host, App *app, POLICY_ENGINE_MATCH_RESULT *presult); /* thread safe */
 private:
     void Update();
