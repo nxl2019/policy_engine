@@ -152,4 +152,30 @@ TEST(LEX_CASE_6) {
     mt::printOk(lex.GetCurrent()->GetWord().c_str());
 }
 
+TEST(LEX_CASE_7) {
+    Lex lex("USER.\"pe_nums\" != 123 \n \t \r "
+            "USER.\"pe_nums\" >= 59");
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_USER);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_DOT);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_STR_LITERAL);
+    lex.Next();
+    ASSERT_TRUE(Token::TK_NEQ == lex.GetCurrent()->GetType());
+    lex.Next();
+    ASSERT_TRUE(Token::TK_DEC_NUMBER == lex.GetCurrent()->GetType());
+    lex.Next();
+    ASSERT_TRUE(Token::TK_USER == lex.GetCurrent()->GetType());
+    lex.Next();
+    ASSERT_TRUE(Token::TK_DOT == lex.GetCurrent()->GetType());
+    lex.Next();
+    ASSERT_TRUE(Token::TK_STR_LITERAL == lex.GetCurrent()->GetType());
+    lex.Next();
+    ASSERT_TRUE(Token::TK_GTEQ    == lex.GetCurrent()->GetType());
+    lex.Next();
+    ASSERT_TRUE(Token::TK_DEC_NUMBER == lex.GetCurrent()->GetType());
+    mt::printOk(lex.GetCurrent()->GetWord().c_str());
+}
+
 #endif

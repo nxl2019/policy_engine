@@ -109,10 +109,6 @@ Value eval(AstExpr *expr, RunTimeVars *run_time_vars) {
                 return Value(B_UNKNOWN);    /* not support */
             } else if (ref->GetColType() == AstColumnRef::ACTION) {
                 return *(run_time_vars->_action);
-            } else if (ref->GetColType() == AstColumnRef::RES) {
-                auto ids = ref->GetColumn();
-                assert(ids.size() > 0);
-                return run_time_vars->_resource->GetValueAsString(ids.back()->GetId());
             } else if (ref->GetColType() == AstColumnRef::HOST) {
                 auto ids = ref->GetColumn();
                 assert(ids.size() > 0);

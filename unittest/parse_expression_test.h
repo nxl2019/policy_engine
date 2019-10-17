@@ -103,5 +103,16 @@ TEST(PARSE_EXPRESSION_CASE_8) {
     ASSERT_TRUE(or_expr->GetRight()->GetExprType() == AstExpr::COMP_EQ);
     delete (expr);
 }
-
+TEST(PARSE_EXPRESSION_CASE_9) {
+    Lex lex("resource.spe.level > 10 AND USER.Level < 8 ");
+    lex.Next();
+    ParseException e;
+    AstExpr *expr = parse_boolean_expr(&lex, &e);
+    ASSERT_TRUE(e._code == ParseException::SUCCESS && lex.GetCurrent()->GetType() == Token::TK_END_P);
+    ASSERT_TRUE(expr->GetExprType() == AstExpr::AND);
+    auto or_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
+    ASSERT_TRUE(or_expr->GetLeft()->GetExprType() == AstExpr::COMP_GT);
+    ASSERT_TRUE(or_expr->GetRight()->GetExprType() == AstExpr::COMP_LT);
+    delete (expr);
+}
 #endif

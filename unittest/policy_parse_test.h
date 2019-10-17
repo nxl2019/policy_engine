@@ -54,7 +54,7 @@ TEST(parse_policies)
     }
     {
         AstExpr * pexpr1 = dynamic_cast<AstBinaryOpExpr*>(pexpr)->GetRight();
-        ASSERT_TRUE(pexpr1->GetExprType() == AstExpr::C_TRUE);
+        ASSERT_TRUE(pexpr1->GetExprType() == AstExpr::LIKE);
     }
 
     delete ppolicy;
@@ -98,6 +98,9 @@ TEST(internal_api) {
     }
     ASSERT_TRUE(blret == BOOLEAN::B_UNKNOWN);
     delete ppolicy;
+
+
+
 }
 
 

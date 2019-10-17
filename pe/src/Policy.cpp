@@ -23,7 +23,7 @@ AstExpr * parse_from_expression(const Json::Value & action_components);
 
 void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::set<std::string> & attributes, std::set<std::string> & resourceattrs, std::set<std::string> & rhost, std::set<std::string> & rapp); /* actions and attibutes recursive query function */
 
-bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE type); /* parser r-value to column-ref */
+bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE & type); /* parser r-value to column-ref */
 
 Policy::~Policy() {
     if(_expr) delete (_expr);
@@ -32,7 +32,7 @@ Policy::~Policy() {
     _pres_expr = nullptr;
 }
 
-bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE type) {
+bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE & type) {
     if(s.length() < 4) return false;
     if(s[0] != '$') return false;
     if(s[1] != '{') return false;
@@ -56,6 +56,11 @@ bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYP
     while(i <= len-1) {
         if (s[i] == '.' ) {
             std::string substr = s.substr(start, i - start);
+            if (substr.compare("host") == 0) {
+                type = AstColumnRef::HOST;
+            } else if (substr.compare("application") == 0) {
+                type = AstColumnRef::APP;
+            }
             ids.push_back(new AstId(substr));
             i++;
             break;
@@ -93,13 +98,15 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
 
     } else if (rhs_type.compare("SUBJECT") == 0){
         AstIds ids;
-        parse_column_ref(constant_value, ids, AstColumnRef::SUB);
-        pexpr_right = new AstColumnRef(AstColumnRef::SUB, ids);
+        AstColumnRef::COL_TYPE type = AstColumnRef::SUB;
+        parse_column_ref(constant_value, ids, type);
+        pexpr_right = new AstColumnRef(type, ids);
 
     } else if (rhs_type.compare("RESOURCE") == 0) {
         AstIds ids;
-        parse_column_ref(constant_value, ids, AstColumnRef::RES);
-        pexpr_right = new AstColumnRef(AstColumnRef::RES, ids);
+        AstColumnRef::COL_TYPE type = AstColumnRef::RES;
+        parse_column_ref(constant_value, ids, type);
+        pexpr_right = new AstColumnRef(type, ids);
 
     } else {
         return new AstConstantValue(AstExpr::C_UNKNOWN);
@@ -488,11 +495,11 @@ void print(AstExpr * pexpr, int lvl){
             AstColumnRef * ptemp = dynamic_cast<AstColumnRef *>(pexpr);
             std::string sid = print_ids(ptemp->GetColumn() );
             if (ptemp->GetColType()==AstColumnRef::ACTION) {
-                printf("|-%s-\"%s\"\n", "ACTION", sid.c_str());
+                printf("|-COLUMN_REF-%s-\"%s\"\n", "ACTION", sid.c_str());
             } else if (ptemp->GetColType()==AstColumnRef::SUB) {
-                printf("|-%s-\"%s\"\n", "SUBJECT", sid.c_str());
+                printf("|-COLUMN_REF-%s-\"%s\"\n", "SUBJECT", sid.c_str());
             } else {
-                printf("|-%s-\"%s\"\n", "RESOURCE", sid.c_str());
+                printf("|-COLUMN_REF-%s-\"%s\"\n", "RESOURCE", sid.c_str());
             }
         }
             break;
@@ -510,7 +517,10 @@ void print(AstExpr * pexpr, int lvl){
             printf("|-C_NULL\n");
         }break;
         case AstExpr::C_STRING: {
-            printf("|-'%s'\n", dynamic_cast<AstConstantValue *>(pexpr)->GetValueAsStr());
+            printf("|-C_STRING-'%s'\n", dynamic_cast<AstConstantValue *>(pexpr)->GetValueAsStr());
+        }break;
+        case AstExpr::C_PATTERN: {
+            printf("|-C_PATTERN-'%s'\n", dynamic_cast<AstConstantValue *>(pexpr)->GetValueAsStr());
         }break;
         case AstExpr::NOT: {
             printf("|-NOT\n");

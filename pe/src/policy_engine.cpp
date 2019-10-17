@@ -116,7 +116,6 @@ PolicyEngineReturn policy_engine_destroy_dictionary(PolicyEngineHandle dictionar
 PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dictionary, const char *attribute_name, const char *attribute_value) {
     if (dictionary == nullptr) return POLICY_ENGINE_INVALID_HANDLE;
     Handle *handle = (Handle*)dictionary;
-    if (handle->GetHandleType() != PE_SUBJECT) return POLICY_ENGINE_TYPE_ERROR;
     if (attribute_name == nullptr || attribute_value == nullptr) return POLICY_ENGINE_FAIL;
     switch (handle->GetHandleType()) {
         case PE_SUBJECT: /* go through */
@@ -125,7 +124,7 @@ PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dicti
         case PE_APPLICATION: {
             dynamic_cast<Dictionary*>(handle)->InsertValue(attribute_name, attribute_value);
         } break;
-        default: { return POLICY_ENGINE_FAIL; }
+        default: { return POLICY_ENGINE_TYPE_ERROR; }
     }
     return POLICY_ENGINE_SUCCESS;
 }

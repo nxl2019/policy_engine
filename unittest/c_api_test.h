@@ -15,7 +15,7 @@
 TEST(policy_engine_module_init_case_1) {
 
     std::string cchost = "https://cc87-console.qapf1.qalab01.nextlabs.com";
-    std::string tag = "emsmb";
+    std::string tag = "pe_test";
 
     //std::string cchost = "https://cc85-console.qapf1.qalab01.nextlabs.com" ;
     std::string ccport = "443" ;
@@ -130,26 +130,27 @@ TEST(policy_engine_match_case_1) {
     PolicyEngineHandle pdictionary = NULL;
     PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_SUBJECT, &pdictionary);
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-    ret = policy_engine_insert_into_dictionary(pdictionary, "title", "DDiretor");
+    ret = policy_engine_insert_into_dictionary(pdictionary, "username", "xxx");
+    ret = policy_engine_insert_into_dictionary(pdictionary, "level", "4");
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
     POLICY_ENGINE_MATCH_RESULT result;
-    ret =  policy_engine_match( pdictionary, "VIEW", NULL,NULL, NULL , &result);
+    ret =  policy_engine_match( pdictionary, "SELECT", NULL,NULL, NULL , &result);
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
     ASSERT_TRUE(result == PE_NO_MATCHED);
 
     ret = policy_engine_destroy_dictionary(pdictionary);
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
 }
-
 TEST(policy_engine_match_case_2) {
 
     PolicyEngineHandle pdictionary = NULL;
     PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_SUBJECT, &pdictionary);
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-    ret = policy_engine_insert_into_dictionary(pdictionary, "title", "Director");
+    ret = policy_engine_insert_into_dictionary(pdictionary, "username", "xxx");
+    ret = policy_engine_insert_into_dictionary(pdictionary, "level", "4");
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
     POLICY_ENGINE_MATCH_RESULT result;
-    ret =  policy_engine_match( pdictionary, "VIEW", NULL,NULL, NULL , &result);
+    ret =  policy_engine_match( pdictionary, NULL, NULL,NULL, NULL , &result);
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
     ASSERT_TRUE(result == PE_NEED_MORE_WORK);
 
@@ -161,6 +162,7 @@ TEST(policy_engine_match_case_2) {
 TEST(policy_engine_module_exit_case_1) {
     PolicyEngineReturn ret = policy_engine_module_exit();
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
 
