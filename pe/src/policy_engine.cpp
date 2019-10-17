@@ -83,15 +83,15 @@ PolicyEngineReturn policy_engine_create_dictionary_handle(POLICY_ENGINE_HANDLE_T
             return POLICY_ENGINE_SUCCESS;
         } break;
         case PE_RESOURCE: {
-            *pdictionary = new Dictionary(PE_SUBJECT);
+            *pdictionary = new Dictionary(PE_RESOURCE);
             return POLICY_ENGINE_SUCCESS;
         } break;
         case PE_HOST: {
-            *pdictionary = new Dictionary(PE_SUBJECT);
+            *pdictionary = new Dictionary(PE_HOST);
             return POLICY_ENGINE_SUCCESS;
         } break;
         case PE_APPLICATION: {
-            *pdictionary = new Dictionary(PE_SUBJECT);
+            *pdictionary = new Dictionary(PE_APPLICATION);
             return POLICY_ENGINE_SUCCESS;
         } break;
         default: { return POLICY_ENGINE_FAIL; }
