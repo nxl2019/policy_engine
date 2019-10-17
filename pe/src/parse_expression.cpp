@@ -70,6 +70,7 @@ AstExpr *parse_value(Lex *lex, ParseException *e) {
     } else if (lex->GetCurrent()->GetType() == Token::TK_DEC_NUMBER) {
         AstConstantValue *c = new AstConstantValue(AstExpr::C_STRING);  /* todo */
         c->SetValue(lex->GetCurrent()->GetWord());
+        lex->Next();
         return c;
     } else {
         AstExpr *col_ref = parse_column_ref(lex, e);
