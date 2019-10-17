@@ -53,6 +53,7 @@ Pattern::P_TYPE to_pattern_type(char ques_or_not, char wild) {
 }
 
 std::string to_regex(Pattern::P_TYPE tp) {
+    assert(tp != Pattern::ORI);
     switch (tp) {
         case Pattern::ONE_STAR: return "([^/]*)";
         case Pattern::TWO_STAR: return "(.*)";
@@ -73,6 +74,7 @@ std::string to_regex(Pattern::P_TYPE tp) {
         case Pattern::NOT_C:    return "((\\w*(\\W+\\w*)+)|(q{0}))";
         case Pattern::NOT_s:    return "(^\\s)";
         case Pattern::NOT_S:    return "((\\s*(\\S+\\s*)+)|(q{0}))";
+        default: { assert(false); }
     }
 }
 

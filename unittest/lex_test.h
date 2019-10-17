@@ -140,4 +140,16 @@ TEST(LEX_CASE_5) {
     ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_END_P);
 }
 
+/* this case contain an unterminated string literal and cause an error */
+TEST(LEX_CASE_6) {
+    Lex lex("USER.\"email address");
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_USER);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_DOT);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_ERR);
+    mt::printOk(lex.GetCurrent()->GetWord().c_str());
+}
+
 #endif

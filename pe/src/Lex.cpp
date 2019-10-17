@@ -170,6 +170,7 @@ void Lex::ScanfIdentifier() {
     if (!check_reserved_keyword(s, _cur_tk)) _cur_tk.Set(Token::TK_ID, s);
 }
 
+#if 0
 void Lex::ScanfStrLiteral() {
     assert(CharAt(Pos()) == '"');
     PosInc(1);
@@ -198,6 +199,36 @@ void Lex::ScanfStrLiteral() {
         _cur_tk.Set(Token::TK_ERR, "Unterminated String Literal");
     }
 }
+#else
+void Lex::ScanfStrLiteral() {
+    assert(CharAt(Pos()) == '"');
+    PosInc(1);
+    std::string buf;
+    char c = CharAt(Pos());
+    while (c != '"' && c != EOI) {
+        if (c == '\\') {
+            char next = CharAt(Pos()+1);
+            char escaped = 0;
+            if (is_escaped(next, escaped)) {
+                buf += escaped;
+                PosInc(1);
+            } else {
+                _cur_tk.Set(Token::TK_ERR, "Unexpected Escape Char");
+                return;
+            }
+        } else {
+            buf += c;
+        }
+        c = CharAt(PosInc(1));
+    }
+    if (c == '"') {
+        PosInc(1);
+        _cur_tk.Set(Token::TK_STR_LITERAL, buf);
+    } else {
+        _cur_tk.Set(Token::TK_ERR, "Unterminated String Literal");
+    }
+}
+#endif
 
 void Lex::ScanfOperator() {
     switch (CharAt(Pos())) {
