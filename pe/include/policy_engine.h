@@ -32,6 +32,8 @@ typedef PolicyEngineHandle PolicyEngineApplication;
 #define POLICY_ENGINE_TYPE_ERROR -2
 #define POLICY_ENGINE_MODULE_NOT_INIT -3
 #define POLICY_ENGINE_INVALID_HANDLE -4
+#define POLICY_ENGINE_CCCONNECT_ERROR -5
+
 
 /*
  * pe module will parse and analyze the policy's all components

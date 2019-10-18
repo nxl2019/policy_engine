@@ -222,12 +222,6 @@ AstExpr * parse_from_com_components(const Json::Value & subject_components, AstC
     return pexp;
 }
 
-AstExpr * parse_from_resource_components(const Json::Value & resource_components){
-    if (resource_components.size() == 0) {
-        return  new AstConstantValue(AstExpr::C_TRUE);
-    }
-    return  new AstConstantValue(AstExpr::C_UNKNOWN);
-}
 AstExpr *  parse_from_actions(const Json::Value & actions, AstColumnRef::COL_TYPE type ){
     AstExpr * pexp = NULL;
     {

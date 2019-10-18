@@ -13,6 +13,19 @@
 #include <thread>
 
 TEST(policy_engine_module_init_case_1) {
+    std::string cchost = "https://cc80-console.qapf1.qalab01.nextlabs.com"; // ERROR PARAMS
+    std::string tag = "pe_test";
+    std::string ccport = "443" ;
+    std::string ccuser = "administrator" ;
+    std::string ccpwd = "123blue!" ;
+    {
+        PolicyEngineReturn ret = policy_engine_module_init(cchost.c_str(), ccport.c_str(), ccuser.c_str(), ccpwd.c_str(), tag.c_str(),
+                                                           10);
+        ASSERT_TRUE(ret == POLICY_ENGINE_CCCONNECT_ERROR);
+    }
+}
+
+TEST(policy_engine_module_init_case_2) {
 
     std::string cchost = "https://cc87-console.qapf1.qalab01.nextlabs.com";
     std::string tag = "pe_test";
@@ -164,15 +177,6 @@ TEST(policy_engine_module_exit_case_1) {
     ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
     std::this_thread::sleep_for(std::chrono::seconds(2));
 }
-
-
-
-
-
-
-
-
-
 
 
 #endif //POLICY_ENGINE_C_API_TEST_H

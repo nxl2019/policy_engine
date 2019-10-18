@@ -8,13 +8,7 @@
 #include <windows.h>
 #include <Shlobj.h>
 #else
-#include <dlfcn.h>
-#include <sys/stat.h>
-#include <strings.h>
-#include <string.h>
-#include <pwd.h>
-#include <unistd.h>
-#include <sys/types.h>
+
 #define sprintf_s snprintf
 #endif
 #include <cctype>

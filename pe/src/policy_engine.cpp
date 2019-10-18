@@ -23,27 +23,27 @@ PolicyEngineReturn policy_engine_analyze(PolicyEngineStringList *psubjects_strin
     if (psubjects_string_list != nullptr ) {
         *psubjects_string_list = subjects_string_list;
     } else {
-        delete(subjects_string_list);
+        StringList::FreeStringList(subjects_string_list);
     }
     if (pactions_string_list != nullptr ) {
         *pactions_string_list = actions_string_list;
     } else {
-        delete(actions_string_list);
+        StringList::FreeStringList(actions_string_list);
     }
     if (presource_string_list != nullptr ) {
         *presource_string_list = resource_string_list;
     } else {
-        delete(resource_string_list);
+        StringList::FreeStringList(resource_string_list);
     }
     if (phost_string_list != nullptr ) {
         *phost_string_list = host_string_list;
     } else {
-        delete(host_string_list);
+        StringList::FreeStringList(host_string_list);
     }
     if (papp_string_list != nullptr ) {
         *papp_string_list = app_string_list;
     } else {
-        delete(app_string_list);
+        StringList::FreeStringList(app_string_list);
     }
 
     return r;

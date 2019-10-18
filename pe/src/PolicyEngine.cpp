@@ -22,7 +22,7 @@ PolicyEngineReturn PolicyEngine::Init(const std::string& cchost, const std::stri
     Ins()->_cchost = cchost; Ins()->_ccport = ccport; Ins()->_ccuser = ccuser; Ins()->_ccpwd = ccpwd; Ins()->_tag = tag;
     if (sync_interval_seconds < 60) Ins()->_sync_interval_seconds = 60;
     else Ins()->_sync_interval_seconds = sync_interval_seconds;
-    Ins()->Update();
+    if (POLICY_ENGINE_SUCCESS != Ins()->Update()) return POLICY_ENGINE_CCCONNECT_ERROR;
     Ins()->_running_flag = true;
     std::thread thread(PolicyEngine::Sync);
     thread.detach();
@@ -88,17 +88,17 @@ PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& acti
     return POLICY_ENGINE_SUCCESS;
 }
 
-void PolicyEngine::Update() {
+PolicyEngineReturn PolicyEngine::Update() {
     std::vector<Policy*> tmp;
     std::string str_session_cookie = CCLoginHelper::Login(_cchost, _ccport, _ccuser, _ccpwd);
     if (str_session_cookie.empty()) {
-        printf("cc session cookie is empty.");
-        return ;
+        //printf("cc session cookie is empty.");
+        return POLICY_ENGINE_CCCONNECT_ERROR;
     }
     std::list<std::string> jsons;
     if (!CCPolicyHelper::SyncPolicy(_cchost, _ccport, str_session_cookie, _tag, jsons)) {
-        printf("get policies failed.");
-        return ;
+        //printf("get policies failed.");
+        return POLICY_ENGINE_CCCONNECT_ERROR;
     }
 
     for (auto it : jsons) {
@@ -117,6 +117,7 @@ void PolicyEngine::Update() {
     }
     for (auto it : tmp) delete (it);
     tmp.clear();
+    return POLICY_ENGINE_SUCCESS;
 }
 
 void PolicyEngine::Sync() {

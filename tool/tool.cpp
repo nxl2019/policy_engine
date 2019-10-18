@@ -1,5 +1,5 @@
 #include "tool.h"
-
+#include <string.h>
 namespace CommonFun {
 
     std::string ToUTF8(const std::string &src, std::string &dst) {

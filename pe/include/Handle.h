@@ -27,9 +27,9 @@ public:
     }
     static void FreeStringList(StringList *list) {
         for (StringList *it = list; it != nullptr; ) {
-            StringList *tmp = it;
-            delete (tmp);
-            it = it->_next;
+            StringList *tmp = it->_next;
+            delete (it);
+            it = tmp;
         }
     }
 public:
