@@ -1,4 +1,4 @@
-#include "Policy.h"
+
 #include "Handle.h"
 #include "policy_expression.h"
 #include "json/json.h"
@@ -6,7 +6,9 @@
 #include "policy_regex.h"
 #include "parse_expression.h"
 #include "Lex.h"
+#include "Policy.h"
 #include <assert.h>
+#include <vector>
 
 #define COLUMN_REF_ACTION "ACTION"
 
@@ -30,6 +32,10 @@ Policy::~Policy() {
     _expr = nullptr;
     if(_pres_expr) delete (_pres_expr);
     _pres_expr = nullptr;
+    for (auto it: _obg_cols) {
+        delete(it);
+    }
+    _obg_cols.clear();
 }
 
 bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE & type) {
@@ -322,6 +328,26 @@ AstExpr * parse_from_expression(const Json::Value & action_components) {
     return  expr;
 }
 
+bool parse_id_from_obligation_json(const Json::Value & json_obgs, std::vector<AstColumnRef*> &obg_cols) {
+    for (unsigned int i = 0; i < json_obgs.size(); ++i) {
+        Json::Value json_obg = json_obgs[i];
+        //std::string strname = json_obg["name"].asString();
+        Json::Value json_params = json_obg["params"];
+        if (json_params.isString() || json_params.isNull()) {
+            continue;
+        }
+        Json::Value::Members members = json_params.getMemberNames();
+        for (auto it = members.begin(); it != members.end(); ++it) {
+            std::string strkey(*it);
+            std::string strvalue = json_params[strkey].asString();
+            LexOb lex(strvalue);
+            lex.Next();
+            std::vector<AstColumnRef*> cols = parse_oblication(&lex);
+            obg_cols.insert(obg_cols.end(), cols.begin(), cols.end());
+        }
+    }
+    return true;
+}
 
 PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
     Json::CharReaderBuilder builder;
@@ -347,6 +373,10 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
     Json::Value expression = root["expression"];
     AstExpr * pexp_expression = parse_from_expression(expression);
     //printf("aaa=%s\n", expression.asCString());
+    Json::Value denyobgs = root["denyObligations"];
+    parse_id_from_obligation_json(denyobgs, _obg_cols);
+    Json::Value allowobgs = root["allowObligations"];
+    parse_id_from_obligation_json(allowobgs, _obg_cols);
 
     AstExpr * pexpr_resource_result = NULL; /// resource tree  can't be calculated
     if (AstExpr::C_TRUE != pexp_resource_comps->GetExprType()) {
@@ -409,6 +439,9 @@ bool Policy::AnalyzeReference() {
     analyze_reference(_expr, _actions, _subjectattrs, _resourceattrs, _host, _app);
     analyze_reference(_pres_expr, _actions, _subjectattrs, _resourceattrs, _host, _app);
     //if(_actions.size() == 0 && _subjectattrs.size() == 0 && _resourceattrs.size() == 0 && _host.size() == 0 && _app.size() == 0) return  false;
+    for (auto it: _obg_cols) {
+        analyze_reference(it, _actions, _subjectattrs, _resourceattrs, _host, _app);
+    }
     return  true;
 }
 
@@ -429,6 +462,12 @@ void Policy::GetHost(std::set<std::string>& host) {
 }
 void Policy::GetApp(std::set<std::string>& app) {
     app.insert(_app.begin(), _app.end());
+}
+void Policy::GetAllowObligation(std::set<std::string>& allow_obgs) {
+    allow_obgs.insert(_allow_obgs.begin(), _allow_obgs.end());
+}
+void Policy::GetDenyObligation(std::set<std::string>& deny_obgs) {
+    deny_obgs.insert(_deny_obgs.begin(), _deny_obgs.end());
 }
 
 PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , BOOLEAN& rboolean) {

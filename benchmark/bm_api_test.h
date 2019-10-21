@@ -21,6 +21,7 @@ static void Init(benchmark::State& state) {
     for (auto _: state) {
         PolicyEngineReturn ret = policy_engine_module_init(cchost, ccport, ccuser, ccpwd, tag,
                                                            3600);
+        assert(ret == POLICY_ENGINE_SUCCESS);
     }
 }
 BENCHMARK(Init);
@@ -152,11 +153,13 @@ static void DictionaryInsert(benchmark::State &state) {
     for (auto _:state) {
         PolicyEngineHandle  handle = NULL;
         PolicyEngineReturn ret = policy_engine_create_dictionary_handle(POLICY_ENGINE_HANDLE_TYPE::PE_SUBJECT, &handle);
+        assert(ret == POLICY_ENGINE_SUCCESS);
         ret =  policy_engine_insert_into_dictionary(handle, "emailAdress", "james.polk@qapf1.qalab01.nextlabs.com");
         ret =  policy_engine_insert_into_dictionary(handle, "department", "R&D");
         ret =  policy_engine_insert_into_dictionary(handle, "level", "5");
         ret =  policy_engine_insert_into_dictionary(handle, "company", "Nextlabs");
         ret =  policy_engine_insert_into_dictionary(handle, "country", "China");
+        assert(ret == POLICY_ENGINE_SUCCESS);
         policy_engine_destroy_dictionary(handle);
     }
 }
@@ -200,7 +203,7 @@ static void Match(benchmark::State &state) {
     policy_engine_destroy_dictionary(pdic_host);
     policy_engine_destroy_dictionary(pdic_app);
 }
-BENCHMARK(Match);
+BENCHMARK(Match)->Threads(10);
 
 
 
