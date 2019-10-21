@@ -13,7 +13,7 @@ std::string read_from_file(const std::string& path) {
            "    \"sync_interval_secs\":3600\n"
            "  },\n"
            "  \"expect_ref\": {\n"
-           "    \"subject\": [\"windowssid\", \"username\", \"pe_nums\", \"level\", \"company\"],\n"
+           "    \"subject\": [\"windowssid\", \"username\", \"pe_nums\", \"level\", \"company\", \"location\", \"co\", \"cn\", \"city\"],\n"
            "    \"resource\": [\"url\", \"owner\", \"level\"],\n"
            "    \"host\": [\"windowssid\"],\n"
            "    \"application\": [\"uniquename\", \"displayname\"],\n"
