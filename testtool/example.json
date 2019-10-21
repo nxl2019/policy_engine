@@ -1,0 +1,35 @@
+{
+  "cc_params": {
+    "host": "https://cc87-console.qapf1.qalab01.nextlabs.com",
+    "port": "443",
+    "user": "administrator",
+    "pwd": "123blue!",
+    "tag": "pe_test",
+    "sync_interval_secs":3600
+  },
+  "expect_ref": {
+    "subject": ["windowssid", "username", "pe_nums", "level", "company"],
+    "resource": ["url", "owner", "level"],
+    "host": ["windowssid"],
+    "application": ["uniquename", "displayname"],
+    "action": ["VIEW", "OPEN", "EDIT", "DELETE"]
+  },
+  "tasks": [
+    {
+      "subject": {"username": "xxx", "level": "4"},
+      "resource": {},
+      "host": {},
+      "application": {},
+      "action": "SELECT",
+      "expect_result": "PE_NO_MATCHED"
+    },
+    {
+      "subject": {"username": "xxx", "level": "4"},
+      "resource": {},
+      "host": {},
+      "application": {},
+      "action": "",
+      "expect_result": "PE_NEED_MORE_WORK"
+    }
+  ]
+}
