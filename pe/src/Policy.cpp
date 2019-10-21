@@ -216,7 +216,7 @@ AstExpr * parse_from_com_components(const Json::Value & subject_components, AstC
     AstExpr * pexp = parse_from_components(js_components, type, is_not);
 
     for (unsigned int i = 1; i < subject_components.size(); ++i) {
-        Json::Value js_opcomp = subject_components[0];
+        Json::Value js_opcomp = subject_components[i];
         std::string op = js_opcomp["operator"].asString();
         bool is_not = op.compare("IN") != 0;
         Json::Value js_components = js_opcomp["components"];
@@ -300,7 +300,7 @@ AstExpr * parse_from_action_components(const Json::Value & action_components){
     AstExpr * pexp = parse_from_components_for_action(js_components, AstColumnRef::ACTION, is_not);
 
     for ( unsigned int i = 1; i < action_components.size(); ++i) {
-        Json::Value js_opcomp = action_components[0];
+        Json::Value js_opcomp = action_components[i];
         std::string op = js_opcomp["operator"].asString();
         bool is_not = op.compare("IN") != 0;
         Json::Value js_components = js_opcomp["components"];
