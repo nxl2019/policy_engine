@@ -269,6 +269,40 @@ void Lex::ScanfWhite() {
 }
 
 
+////////////////////////////////////////////////
+LexOb::LexOb(const std::string& oblication) : Lex(oblication) { }
+
+void LexOb::Next() {
+    if (_cur_tk.GetType() == Token::TK_END_P) return;
+    while (true) {
+        switch (CharAt(Pos())) {
+            case ' ':  /* go through */
+            case '\t': /* go through */
+            case '\n': /* go through */
+            case '\r': /* go through */
+            case '\f': {
+                ScanfWhite();
+            } break;
+            case '.' : { _cur_tk.Set(Token::TK_DOT, "."); PosInc(1); return; } break;
+            case '$' : { _cur_tk.Set(Token::TK_DOLLAR, "$"); PosInc(1); return; } break;
+            case '"' : {
+                return ScanfStrLiteral();
+            } break;
+            case EOI : {
+                _cur_tk.Set(Token::TK_END_P, "");
+                return;
+            }
+            default: {
+                if (is_identifier_begin(CharAt(Pos()))) {
+                    return ScanfIdentifier();
+                } else {
+                    /* Skip The Unknown Char */
+                    PosInc(1);
+                }
+            }
+        }
+    }
+}
 
 
 

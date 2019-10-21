@@ -198,3 +198,20 @@ AstExpr *parse_column_ref(Lex *lex, ParseException *e) {
         return new AstColumnRef(AstColumnRef::OTHER, ids);
     }
 }
+
+std::vector<AstColumnRef*> parse_oblication(LexOb *lex) {
+    std::vector<AstColumnRef*> r;
+    for (; lex->GetCurrent()->GetType() != Token::TK_END_P; ) {
+        if (lex->GetCurrent()->GetType() == Token::TK_DOLLAR) {
+            lex->Next();
+            ParseException e;
+            AstExpr *column_ref = parse_column_ref(lex, &e);
+            if (e._code == ParseException::SUCCESS) {
+                r.push_back(dynamic_cast<AstColumnRef*>(column_ref));
+            }
+        } else {
+            lex->Next();
+        }
+    }
+    return r;
+}

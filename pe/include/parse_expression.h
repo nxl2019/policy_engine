@@ -19,5 +19,9 @@ AstExpr *parse_boolean_expr(Lex *lex, ParseException *e);
 
 AstExpr *parse_value(Lex *lex, ParseException *e);
 
+class AstColumnRef;
+
+std::vector<AstColumnRef*> parse_oblication(LexOb *lex);
+
 
 #endif

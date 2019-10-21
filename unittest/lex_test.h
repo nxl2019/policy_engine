@@ -178,4 +178,42 @@ TEST(LEX_CASE_7) {
     mt::printOk(lex.GetCurrent()->GetWord().c_str());
 }
 
+TEST(LEXOB_TEST_CASE_1) {
+    LexOb lex("$user.location");
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_DOLLAR);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_USER);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_DOT);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_ID);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_END_P);
+}
+
+TEST(LEXOB_TEST_CASE_2) {
+    LexOb lex("12");
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_END_P);
+}
+
+TEST(LEXOB_TEST_CASE_3) {
+    LexOb lex("$user.location Data");
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_DOLLAR);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_USER);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_DOT);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_ID);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_ID);
+    lex.Next();
+    ASSERT_TRUE(lex.GetCurrent()->GetType() == Token::TK_END_P);
+}
+
+
+
 #endif

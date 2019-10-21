@@ -115,4 +115,95 @@ TEST(PARSE_EXPRESSION_CASE_9) {
     ASSERT_TRUE(or_expr->GetRight()->GetExprType() == AstExpr::COMP_LT);
     delete (expr);
 }
+
+
+TEST(PARSE_OBLICATION_CASE_1) {
+    LexOb lex("$user.location");
+    lex.Next();
+    std::vector<AstColumnRef*> refs = parse_oblication(&lex);
+    ASSERT_TRUE(refs.size() == 1);
+    auto ref = refs[0];
+    ASSERT_TRUE(ref->GetColType() == AstColumnRef::SUB);
+    for (auto it : refs) {
+        delete (it);
+    }
+    refs.clear();
+}
+
+TEST(PARSE_OBLICATION_CASE_2) {
+    LexOb lex("12");
+    lex.Next();
+    std::vector<AstColumnRef*> refs = parse_oblication(&lex);
+    ASSERT_TRUE(refs.size() == 0);
+    for (auto it : refs) {
+        delete (it);
+    }
+    refs.clear();
+}
+
+TEST(PARSE_OBLICATION_CASE_3) {
+    LexOb lex("$a.b.c");
+    lex.Next();
+    std::vector<AstColumnRef*> refs = parse_oblication(&lex);
+    ASSERT_TRUE(refs.size() == 1);
+    ASSERT_TRUE(refs[0]->GetColType() == AstColumnRef::OTHER);
+    for (auto it : refs) {
+        delete (it);
+    }
+    refs.clear();
+}
+
+TEST(PARSE_OBLICATION_CASE_4) {
+    LexOb lex("$user.location DATA $USER.address");
+    lex.Next();
+    std::vector<AstColumnRef*> refs = parse_oblication(&lex);
+    ASSERT_TRUE(refs.size() == 2);
+    auto ref = refs[0];
+    ASSERT_TRUE(ref->GetColType() == AstColumnRef::SUB);
+    for (auto it : refs) {
+        delete (it);
+    }
+    refs.clear();
+}
+
+TEST(PARSE_OBLICATION_CASE_5) {
+    LexOb lex("$user.location DATA* $USER.address $$ $$HOST.abc");
+    lex.Next();
+    std::vector<AstColumnRef*> refs = parse_oblication(&lex);
+    ASSERT_TRUE(refs.size() == 3);
+    auto ref = refs[0];
+    ASSERT_TRUE(ref->GetColType() == AstColumnRef::SUB);
+    for (auto it : refs) {
+        delete (it);
+    }
+    refs.clear();
+}
+
+
+TEST(PARSE_OBLICATION_CASE_6) {
+    LexOb lex("$user.\"loc^ation\" DATA $USER.address $$ $$HOST.abc");
+    lex.Next();
+    std::vector<AstColumnRef*> refs = parse_oblication(&lex);
+    ASSERT_TRUE(refs.size() == 3);
+    auto ref = refs[0];
+    ASSERT_TRUE(ref->GetColType() == AstColumnRef::SUB);
+    for (auto it : refs) {
+        delete (it);
+    }
+    refs.clear();
+}
+
+TEST(PARSE_OBLICATION_CASE_7) {
+    LexOb lex("$user.\"loc^ation\" DATA $USER.address $$ $$HOST.abc $$HOST.mn. ");  // incomplete id list
+    lex.Next();
+    std::vector<AstColumnRef*> refs = parse_oblication(&lex);
+    ASSERT_TRUE(refs.size() == 3);
+    auto ref = refs[0];
+    ASSERT_TRUE(ref->GetColType() == AstColumnRef::SUB);
+    for (auto it : refs) {
+        delete (it);
+    }
+    refs.clear();
+}
+
 #endif

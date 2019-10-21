@@ -26,6 +26,8 @@ public:
         TK_USER,
         TK_APP,
         TK_RES,
+
+        TK_DOLLAR   /* for oblication */
         /* todo extension */
     };
     Token();
@@ -42,8 +44,8 @@ class Lex {
 public:
     explicit Lex(const std::string& condition);
     const Token *GetCurrent() const;
-    void Next();
-private:
+    virtual void Next();
+protected:
     char CharAt(unsigned pos);
     std::string Sub(unsigned start, unsigned end);
     unsigned PosInc(unsigned inc);
@@ -53,10 +55,16 @@ private:
     void ScanfStrLiteral();
     void ScanfOperator();
     void ScanfWhite();
-private:
+protected:
     Token _cur_tk;
     std::string _condition;
     unsigned _pos;
+};
+
+class LexOb : public Lex {
+public:
+    explicit LexOb(const std::string& oblication);
+    virtual void Next();
 };
 
 #endif
