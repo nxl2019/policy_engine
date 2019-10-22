@@ -16,7 +16,9 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
-
+#ifdef _WIN32
+#include <windows.h>
+#endif
 ////////////////
 // Assertions //
 ////////////////
@@ -82,22 +84,47 @@
 ///////////////
 
 namespace mt {
+#ifdef _WIN32
+	inline const char* red() {
+		HANDLE hdl = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(hdl, FOREGROUND_RED | FOREGROUND_INTENSITY);
+		return "-";
+	}
 
-    inline const char* red() {
-        return "\033[1;31m";
-    }
+	inline const char* green() {
+		HANDLE hdl = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(hdl, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		return "-";
+	}
 
-    inline const char* green() {
-        return "\033[0;32m";
-    }
+	inline const char* yellow() {
+		HANDLE hdl = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(hdl, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+		return "-";
+	}
 
-    inline const char* yellow() {
-        return "\033[0;33m";
-    }
+	inline const char* def() {
+		return "-";
+	}
+#else
+	inline const char* red() {
+		return "\033[1;31m";
+	}
 
-    inline const char* def() {
-        return "\033[0m";
-    }
+	inline const char* green() {
+		return "\033[0;32m";
+	}
+
+	inline const char* yellow() {
+		return "\033[0;33m";
+	}
+
+	inline const char* def() {
+		return "\033[0m";
+	}
+#endif // _WIN32
+
+    
 
     inline void printRunning(const char* message, FILE* file = stdout) {
         fprintf(file, "%s{ running}%s %s\n", green(), def(), message);
