@@ -5,6 +5,7 @@
 #include "Value.h"
 #include <string.h>
 #include <stdlib.h>
+#include "tool.h"
 
 struct Instruction {
     ~Instruction() {

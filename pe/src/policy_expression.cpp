@@ -5,6 +5,7 @@
 #include "policy_expression.h"
 #include <string.h>
 #include <assert.h>
+#include "tool.h"
 //-------------AstExpr----------------
 AstExpr::AstExpr(EXPR_TYPE expr_type):_expr_type(expr_type), _expr_parent(NULL){ }
 AstExpr::EXPR_TYPE AstExpr::GetExprType(){ return  _expr_type; }

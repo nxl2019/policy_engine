@@ -8,7 +8,7 @@
 #ifdef POLICY_ENGINE_EXPORT
 #define POLICY_ENGINE_PUBLIC_API    __declspec(dllexport)
 #else
-#deifne POLICY_ENGINE_PUBLIC_API    __declspec(dllimport)
+#define POLICY_ENGINE_PUBLIC_API    __declspec(dllimport)
 #endif //POLICY_ENGINE_EXPORT
 #endif //WIN32
 

@@ -5,8 +5,8 @@
 #include <locale>
 #include <codecvt>
 #ifdef WIN32
-#include <windows.h>
-#include <Shlobj.h>
+#pragma warning(disable: 4996)
+#define strdup _strdup
 #else
 
 #define sprintf_s snprintf
