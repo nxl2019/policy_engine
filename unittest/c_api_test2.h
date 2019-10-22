@@ -8,6 +8,7 @@
 #include "Policy.h"
 #include "policy_expression.h"
 #include <list>
+#include "tool.h"
 
 TEST(api_test_2_case_1) {
     std::string cchost = "https://cc87-console.qapf1.qalab01.nextlabs.com";
@@ -72,7 +73,7 @@ TEST(api_test_2_case_1) {
     for (PolicyEngineStringList it = actlist; it != NULL;  policy_engine_string_list_next(it, &it)) {
         const char * act = nullptr;
         ret = policy_engine_string_list_current(it, &act);
-        int ret = strcasecmp(act, "DELETE");
+        int ret = CommonFun::StrCaseCmp(act, "DELETE");
         if (ret == 0) {
             bexpect = true;
         }
