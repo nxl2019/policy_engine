@@ -14,9 +14,9 @@ struct Instruction {
     }
     Instruction(const char *var_name, AstColumnRef::COL_TYPE var_type) : _type(PUSH_VAR) { u._var._var_name = strdup(var_name); u._var._var_type = var_type; }
     explicit Instruction(const char *constant) : _type(PUSH_CON) { u._c = new Value(constant); }
-    explicit Instruction(BOOLEAN boolean) : _type(PUSH_CON) { u._c = new Value(boolean); }
+    explicit Instruction(Value::BOOLEAN boolean) : _type(PUSH_CON) { u._c = new Value(boolean); }
     explicit Instruction(AstExpr::EXPR_TYPE op) : _type(EXEC_OP) { u._op = op; }
-    Instruction(BOOLEAN when, int where) : _type(COND_JUMP) { u._cjump._when = when; u._cjump._where_lab = where; }
+    Instruction(Value::BOOLEAN when, int where) : _type(COND_JUMP) { u._cjump._when = when; u._cjump._where_lab = where; }
     explicit Instruction(int lab) : _type(LAB) { u._lab = lab; }
     enum { PUSH_VAR, PUSH_CON, EXEC_OP, COND_JUMP, LAB } _type;
     union {
@@ -27,7 +27,7 @@ struct Instruction {
         Value *_c;
         AstExpr::EXPR_TYPE _op;
         struct {
-            BOOLEAN _when;
+            Value::BOOLEAN _when;
             int     _where_lab;
             int     _where_line;
         } _cjump;

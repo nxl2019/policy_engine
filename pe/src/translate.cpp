@@ -33,7 +33,7 @@ void translate(AstExpr *expr, std::vector<Instruction*>& rinstructions, unsigned
             AstBinaryOpExpr *or_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
             translate(or_expr->GetLeft(), rinstructions, _lab);
             unsigned lab1 = make_new_label;
-            Instruction *cjump = new Instruction(B_TRUE, lab1);
+            Instruction *cjump = new Instruction(Value::B_TRUE, lab1);
             rinstructions.push_back(cjump);
             translate(or_expr->GetRight(), rinstructions, _lab);
             rinstructions.push_back(new Instruction(AstExpr::OR));
@@ -43,7 +43,7 @@ void translate(AstExpr *expr, std::vector<Instruction*>& rinstructions, unsigned
             AstBinaryOpExpr *and_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
             translate(and_expr->GetLeft(), rinstructions, _lab);
             unsigned lab1 = make_new_label;
-            Instruction *cjump = new Instruction(B_FALSE, lab1);
+            Instruction *cjump = new Instruction(Value::B_FALSE, lab1);
             rinstructions.push_back(cjump);
             translate(and_expr->GetRight(), rinstructions, _lab);
             rinstructions.push_back(new Instruction(AstExpr::AND));
@@ -74,13 +74,13 @@ void translate(AstExpr *expr, std::vector<Instruction*>& rinstructions, unsigned
             rinstructions.push_back(new Instruction(ids.back()->GetId().c_str(), ref->GetColType()));
         } break;
         case AstExpr::C_TRUE: {
-            rinstructions.push_back(new Instruction(B_TRUE));
+            rinstructions.push_back(new Instruction(Value::B_TRUE));
         } break;
         case AstExpr::C_FALSE: {
-            rinstructions.push_back(new Instruction(B_FALSE));
+            rinstructions.push_back(new Instruction(Value::B_FALSE));
         } break;
         case AstExpr::C_UNKNOWN: {
-            rinstructions.push_back(new Instruction(B_UNKNOWN));
+            rinstructions.push_back(new Instruction(Value::B_UNKNOWN));
         } break;
         case AstExpr::C_NUMBER: {
             assert(false);

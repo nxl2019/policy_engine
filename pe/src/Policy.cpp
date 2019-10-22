@@ -470,7 +470,7 @@ void Policy::GetDenyObligation(std::set<std::string>& deny_obgs) {
     deny_obgs.insert(_deny_obgs.begin(), _deny_obgs.end());
 }
 
-PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , BOOLEAN& rboolean) {
+PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , Value::BOOLEAN& rboolean) {
     if (NULL == subject)  return  POLICY_ENGINE_FAIL;
 //      rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action.c_str());
         rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action, const_cast<Resource*>(res), const_cast<Host*>(host), const_cast<App*>(app));

@@ -23,7 +23,7 @@ public:
     void GetApp(std::set<std::string>& app);
     void GetAllowObligation(std::set<std::string>& allow_obgs);
     void GetDenyObligation(std::set<std::string>& deny_obgs);
-    PolicyEngineReturn TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , BOOLEAN & rboolean);
+    PolicyEngineReturn TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , Value::BOOLEAN & rboolean);
     void Dump();    /* print the policy for debug */
     AstExpr * GetAst() { return  _expr; }
     AstExpr * GetResAst() { return  _pres_expr; }

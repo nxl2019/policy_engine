@@ -66,13 +66,13 @@ PolicyEngineReturn PolicyEngine::Analyze(StringList **psubjects_strlist, StringL
 
 PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& action, Resource *res, Host *host, App *app, POLICY_ENGINE_MATCH_RESULT *presult) {
     if (!_running_flag) return POLICY_ENGINE_MODULE_NOT_INIT;
-    std::vector<BOOLEAN > booleans;
+    std::vector<Value::BOOLEAN > booleans;
     {
         std::shared_lock<std::shared_timed_mutex> readerLock(__mutex);
         for (auto it : _policys) {
-            BOOLEAN bl = B_UNKNOWN;
+            Value::BOOLEAN bl = Value::B_UNKNOWN;
             if (it->TryMatch(subject, action, res, host, app, bl) != POLICY_ENGINE_SUCCESS) {
-                booleans.push_back(B_UNKNOWN);
+                booleans.push_back(Value::B_UNKNOWN);
             } else {
                 booleans.push_back(bl);
             }
@@ -80,7 +80,7 @@ PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& acti
     }
     *presult = PE_NO_MATCHED;
     for (auto it : booleans) {
-        if (it != B_FALSE) {
+        if (it != Value::B_FALSE) {
             *presult = PE_NEED_MORE_WORK;
             break;
         }

@@ -5,10 +5,9 @@
 #include <stdlib.h>
 #include <string>
 
-enum BOOLEAN { B_TRUE, B_FALSE, B_UNKNOWN };
-
 class Value {
 public:
+    enum BOOLEAN { B_TRUE, B_FALSE, B_UNKNOWN };
     enum VALUE_TYPE { V_INT, V_STRING, V_BOOLEAN, V_NULL };
     explicit Value(int data) : _value_type(V_INT), _can_cvt_to_int(false) { u._int_data = data; }
     explicit Value(const char *data) : _value_type(V_STRING), _can_cvt_to_int(false) {

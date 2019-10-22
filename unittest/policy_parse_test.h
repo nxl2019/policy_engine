@@ -84,19 +84,19 @@ TEST(internal_api) {
     Dictionary host(PE_HOST);
     Dictionary app(PE_APPLICATION);
     std::string action = "DELETE";
-    BOOLEAN blret;
+    Value::BOOLEAN blret;
     ppolicy->TryMatch(&sub, action, &res, &host, &app, blret);
     ppolicy->Dump();
     printf("TryMatch-------------------------------------\n");
     printf("  Input:SUB(%s, %s) ACTION(%s) \n", key.c_str(), value.c_str(), action.c_str());
-    if (blret == BOOLEAN::B_TRUE) {
+    if (blret == Value::B_TRUE) {
         printf("  Output:BOOLEAN::B_TRUE\n");
-    } else if (blret == BOOLEAN::B_FALSE) {
+    } else if (blret == Value::B_FALSE) {
         printf("  Output:BOOLEAN::B_FALSE\n");
     } else {
         printf("  Output:BOOLEAN::B_UNKNOWN\n");
     }
-    ASSERT_TRUE(blret == BOOLEAN::B_UNKNOWN);
+    ASSERT_TRUE(blret == Value::B_UNKNOWN);
     delete ppolicy;
 
 
