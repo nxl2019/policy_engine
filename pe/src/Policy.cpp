@@ -87,7 +87,6 @@ bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYP
 
 AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE type){
 
-    AstExpr * pexpr = NULL;
     AstExpr * pexpr_right = NULL;
     std::string constant_value = json["value"].asString();
     std::string rhs_type = json["rhsType"].asString();
@@ -124,38 +123,49 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
     ids.push_back(pastid);
     AstExpr * pexpr_left = new AstColumnRef(type, ids);
 
+    AstExpr::EXPR_TYPE ast_type = AstExpr::EXPER_NOT_SUPPORT;
     std::string op_cond = json["operator"].asString();
     if (op_cond.compare("=") == 0) {
         if ( pexpr_right->GetExprType() == AstExpr::C_PATTERN ) {
-            pexpr = new AstBinaryOpExpr(AstExpr::LIKE, pexpr_left, pexpr_right);
+            ast_type = AstExpr::LIKE;
         } else {
-            pexpr = new AstBinaryOpExpr(AstExpr::COMP_EQ, pexpr_left, pexpr_right);
+            ast_type = AstExpr::COMP_EQ;
         }
     }
     else if (op_cond.compare("!=") == 0) {
         if ( pexpr_right->GetExprType() == AstExpr::C_PATTERN )  {
-            pexpr = new AstBinaryOpExpr(AstExpr::NOT_LIKE, pexpr_left, pexpr_right);
+            ast_type = AstExpr::NOT_LIKE;
         } else {
-            pexpr = new AstBinaryOpExpr(AstExpr::COMP_NEQ, pexpr_left, pexpr_right);
+            ast_type = AstExpr::COMP_NEQ;
         }
     }
     else if (op_cond.compare(">") == 0) {
-        pexpr = new AstBinaryOpExpr(AstExpr::COMP_GT, pexpr_left, pexpr_right);
+        ast_type = AstExpr::COMP_GT;
     }
     else if (op_cond.compare(">=") == 0) {
-        pexpr = new AstBinaryOpExpr(AstExpr::COMP_GE, pexpr_left, pexpr_right);
+        ast_type = AstExpr::COMP_GE;
     }
     else if (op_cond.compare("<") == 0) {
-        pexpr = new AstBinaryOpExpr(AstExpr::COMP_LT, pexpr_left, pexpr_right);
+        ast_type = AstExpr::COMP_LT;
     }
     else if (op_cond.compare("<=") == 0) {
-        pexpr = new AstBinaryOpExpr(AstExpr::COMP_LE, pexpr_left, pexpr_right);
+        ast_type = AstExpr::COMP_LE;
+    }
+    else if (op_cond.compare("includes") == 0) {
+        ast_type = AstExpr::INCLUDES;
+    }
+    else if (op_cond.compare("equals_unordered") == 0) {
+        ast_type = AstExpr::EQUALS_UNORDERED;
     }
     else {
-        pexpr = new AstExpr(AstExpr::EXPER_NOT_SUPPORT);
+        ast_type = AstExpr::EXPER_NOT_SUPPORT;
     }
 
-    return pexpr;
+    if (ast_type == AstExpr::EXPER_NOT_SUPPORT) {
+        return new AstExpr(AstExpr::EXPER_NOT_SUPPORT);
+    } else {
+        return new AstBinaryOpExpr(ast_type, pexpr_left, pexpr_right);
+    }
 }
 
 AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::COL_TYPE type) {
@@ -463,12 +473,7 @@ void Policy::GetHost(std::set<std::string>& host) {
 void Policy::GetApp(std::set<std::string>& app) {
     app.insert(_app.begin(), _app.end());
 }
-void Policy::GetAllowObligation(std::set<std::string>& allow_obgs) {
-    allow_obgs.insert(_allow_obgs.begin(), _allow_obgs.end());
-}
-void Policy::GetDenyObligation(std::set<std::string>& deny_obgs) {
-    deny_obgs.insert(_deny_obgs.begin(), _deny_obgs.end());
-}
+
 
 PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , BOOLEAN& rboolean) {
     if (NULL == subject)  return  POLICY_ENGINE_FAIL;
