@@ -1,0 +1,60 @@
+{
+    "id":"93",
+    "fullname":"ROOT_93/sql-test",
+    "description":"for sql test",
+    "effectType":"allow",
+    "actionComponents":[
+        {
+            "operator":"IN",
+            "components":[
+                {
+                    "id":"110",
+                    "actions":NULL /* todo */
+                }
+            ]
+        }
+    ],
+    "subjectComponents":[
+        {
+            "operator":"IN",
+            "components":[
+                {
+                    "id":"67",
+                    "conditions":NULL /* todo */
+                },
+                {
+                    "id":"76",
+                    "conditions":NULL /* todo */
+                }
+            ]
+        },
+        {
+            "operator":"NOT",
+            "components":[
+                {
+                    "id":"84",
+                    "conditions":NULL /* todo */
+                }
+            ]
+        }
+    ],
+    "fromResourceComponents":[
+        {
+            "operator":"IN",
+            "components":[
+                {
+                    "id":"112",
+                    "conditions":NULL /* todo */
+                }
+            ]
+        }
+    ],
+    "denyObligations":[
+        {
+            "name":"log",
+            "params":""
+        }
+    ],
+    "allowObligations":"",
+    "expression":"(resource.sqltablea.server = "sql-server01" AND resource.sqltablea."server]" = "security")"
+}
