@@ -90,6 +90,7 @@ bool is_policy_regex(const std::string& text) {
 }
 
 bool is_policy_regex(const std::string& text, std::regex& rpolicy_regex) {
+#if 0
     /* we can convert the text to the std::regex if this is a policy regex */
     bool r = false;
     std::vector<Pattern> patterns;
@@ -141,4 +142,7 @@ bool is_policy_regex(const std::string& text, std::regex& rpolicy_regex) {
         }
     }
     return r;
+#else
+    return false;
+#endif
 }

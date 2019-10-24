@@ -8,7 +8,7 @@
 #ifdef POLICY_ENGINE_EXPORT
 #define POLICY_ENGINE_PUBLIC_API    __declspec(dllexport)
 #else
-#deifne POLICY_ENGINE_PUBLIC_API    __declspec(dllimport)
+#define POLICY_ENGINE_PUBLIC_API    __declspec(dllimport)
 #endif //POLICY_ENGINE_EXPORT
 #endif //WIN32
 
@@ -45,10 +45,10 @@ typedef PolicyEngineHandle PolicyEngineApplication;
 enum POLICY_ENGINE_HANDLE_TYPE { PE_STRING_LIST, PE_SUBJECT, PE_HOST, PE_APPLICATION, PE_RESOURCE };
 
 
-PolicyEngineReturn policy_engine_module_init(const char *cchost, const char *ccport, const char *ccuser, const char *ccpwd, const char *tag,
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_module_init(const char *cchost, const char *ccport, const char *ccuser, const char *ccpwd, const char *tag,
                                              unsigned int sync_interval_seconds);
 
-PolicyEngineReturn policy_engine_module_exit();
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_module_exit();
 
 /*
  * param psubjects_string_list:  return all referenced subject attribute names in the policys
@@ -59,29 +59,29 @@ PolicyEngineReturn policy_engine_module_exit();
  *
  * input NULL means you don't want to collect this type of attribute names
  * */
-PolicyEngineReturn policy_engine_analyze(PolicyEngineStringList *psubjects_string_list, PolicyEngineStringList *pactions_string_list,
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_analyze(PolicyEngineStringList *psubjects_string_list, PolicyEngineStringList *pactions_string_list,
         PolicyEngineStringList *presource_string_list, PolicyEngineStringList *phost_string_list, PolicyEngineStringList *papp_string_list);
 
-PolicyEngineReturn policy_engine_destroy_string_list(PolicyEngineStringList pstring_list);
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_destroy_string_list(PolicyEngineStringList pstring_list);
 
 
 /*
  * iterator of the string list
  * */
-PolicyEngineReturn policy_engine_string_list_current(PolicyEngineStringList pstring_list, const char **string);
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_string_list_current(PolicyEngineStringList pstring_list, const char **string);
 
-PolicyEngineReturn policy_engine_string_list_next(PolicyEngineStringList pstring_list, PolicyEngineStringList *next);
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_string_list_next(PolicyEngineStringList pstring_list, PolicyEngineStringList *next);
 
 
 /*
  * constructor of k,v pairs like a dictionary
  * param pdictionary:           return the specific dictionary handle
  * */
-PolicyEngineReturn policy_engine_create_dictionary_handle(POLICY_ENGINE_HANDLE_TYPE dictionary_type, PolicyEngineHandle *pdictionary);
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_create_dictionary_handle(POLICY_ENGINE_HANDLE_TYPE dictionary_type, PolicyEngineHandle *pdictionary);
 
-PolicyEngineReturn policy_engine_destroy_dictionary(PolicyEngineHandle dictionary);
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_destroy_dictionary(PolicyEngineHandle dictionary);
 
-PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dictionary, const char *attribute_name, const char *attribute_value);
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_insert_into_dictionary(PolicyEngineHandle dictionary, const char *attribute_name, const char *attribute_value);
 
 
 /*
@@ -103,7 +103,7 @@ PolicyEngineReturn policy_engine_insert_into_dictionary(PolicyEngineHandle dicti
  * param subject, action, resource, host, application NULL means you an empty dictionary
  * */
 enum POLICY_ENGINE_MATCH_RESULT { PE_NO_MATCHED = 0, PE_NEED_MORE_WORK /* todo */ };
-PolicyEngineReturn policy_engine_match( PolicyEngineSubject subject, const char *action, PolicyEngineResource resource,
+PolicyEngineReturn POLICY_ENGINE_PUBLIC_API policy_engine_match( PolicyEngineSubject subject, const char *action, PolicyEngineResource resource,
         PolicyEngineHost host, PolicyEngineApplication application, POLICY_ENGINE_MATCH_RESULT *presult);
 
 

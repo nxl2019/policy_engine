@@ -2,8 +2,9 @@
 
 <predicate> ::= <value> <compare op> <value>
     | <left paren> <boolean expression> <right paren>
+    | NOT <predicate>
 
-<value> ::= <column ref> | <string literal> | <dec number literal>
+<value> ::= <column ref> | <string literal> | <dec number literal> | NULL
 
 <column ref> ::= <type> <dot> <identifier list>
     | <identifier>      /* this means a variable defined in cc  */
@@ -13,6 +14,8 @@
 <logic op> ::= OR | AND
 
 <compare op> ::= <equal> | <not equal> | <less than> | <less than or equal> | <greater than> | <greater than or equal>
+
+<special op> ::= EQUALS_UNORDERED | INCLUDES
 
 <dot> ::= .
 

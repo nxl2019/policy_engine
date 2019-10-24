@@ -14,7 +14,7 @@ public:
     enum EXPR_TYPE {
         /* BINARY OPERATOR */
                 OR, AND, COMP_LE, COMP_LT, COMP_GE, COMP_GT, COMP_EQ, COMP_NEQ,
-                LIKE, NOT_LIKE,
+                LIKE, NOT_LIKE, INCLUDES, EQUALS_UNORDERED,
         /* UNARY */
                 NOT,
         /* CONSTANT */

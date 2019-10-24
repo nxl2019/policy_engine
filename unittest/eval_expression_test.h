@@ -44,12 +44,12 @@ TEST(EVAL_EXPRESSION_CASE_1) {
             subject.InsertValue("M", "15");
             subject.InsertValue("N", "www.baidu.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_FALSE);
+        ASSERT_TRUE(b_i == Value::B_FALSE);
         std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(15),N(www.baidu.com) ----FALSE";
         mt::printOk(info.c_str());
 }
@@ -88,12 +88,12 @@ TEST(EVAL_EXPRESSION_CASE_2) {
         {
             subject.InsertValue("M", "12");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_TRUE);
+        ASSERT_TRUE(b_i == Value::B_TRUE);
         std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(12),N(NIL) ---- TRUE";
         mt::printOk(info.c_str());
 }
@@ -132,12 +132,12 @@ TEST(EVAL_EXPRESSION_CASE_3) {
         {
             subject.InsertValue("M", "5");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_UNKNOWN);
+        ASSERT_TRUE(b_i == Value::B_UNKNOWN);
         std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(5),N(NIL) ---- UNKNOWN";
         mt::printOk(info.c_str());
 }
@@ -176,12 +176,12 @@ TEST(EVAL_EXPRESSION_CASE_4) {
         {
             subject.InsertValue("N", "www.yaha.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_UNKNOWN);
+        ASSERT_TRUE(b_i == Value::B_UNKNOWN);
         std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(NIL),N(www.yaha.com) ---- UNKNOWN";
         mt::printOk(info.c_str());
 }
@@ -220,12 +220,12 @@ TEST(EVAL_EXPRESSION_CASE_5) {
         {
             subject.InsertValue("N", "www.yaha.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_FALSE);
+        ASSERT_TRUE(b_i == Value::B_FALSE);
         std::string info = "(SUB.M > 10 AND SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(NIL),N(www.yaha.com) ---- FALSE";
         mt::printOk(info.c_str());
 }
@@ -265,12 +265,12 @@ TEST(EVAL_EXPRESSION_CASE_6) {
             subject.InsertValue("M", "15");
             subject.InsertValue("N", "www.baidu.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_TRUE);
+        ASSERT_TRUE(b_i == Value::B_TRUE);
         std::string info = "NOT (SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(15),N(www.baidu.com) ---- B_TRUE";
         mt::printOk(info.c_str());
 }
@@ -310,12 +310,12 @@ TEST(EVAL_EXPRESSION_CASE_7) {
         {
             subject.InsertValue("N", "www.yaha.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_FALSE);
+        ASSERT_TRUE(b_i == Value::B_FALSE);
         std::string info = "(SUB.M > 10 AND SUB.N = 'www.baidu.com') AND SUB.M < 15 AND UNKNOWN ---- M(NIL),N(www.yaha.com) ---- FALSE";
         mt::printOk(info.c_str());
 }
@@ -355,12 +355,12 @@ TEST(EVAL_EXPRESSION_CASE_8) {
             subject.InsertValue("n", "WWW.BAIDU.COM");
             subject.InsertValue("M", "5");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_TRUE);
+        ASSERT_TRUE(b_i == Value::B_TRUE);
         std::string info = "(SUB.M > 10 OR SUB.N = 'www.baidu.com') AND SUB.M < 15 ---- M(12),N(NIL) ---- TRUE";
         mt::printOk(info.c_str());
 }
@@ -404,9 +404,9 @@ TEST(EVAL_EXPRESSION_CASE_9_MULTI_THREAD) {
         std::vector<std::thread*> threads;
         for (unsigned i = 0; i < 8; ++i) {
             threads.push_back(new std::thread([i, expr, &instructions, &subject, &resource, &host, &app](){
-                BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-                BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
-                if (b_e != b_i || b_i != B_TRUE) {
+                Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+                Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+                if (b_e != b_i || b_i != Value::B_TRUE) {
                     std::string info = "EVAL_EXPRESSION_CASE_9_MULTI_THREAD at ";
                     info += std::to_string(i);
                     mt::printFailed(info.c_str());
@@ -453,12 +453,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_1) {
         {
             subject.InsertValue("EMAILADDRESS", "james.polk@qapf1.qalab01.nextlabs.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_UNKNOWN);
+        ASSERT_TRUE(b_i == Value::B_UNKNOWN);
         std::string info = "SUB.emailaddress = 'james.polk@qapf1.qalab01.nextlabs.com' AND ACTION.ACTION = 'open' AND TRUE AND UNKNOWN ---- EMAILADDRESS(james.polk@qapf1.qalab01.nextlabs.com),ACTION(OPEN) ----UNKNOWN";
         mt::printOk(info.c_str());
 }
@@ -488,12 +488,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_2) {
         {
             subject.InsertValue("EMAILADDRESS", "EMMA.polk@qapf1.qalab01.nextlabs.com");
         }
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
         delete (expr);
         free_code(instructions);
         ASSERT_TRUE(b_e == b_i);
-        ASSERT_TRUE(b_i == B_FALSE);
+        ASSERT_TRUE(b_i == Value::B_FALSE);
         std::string info = "SUB.emailaddress = 'james.polk@qapf1.qalab01.nextlabs.com' AND ACTION.ACTION = 'open' AND TRUE AND UNKNOWN ---- EMAILADDRESS(EMMA.polk@qapf1.qalab01.nextlabs.com),ACTION(OPEN) ----FALSE";
         mt::printOk(info.c_str());
 }
@@ -523,12 +523,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_3) {
     {
         subject.InsertValue("EMAILADDRESS", "james.polk@qapf1.qalab01.nextlabs.com");
     }
-    BOOLEAN b_e = eval_expression(expr, &subject, "EDIT", &resource, &host, &app);
-    BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT", &resource, &host, &app);
+    Value::BOOLEAN b_e = eval_expression(expr, &subject, "EDIT", &resource, &host, &app);
+    Value::BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT", &resource, &host, &app);
     delete (expr);
     free_code(instructions);
     ASSERT_TRUE(b_e == b_i);
-    ASSERT_TRUE(b_i == B_FALSE);
+    ASSERT_TRUE(b_i == Value::B_FALSE);
     std::string info = "SUB.emailaddress = 'james.polk@qapf1.qalab01.nextlabs.com' AND ACTION.ACTION = 'open' AND TRUE AND UNKNOWN ---- EMAILADDRESS(james.polk@qapf1.qalab01.nextlabs.com),ACTION(EDIT) ----FALSE";
     mt::printOk(info.c_str());
 }
@@ -558,12 +558,12 @@ TEST(EVAL_EXPRESSION_CASE_SPE_4) {
     {
 
     }
-    BOOLEAN b_e = eval_expression(expr, &subject, "EDIT", &resource, &host, &app);
-    BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT", &resource, &host, &app);
+    Value::BOOLEAN b_e = eval_expression(expr, &subject, "EDIT", &resource, &host, &app);
+    Value::BOOLEAN b_i = eval_expression(instructions, &subject, "EDIT", &resource, &host, &app);
     delete (expr);
     free_code(instructions);
     ASSERT_TRUE(b_e == b_i);
-    ASSERT_TRUE(b_i == B_FALSE);
+    ASSERT_TRUE(b_i == Value::B_FALSE);
     std::string info = "SUB.emailaddress = 'james.polk@qapf1.qalab01.nextlabs.com' AND ACTION.ACTION = 'open' AND TRUE AND UNKNOWN ---- EMAILADDRESS(NIL),ACTION(EDIT) ----FALSE";
     mt::printOk(info.c_str());
 }

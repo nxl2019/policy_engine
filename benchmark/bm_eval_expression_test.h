@@ -41,8 +41,8 @@ static void EVAL_EXPRESSION_CASE_1_A(benchmark::State& state) {
         subject.InsertValue("N", "www.baidu.com");
     }
     for (auto _ : state) {
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        assert(b_e == B_FALSE);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        assert(b_e == Value::B_FALSE);
     }
     delete (expr);
 }
@@ -84,8 +84,8 @@ static void EVAL_EXPRESSION_CASE_1_I(benchmark::State& state) {
         subject.InsertValue("N", "www.baidu.com");
     }
     for (auto _ : state) {
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
-        assert(b_i == B_FALSE);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        assert(b_i == Value::B_FALSE);
     }
     delete (expr);
     free_code(instructions);
@@ -123,8 +123,8 @@ static void EVAL_EXPRESSION_CASE_2_A(benchmark::State& state) {
         subject.InsertValue("M", "12");
     }
     for (auto _ : state) {
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        assert(b_e == B_TRUE);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        assert(b_e == Value::B_TRUE);
     }
     delete (expr);
 }
@@ -165,8 +165,8 @@ static void EVAL_EXPRESSION_CASE_2_I(benchmark::State& state) {
         subject.InsertValue("M", "12");
     }
     for (auto _ : state) {
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
-        assert(b_i == B_TRUE);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        assert(b_i == Value::B_TRUE);
     }
     delete (expr);
     free_code(instructions);
@@ -204,8 +204,8 @@ static void EVAL_EXPRESSION_CASE_3_A(benchmark::State& state) {
         subject.InsertValue("M", "5");
     }
     for (auto _ : state) {
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        assert(b_e == B_UNKNOWN);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        assert(b_e == Value::B_UNKNOWN);
     }
     delete (expr);
 }
@@ -246,8 +246,8 @@ static void EVAL_EXPRESSION_CASE_3_I(benchmark::State& state) {
         subject.InsertValue("M", "5");
     }
     for (auto _ : state) {
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
-        assert(b_i == B_UNKNOWN);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        assert(b_i == Value::B_UNKNOWN);
     }
     delete (expr);
     free_code(instructions);
@@ -277,8 +277,8 @@ static void EVAL_EXPRESSION_CASE_SPE_1_A(benchmark::State& state) {
         subject.InsertValue("EMAILADDRESS", "james.polk@qapf1.qalab01.nextlabs.com");
     }
     for (auto _ : state) {
-        BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
-        assert(b_e == B_UNKNOWN);
+        Value::BOOLEAN b_e = eval_expression(expr, &subject, "OPEN", &resource, &host, &app);
+        assert(b_e == Value::B_UNKNOWN);
     }
     delete (expr);
 }
@@ -311,8 +311,8 @@ static void EVAL_EXPRESSION_CASE_SPE_1_I(benchmark::State& state) {
         subject.InsertValue("EMAILADDRESS", "james.polk@qapf1.qalab01.nextlabs.com");
     }
     for (auto _ : state) {
-        BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
-        assert(b_i == B_UNKNOWN);
+        Value::BOOLEAN b_i = eval_expression(instructions, &subject, "OPEN", &resource, &host, &app);
+        assert(b_i == Value::B_UNKNOWN);
     }
     delete (expr);
     free_code(instructions);

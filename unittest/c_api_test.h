@@ -5,8 +5,7 @@
 #ifndef POLICY_ENGINE_C_API_TEST_H
 #define POLICY_ENGINE_C_API_TEST_H
 #include "microtest.h"
-#include "Policy.h"
-#include "policy_expression.h"
+#include "policy_engine.h"
 #include <list>
 
 
