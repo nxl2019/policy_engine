@@ -1,11 +1,9 @@
 {
     "id":"67",
     "policy_model_id":1
-    "type":NULL /* todo */
     "conditions":[
         {
             "attribute":"department",
-            "attribute_type":NULL /* todo */
             "operator":"=",
             "value":"qa",
             "rhsType":"CONSTANT",
