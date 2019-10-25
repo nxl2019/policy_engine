@@ -9,3 +9,5 @@ add_subdirectory(policymgr)
 add_subdirectory(tool)
 add_subdirectory(benchmark)
 add_subdirectory(testtool)
+
+add_subdirectory(policymgrtest)
