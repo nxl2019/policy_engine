@@ -14,7 +14,8 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) = 0;
-    virtual bool SearchPolicyModelByName(const std::string& name, std::string& out) = 0;
+    virtual bool SearchPolicyModelsByTag(const std::string& tag, std::string& out) = 0;
+    virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) = 0;
 
 public:
     virtual bool LoginToCAS() = 0;
@@ -40,7 +41,8 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) override;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) override;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) override;
-    virtual bool SearchPolicyModelByName(const std::string& name, std::string& out) override;
+    virtual bool SearchPolicyModelsByTag(const std::string& tag, std::string& out) override ;
+    virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) override;
 
 public:
     virtual bool LoginToCAS() override;

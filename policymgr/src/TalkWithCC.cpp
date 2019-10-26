@@ -281,8 +281,11 @@ bool TalkWithCCLower::SearchComponentByID(const std::string& id, std::string& ou
  bool TalkWithCCLower::SearchPolicyModelByID(const std::string& id, std::string& out) {
     return true;/*todo*/
 }
- bool TalkWithCCLower::SearchPolicyModelByName(const std::string& name, std::string& out) {
-    return true;/*todo*/
+ bool TalkWithCCLower::SearchPolicyModelsByTag(const std::string& tag, std::string& out) {
+     return true;/*todo*/
+}
+ bool TalkWithCCLower::SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) {
+     return true;/*todo*/
 }
 
 std::string TalkWithCCLower::CtorLoginBody() {
