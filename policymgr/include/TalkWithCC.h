@@ -6,7 +6,7 @@
 
 class TalkWithCC {
 public:
-    static TalkWithCC *MakeTalk(const std::string& service, const std::string& port, const std::string& user, std::string& pwd);
+    static TalkWithCC *MakeTalk(const std::string& service, const std::string& port, const std::string& user, const std::string& pwd);
     TalkWithCC(NXLHttpClient *http_client, const std::string& user, const std::string& pwd);
     virtual ~TalkWithCC() { delete (_http_client); _http_client = nullptr; }
     /* todo */
@@ -21,7 +21,7 @@ public:
     virtual bool CasSecurityCheck(http::response<http::string_body>& res) = 0;
 
 public:
-    static bool GetCASLoginParameters(const std::string& service, const std::string& port, const std::string& user, std::string& pwd, TalkWithCC*& out);
+    static bool GetCASLoginParameters(const std::string& service, const std::string& port, const std::string& user, const std::string& pwd, TalkWithCC*& out);
     static bool GetCASLoginUrl(NXLHttpClient& http_client, const std::string& service, const std::string& port,
                                std::string& location);
 protected:

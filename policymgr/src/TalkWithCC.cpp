@@ -4,7 +4,7 @@
 
 #define HEAD_X_CSRF_TOKEN    "X-CSRF-TOKEN"
 
-TalkWithCC *TalkWithCC::MakeTalk(const std::string& service, const std::string& port, const std::string& user, std::string& pwd) {
+TalkWithCC *TalkWithCC::MakeTalk(const std::string& service, const std::string& port, const std::string& user, const std::string& pwd) {
     TalkWithCC *talk = nullptr;
     // step 1
     bool r = TalkWithCC::GetCASLoginParameters(service, port, user, pwd, talk);
@@ -27,7 +27,7 @@ TalkWithCC *TalkWithCC::MakeTalk(const std::string& service, const std::string& 
 }
 
 bool TalkWithCC::GetCASLoginParameters(const std::string& service, const std::string& port,
-        const std::string& user, std::string& pwd, TalkWithCC*& out) {
+        const std::string& user, const std::string& pwd, TalkWithCC*& out) {
     NXLHttpClient *phttp_client = new NXLHttpClient(service.c_str(), port.c_str());
     NXLHttpClient& http_client = *phttp_client;
     std::string location;
