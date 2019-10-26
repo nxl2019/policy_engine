@@ -272,6 +272,22 @@ bool TalkWithCCLower::SearchComponentByID(const std::string& id, std::string& ou
     return false;
 }
 
+ bool TalkWithCCLower::SearchPolicyIDsByTag(const std::string& tag, std::vector<std::string>& out) {
+    return true;/*todo*/
+}
+ bool TalkWithCCLower::SearchPolicyByID(const std::string& id, std::string& out) {
+    return true;/*todo*/
+}
+ bool TalkWithCCLower::SearchPolicyModelByID(const std::string& id, std::string& out) {
+    return true;/*todo*/
+}
+ bool TalkWithCCLower::SearchPolicyModelsByTag(const std::string& tag, std::string& out) {
+     return true;/*todo*/
+}
+ bool TalkWithCCLower::SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) {
+     return true;/*todo*/
+}
+
 std::string TalkWithCCLower::CtorLoginBody() {
     std::string body;
     body += "username=" + _user; body += "&password=" + _pwd;

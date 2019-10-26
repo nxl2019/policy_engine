@@ -10,11 +10,12 @@ public:
     TalkWithCC(NXLHttpClient *http_client, const std::string& user, const std::string& pwd);
     virtual ~TalkWithCC() { delete (_http_client); _http_client = nullptr; }
     /* todo */
-    virtual bool SearchPolicyIDsByTag(const std::string& tag, std::vector<std::string>& out);
+    virtual bool SearchPolicyIDsByTag(const std::string& tag, std::vector<std::string>& out) = 0;
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) = 0;
-    virtual bool SearchPolicyModelByName(const std::string& name, std::string& out) = 0;
+    virtual bool SearchPolicyModelsByTag(const std::string& tag, std::string& out) = 0;
+    virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) = 0;
 
 public:
     virtual bool LoginToCAS() = 0;
@@ -36,7 +37,12 @@ public:
             const std::string& cas_login_url, const std::string& login_submit_path,
             const std::string& login_param_lt, const std::string& login_param_execution);
 
+    virtual bool SearchPolicyIDsByTag(const std::string& tag, std::vector<std::string>& out) override ;
+    virtual bool SearchPolicyByID(const std::string& id, std::string& out) override;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) override;
+    virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) override;
+    virtual bool SearchPolicyModelsByTag(const std::string& tag, std::string& out) override ;
+    virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) override;
 
 public:
     virtual bool LoginToCAS() override;
