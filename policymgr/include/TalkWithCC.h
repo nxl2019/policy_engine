@@ -14,7 +14,7 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) = 0;
-    virtual bool SearchPolicyModelsByTag(const std::string& tag, std::string& out) = 0;
+    virtual bool SearchPolicyModellist( std::vector<std::string>& out) = 0;
     virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) = 0;
 
 public:
@@ -25,6 +25,9 @@ public:
     static bool GetCASLoginParameters(const std::string& service, const std::string& port, const std::string& user, std::string& pwd, TalkWithCC*& out);
     static bool GetCASLoginUrl(NXLHttpClient& http_client, const std::string& service, const std::string& port,
                                std::string& location);
+
+protected:
+    virtual bool GetRequestResult(std::string& out, http::request<http::string_body> & req) ;
 protected:
     NXLHttpClient  *_http_client;
     std::string     _user;
@@ -41,8 +44,9 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) override;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) override;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) override;
-    virtual bool SearchPolicyModelsByTag(const std::string& tag, std::string& out) override ;
+    virtual bool SearchPolicyModellist(std::vector<std::string>& out) override ;
     virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) override;
+
 
 public:
     virtual bool LoginToCAS() override;

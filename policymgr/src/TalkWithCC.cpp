@@ -244,49 +244,48 @@ bool TalkWithCCLower::CasSecurityCheck(http::response<http::string_body>& out) {
     return false;
 }
 
-bool TalkWithCCLower::SearchComponentByID(const std::string& id, std::string& out) {
-    auto req = CtorSearchComponentReq(id);
-    //send request
-    boost::beast::flat_buffer buffer;
-    http::response<http::string_body> res;
-    try {
-        _http_client->Request(req, buffer, res);
-    }
-    catch (...) {
-        return false;
-    }
-
-    //parse response
-    if (res.result() == http::status::ok) {
-        try {
-            std::stringstream ss(res.body());
-            out = ss.str();
-            return true;
-        }
-        catch(...) {
-            return false;
-        }
-    } else {
-        return false;
-    }
-    return false;
-}
-
- bool TalkWithCCLower::SearchPolicyIDsByTag(const std::string& tag, std::vector<std::string>& out) {
-    return true;/*todo*/
-}
- bool TalkWithCCLower::SearchPolicyByID(const std::string& id, std::string& out) {
-    return true;/*todo*/
-}
- bool TalkWithCCLower::SearchPolicyModelByID(const std::string& id, std::string& out) {
-    return true;/*todo*/
-}
- bool TalkWithCCLower::SearchPolicyModelsByTag(const std::string& tag, std::string& out) {
-     return true;/*todo*/
-}
- bool TalkWithCCLower::SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) {
-     return true;/*todo*/
-}
+//bool TalkWithCCLower::SearchComponentByID(const std::string& id, std::string& out) {
+//    auto req = CtorSearchComponentReq(id);
+//    //send request
+//    boost::beast::flat_buffer buffer;
+//    http::response<http::string_body> res;
+//    try {
+//        _http_client->Request(req, buffer, res);
+//    }
+//    catch (...) {
+//        return false;
+//    }
+//    //parse response
+//    if (res.result() == http::status::ok) {
+//        try {
+//            std::stringstream ss(res.body());
+//            out = ss.str();
+//            return true;
+//        }
+//        catch(...) {
+//            return false;
+//        }
+//    } else {
+//        return false;
+//    }
+//    return false;
+//}
+//
+// bool TalkWithCCLower::SearchPolicyIDsByTag(const std::string& tag, std::vector<std::string>& out) {
+//    return true;/*todo*/
+//}
+// bool TalkWithCCLower::SearchPolicyByID(const std::string& id, std::string& out) {
+//    return true;/*todo*/
+//}
+// bool TalkWithCCLower::SearchPolicyModelByID(const std::string& id, std::string& out) {
+//    return true;/*todo*/
+//}
+// bool TalkWithCCLower::SearchPolicyModellist(const std::string& tag, std::string& out) {
+//     return true;/*todo*/
+//}
+// bool TalkWithCCLower::SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) {
+//     return true;/*todo*/
+//}
 
 std::string TalkWithCCLower::CtorLoginBody() {
     std::string body;
