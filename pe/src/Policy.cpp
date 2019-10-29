@@ -12,6 +12,38 @@
 
 #define COLUMN_REF_ACTION "ACTION"
 
+const std::map<const std::string,const AstExpr::EXPR_TYPE > OPERATOR_TABLE{
+        {"=",   AstExpr::COMP_EQ},
+        {"!=",  AstExpr::COMP_NEQ},
+        {">",   AstExpr::COMP_GT},
+        {">=",  AstExpr::COMP_GE},
+        {"<",   AstExpr::COMP_LT},
+        {"<=",  AstExpr::COMP_LE},
+        {"INCLUDES",           AstExpr::INCLUDES},
+        {"EQUALS_UNORDERED",   AstExpr::EQUALS_UNORDERED}
+};
+AstExpr::EXPR_TYPE get_asttype_from_oprtable(const std::string & sopr) {
+    std::string t_str = sopr ;
+    transform(t_str.begin(), t_str.end(), t_str.begin(), toupper);
+    auto it = OPERATOR_TABLE.find(t_str);
+    if (it == OPERATOR_TABLE.end()) return AstExpr::EXPER_NOT_SUPPORT;
+    return it->second;
+}
+
+//const std::map<const std::string,const AstColumnRef::COL_TYPE > SUBJECT_TYPES {
+//        {"Resource",    AstColumnRef::RES},
+//        {"User",        AstColumnRef::SUB},
+//        {"Application", AstColumnRef::APP},
+//        {"Host",        AstColumnRef::HOST},
+//        {"ACTION",      AstColumnRef::ACTION}
+//};
+//AstColumnRef::COL_TYPE get_coltype_from_tb(const std::string & sopr) {
+//    auto it = SUBJECT_TYPES.find(sopr);
+//    if (it == SUBJECT_TYPES.end()) return AstColumnRef::OTHER;
+//    return it->second;
+//}
+
+
 AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE type);
 AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::COL_TYPE type);
 AstExpr * parse_from_components(const Json::Value & components, AstColumnRef::COL_TYPE type, bool is_not = false);
@@ -123,49 +155,22 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
     ids.push_back(pastid);
     AstExpr * pexpr_left = new AstColumnRef(type, ids);
 
-    AstExpr::EXPR_TYPE ast_type = AstExpr::EXPER_NOT_SUPPORT;
     std::string op_cond = json["operator"].asString();
-    if (op_cond.compare("=") == 0) {
-        if ( pexpr_right->GetExprType() == AstExpr::C_PATTERN ) {
-            ast_type = AstExpr::LIKE;
-        } else {
-            ast_type = AstExpr::COMP_EQ;
-        }
-    }
-    else if (op_cond.compare("!=") == 0) {
-        if ( pexpr_right->GetExprType() == AstExpr::C_PATTERN )  {
-            ast_type = AstExpr::NOT_LIKE;
-        } else {
-            ast_type = AstExpr::COMP_NEQ;
-        }
-    }
-    else if (op_cond.compare(">") == 0) {
-        ast_type = AstExpr::COMP_GT;
-    }
-    else if (op_cond.compare(">=") == 0) {
-        ast_type = AstExpr::COMP_GE;
-    }
-    else if (op_cond.compare("<") == 0) {
-        ast_type = AstExpr::COMP_LT;
-    }
-    else if (op_cond.compare("<=") == 0) {
-        ast_type = AstExpr::COMP_LE;
-    }
-    else if (op_cond.compare("includes") == 0) {
-        ast_type = AstExpr::INCLUDES;
-    }
-    else if (op_cond.compare("equals_unordered") == 0) {
-        ast_type = AstExpr::EQUALS_UNORDERED;
-    }
-    else {
-        ast_type = AstExpr::EXPER_NOT_SUPPORT;
-    }
+    AstExpr::EXPR_TYPE ast_type = get_asttype_from_oprtable(op_cond);
 
     if (ast_type == AstExpr::EXPER_NOT_SUPPORT) {
         return new AstExpr(AstExpr::EXPER_NOT_SUPPORT);
-    } else {
-        return new AstBinaryOpExpr(ast_type, pexpr_left, pexpr_right);
     }
+
+    if (pexpr_right->GetExprType() == AstExpr::C_PATTERN) {
+        if (ast_type == AstExpr::COMP_EQ) {
+            ast_type = AstExpr::LIKE;
+        } else if (ast_type == AstExpr::COMP_NEQ) {
+            ast_type = AstExpr::NOT_LIKE;
+        }
+    }
+    return new AstBinaryOpExpr(ast_type, pexpr_left, pexpr_right);
+
 }
 
 AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::COL_TYPE type) {
@@ -189,7 +194,7 @@ AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::CO
 AstExpr * parse_from_components(const Json::Value & components, AstColumnRef::COL_TYPE type, bool is_not) {
     Json::Value js_comp = components[0];
     std::string comp_id = js_comp["id"].asString();
-    std::string comp_name = js_comp["name"].asString();
+    //std::string comp_name = js_comp["name"].asString();
     Json::Value js_conditons = js_comp["conditions"];
     AstExpr * pexp =  parse_from_conditions(js_conditons, type);
 
@@ -370,6 +375,11 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
     }
     delete (pread);
     pread = nullptr;
+
+    return  ParseFromJson(root);
+}
+
+PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root) {
     //action
     Json::Value actions_components = root["actionComponents"];
     AstExpr * pexp_action_comps = parse_from_action_components(actions_components);
