@@ -75,19 +75,15 @@ bool PolicyHelper::DownloadPolicys(const std::string& service, const std::string
     }
     ComponentApplyPatch(component_patch_list, component_from_http);
 
-    std::vector<std::string> pmids;
+    std::set<uint64_t > pmids;
     ComponentAnalyzePolicyModel(component_from_http, pmids);
-    std::vector<PolicyModel> pms;
+    PolicyModelList syms({}, talk);
     for (auto& it : pmids) {
-        std::string jstr;
-        r = talk->SearchPolicyModelByID(it, jstr);
-        if (!r) break;
         PolicyModel pm;
-        pm.ParseFromJson(jstr);
-        pms.push_back(pm);
+        bool r = syms.AddPmByID(it, pm);
+        if (!r) break;
     }
     rpolicys = policys;
-    PolicyModelList syms(pms, talk);
     rsymbols = syms;
     return true;
 }
@@ -102,11 +98,11 @@ bool PolicyHelper::PolicyAnalyzePatch(std::vector<Json::Value>& policy_roots,
                 auto &action_it = action[i];
                 assert(action_it.isMember(KEY_COMPONENTS));
                 auto &components = action_it[KEY_COMPONENTS];
-                for (size_t j = 0; j < components.size(); ++j) {
-                    auto &component = components[i];
+                for (unsigned j = 0; j < components.size(); ++j) {
+                    auto &component = components[j];
                     assert(component.isMember(KEY_ID));
                     assert(component.isMember(KEY_ACTIONS));
-                    action_patch_list[atol(component[KEY_ID].asCString())].push_back(&component);
+                    action_patch_list[component[KEY_ID].asInt()].push_back(&component);
                 }
             }
         }
@@ -117,26 +113,26 @@ bool PolicyHelper::PolicyAnalyzePatch(std::vector<Json::Value>& policy_roots,
                 auto &action_it = subject[i];
                 assert(action_it.isMember(KEY_COMPONENTS));
                 auto &components = action_it[KEY_COMPONENTS];
-                for (size_t j = 0; j < components.size(); ++j) {
-                    auto &component = components[i];
+                for (unsigned j = 0; j < components.size(); ++j) {
+                    auto &component = components[j];
                     assert(component.isMember(KEY_ID));
                     assert(component.isMember(KEY_CONDITIONS));
-                    component_patch_list[atol(component[KEY_ID].asCString())].push_back(&component);
+                    component_patch_list[component[KEY_ID].asInt()].push_back(&component);
                 }
             }
         }
         {
             assert(it.isMember(KEY_FROM_RESOURCE_COMPONENTS));
-            auto &subject = it[KEY_SUBJECT_COMPONENTS];
+            auto &subject = it[KEY_FROM_RESOURCE_COMPONENTS];
             for (unsigned i = 0; i < subject.size(); ++i) {
                 auto &action_it = subject[i];
                 assert(action_it.isMember(KEY_COMPONENTS));
                 auto &components = action_it[KEY_COMPONENTS];
-                for (size_t j = 0; j < components.size(); ++j) {
-                    auto &component = components[i];
+                for (unsigned j = 0; j < components.size(); ++j) {
+                    auto &component = components[j];
                     assert(component.isMember(KEY_ID));
                     assert(component.isMember(KEY_CONDITIONS));
-                    component_patch_list[atol(component[KEY_ID].asCString())].push_back(&component);
+                    component_patch_list[component[KEY_ID].asInt()].push_back(&component);
                 }
             }
         }
@@ -148,7 +144,7 @@ bool PolicyHelper::ComponentApplyPatch(const std::map<CID, std::vector<Json::Val
     assert(from_http.size() == component_patch_list.size());
     for (auto& it : from_http) {
         assert(it.isMember(KEY_ID));
-        CID cid = atol(it[KEY_ID].asCString());
+        CID cid = it[KEY_ID].asInt();
         auto fd = component_patch_list.find(cid);
         assert(fd != component_patch_list.end());
         for (auto patch : fd->second) {
@@ -158,10 +154,10 @@ bool PolicyHelper::ComponentApplyPatch(const std::map<CID, std::vector<Json::Val
     return true;
 }
 
-bool PolicyHelper::ComponentAnalyzePolicyModel(const std::vector<Json::Value>& components, std::vector<std::string> pmids) {
+bool PolicyHelper::ComponentAnalyzePolicyModel(const std::vector<Json::Value>& components, std::set<uint64_t >& pmids) {
     for (auto& component : components) {
         assert(component.isMember(KEY_POLICY_MODEL_ID));
-        pmids.push_back(component[KEY_POLICY_MODEL_ID].asString());
+        pmids.insert(component[KEY_POLICY_MODEL_ID].asInt());
     }
     return true;
 }

@@ -46,12 +46,17 @@ class Dictionary : public Handle {
 public:
     virtual POLICY_ENGINE_HANDLE_TYPE GetHandleType() const override { return _dictionary_type; }
     Dictionary(POLICY_ENGINE_HANDLE_TYPE tp) : _dictionary_type(tp) {}
-    Value GetValueAsInt(const std::string& key) {
+    Value GetValueAsInt(const std::string& key, bool& r) {
         std::string key1 = key;
         std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
         auto fd = _data.find(key1);
         if (fd == _data.end()) return Value();
-        else return Value(atoi(fd->second.c_str()));
+        else {
+            char *end = nullptr;
+            int i = (int)strtol(fd->second.c_str(), &end, 10);
+            r = *end == '\0';
+            return Value(i);
+        }
     }
     Value GetValueAsString(const std::string& key) {
         std::string key1 = key;

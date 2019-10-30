@@ -3,6 +3,7 @@
 #include "TalkWithCC.h"
 #include "NXLHttpClient.h"
 
+#include "policy_mgr_test.h"
 #include "policy_str2js_test.h"
 #include "policy_search_test.h"
 

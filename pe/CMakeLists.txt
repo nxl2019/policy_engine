@@ -1,9 +1,10 @@
 include_directories(./include)
 include_directories(../policymgr/include)
 include_directories(../tool)
-aux_source_directory(./src SRCS)
+#aux_source_directory(./src SRCS)
 
-add_library(policy_engine SHARED ${SRCS})
+#add_library(policy_engine SHARED ${SRCS})
+add_library(policy_engine SHARED src/eval_expression.cpp src/Lex.cpp src/parse_expression.cpp src/policy_expression.cpp src/policy_regex.cpp)
 target_link_libraries(policy_engine pthread)
 target_link_libraries(policy_engine jsoncpp_lib)
 target_link_libraries(policy_engine policymgr)

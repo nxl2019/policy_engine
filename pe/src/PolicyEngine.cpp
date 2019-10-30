@@ -3,8 +3,8 @@
 #include "Handle.h"
 #include <shared_mutex>
 #include <thread>
-#include "CCLoginHelper.h"
-#include "CCPolicyHelper.h"
+#include "patch.h"
+#include "PolicyModelList.h"
 
 PolicyEngine *PolicyEngine::_ins = nullptr;
 bool PolicyEngine::_running_flag = false;
@@ -89,21 +89,14 @@ PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& acti
 }
 
 PolicyEngineReturn PolicyEngine::Update() {
+    std::vector<Json::Value> jsons;
+    PolicyModelList syms;
+    bool r = PolicyHelper::DownloadPolicys(_cchost, _ccport, _ccuser, _ccpwd, _tag, jsons, syms);
+    if (!r) return POLICY_ENGINE_CCCONNECT_ERROR;
     std::vector<Policy*> tmp;
-    std::string str_session_cookie = CCLoginHelper::Login(_cchost, _ccport, _ccuser, _ccpwd);
-    if (str_session_cookie.empty()) {
-        //printf("cc session cookie is empty.");
-        return POLICY_ENGINE_CCCONNECT_ERROR;
-    }
-    std::list<std::string> jsons;
-    if (!CCPolicyHelper::SyncPolicy(_cchost, _ccport, str_session_cookie, _tag, jsons)) {
-        //printf("get policies failed.");
-        return POLICY_ENGINE_CCCONNECT_ERROR;
-    }
-
-    for (auto it : jsons) {
+    for (auto& it : jsons) {
         Policy *policy = new Policy;
-        PolicyEngineReturn r = policy->ParseFromJson(it);
+        PolicyEngineReturn r ;/* todo = policy->ParseFromJson(it, syms);*/
         if (r != POLICY_ENGINE_SUCCESS) {
             delete (policy);
             continue;
