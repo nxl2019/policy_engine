@@ -5,6 +5,10 @@
 #include <string>
 #include <map>
 
+#define PM_USER_ID 1
+#define PM_HOST_ID 2
+#define PM_APPLICATION_ID 3
+
 struct AttributeInfo {
     enum ATTR_TYPE { A_STRING, A_NUMBER, A_MULTI, A_ERR };
     std::string     _attribute;
