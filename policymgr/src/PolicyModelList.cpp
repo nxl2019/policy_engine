@@ -1,6 +1,7 @@
 #include "PolicyModelList.h"
 #include "NXLHttpClient.h"
 #include "TalkWithCC.h"
+#include "tool.h"
 
 PolicyModel::PM_TYPE PolicyModelList::GetPMTypeByID(uint64_t pmid) {
     PolicyModel pm1;
@@ -27,8 +28,10 @@ AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmidAttrName(uint64_t pmi
 }
 
 AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmnameAttrName(const std::string& pm_name, const std::string& attr_name) {
+    std::string temp = pm_name;
+    transform(temp.begin(), temp.end(), temp.begin(), tolower);
     PolicyModel pm1;
-    if (!CheckExist(pm_name, pm1)) {
+    if (!CheckExist(temp, pm1)) {
         PolicyModel pm;
         bool r = AddPmByName(pm_name, pm);
         if (!r) {
@@ -50,7 +53,7 @@ bool PolicyModelList::CheckExist(uint64_t pmid, PolicyModel& out) {
 
 bool PolicyModelList::CheckExist(const std::string& pm_name, PolicyModel& out) {
     for (auto it : _models) {
-        if (it._name == pm_name) {
+        if (CommonFun::StrCaseCmp(it._name.c_str(), pm_name.c_str()) == 0) {
             out = it;
             return true;
         }
