@@ -1,0 +1,88 @@
+{
+  "statusCode": "1003",
+  "message": "Data found successfully",
+  "data": {
+    "id": 11268,
+    "name": "pe_action_test1",
+    "description": "pe_action_test1",
+    "tags": [
+      {
+        "id": 41,
+        "key": "pe_test",
+        "label": "pe_test",
+        "type": "COMPONENT_TAG",
+        "status": "ACTIVE"
+      }
+    ],
+    "type": "ACTION",
+    "category": "COMPONENT",
+    "policyModel": {
+      "id": 74,
+      "name": null,
+      "shortName": null,
+      "description": null,
+      "type": null,
+      "status": null,
+      "lastUpdatedDate": 0,
+      "createdDate": 0,
+      "ownerId": null,
+      "ownerDisplayName": null,
+      "modifiedById": null,
+      "modifiedBy": null,
+      "tags": [],
+      "attributes": [],
+      "actions": [],
+      "obligations": [],
+      "authorities": [],
+      "version": 0
+    },
+    "actions": [
+      "VIEW",
+      "OPEN"
+    ],
+    "conditions": [],
+    "memberConditions": [],
+    "subComponents": [],
+    "status": "APPROVED",
+    "parentId": null,
+    "deploymentTime": 1571193123391,
+    "deployed": true,
+    "actionType": "DE",
+    "revisionCount": 1,
+    "ownerId": 0,
+    "ownerDisplayName": "Administrator ",
+    "createdDate": 1571193111845,
+    "modifiedById": 0,
+    "modifiedBy": "Administrator ",
+    "lastUpdatedDate": 1571193123391,
+    "skipValidate": false,
+    "reIndexAllNow": true,
+    "hidden": false,
+    "authorities": [
+      {
+        "authority": "VIEW_COMPONENT"
+      },
+      {
+        "authority": "EDIT_COMPONENT"
+      },
+      {
+        "authority": "DELETE_COMPONENT"
+      },
+      {
+        "authority": "DEPLOY_COMPONENT"
+      }
+    ],
+    "deploymentRequest": {
+      "id": 11268,
+      "type": "POLICY",
+      "push": false,
+      "deploymentTime": 1572338845156,
+      "deployDependencies": true
+    },
+    "preCreated": false,
+    "version": 3,
+    "pageNo": 0,
+    "pageSize": 20,
+    "deploymentPending": false
+  }
+}

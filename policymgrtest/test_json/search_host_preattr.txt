@@ -1,0 +1,205 @@
+{
+  "statusCode": "1003",
+  "message": "Data found successfully",
+  "data": [
+    {
+      "version": 0,
+      "lastUpdatedDate": null,
+      "createdDate": null,
+      "ownerId": null,
+      "lastUpdatedBy": null,
+      "id": null,
+      "name": "OperatingSystem",
+      "shortName": "os",
+      "dataType": "STRING",
+      "operatorConfigs": [
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154440,
+          "createdDate": 1550562154440,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 2,
+          "key": "!=",
+          "label": "is not",
+          "dataType": "STRING"
+        },
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154423,
+          "createdDate": 1550562154423,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 1,
+          "key": "=",
+          "label": "is",
+          "dataType": "STRING"
+        }
+      ],
+      "regExPattern": null,
+      "policyModel": null,
+      "isReferenced": null,
+      "sortOrder": 0
+    },
+    {
+      "version": 0,
+      "lastUpdatedDate": null,
+      "createdDate": null,
+      "ownerId": null,
+      "lastUpdatedBy": null,
+      "id": null,
+      "name": "cn",
+      "shortName": "machineName",
+      "dataType": "STRING",
+      "operatorConfigs": [
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154440,
+          "createdDate": 1550562154440,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 2,
+          "key": "!=",
+          "label": "is not",
+          "dataType": "STRING"
+        },
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154423,
+          "createdDate": 1550562154423,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 1,
+          "key": "=",
+          "label": "is",
+          "dataType": "STRING"
+        }
+      ],
+      "regExPattern": null,
+      "policyModel": null,
+      "isReferenced": null,
+      "sortOrder": 0
+    },
+    {
+      "version": 0,
+      "lastUpdatedDate": null,
+      "createdDate": null,
+      "ownerId": null,
+      "lastUpdatedBy": null,
+      "id": null,
+      "name": "Host System ID",
+      "shortName": "windowsSid",
+      "dataType": "STRING",
+      "operatorConfigs": [
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154440,
+          "createdDate": 1550562154440,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 2,
+          "key": "!=",
+          "label": "is not",
+          "dataType": "STRING"
+        },
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154423,
+          "createdDate": 1550562154423,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 1,
+          "key": "=",
+          "label": "is",
+          "dataType": "STRING"
+        }
+      ],
+      "regExPattern": null,
+      "policyModel": null,
+      "isReferenced": null,
+      "sortOrder": 0
+    },
+    {
+      "version": 0,
+      "lastUpdatedDate": null,
+      "createdDate": null,
+      "ownerId": null,
+      "lastUpdatedBy": null,
+      "id": null,
+      "name": "UNIX Computer ID",
+      "shortName": "unixId",
+      "dataType": "STRING",
+      "operatorConfigs": [
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154440,
+          "createdDate": 1550562154440,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 2,
+          "key": "!=",
+          "label": "is not",
+          "dataType": "STRING"
+        },
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154423,
+          "createdDate": 1550562154423,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 1,
+          "key": "=",
+          "label": "is",
+          "dataType": "STRING"
+        }
+      ],
+      "regExPattern": null,
+      "policyModel": null,
+      "isReferenced": null,
+      "sortOrder": 0
+    },
+    {
+      "version": 0,
+      "lastUpdatedDate": null,
+      "createdDate": null,
+      "ownerId": null,
+      "lastUpdatedBy": null,
+      "id": null,
+      "name": "DNS Host Name",
+      "shortName": "dnsName",
+      "dataType": "STRING",
+      "operatorConfigs": [
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154440,
+          "createdDate": 1550562154440,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 2,
+          "key": "!=",
+          "label": "is not",
+          "dataType": "STRING"
+        },
+        {
+          "version": 0,
+          "lastUpdatedDate": 1550562154423,
+          "createdDate": 1550562154423,
+          "ownerId": 0,
+          "lastUpdatedBy": 0,
+          "id": 1,
+          "key": "=",
+          "label": "is",
+          "dataType": "STRING"
+        }
+      ],
+      "regExPattern": null,
+      "policyModel": null,
+      "isReferenced": null,
+      "sortOrder": 0
+    }
+  ],
+  "pageNo": 0,
+  "pageSize": 5,
+  "totalPages": 1,
+  "totalNoOfRecords": 5
+}

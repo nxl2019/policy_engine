@@ -1,7 +1,11 @@
 include_directories(../third/microtest)
 include_directories(../policymgr/include)
 include_directories(../tool)
+include_directories(../third/jsoncpp/include)
 
 add_executable(policymgr_test main.cpp)
-target_link_libraries(policymgr_test policy_engine)
+#target_link_libraries(policymgr_test policy_engine)
+target_link_libraries(policymgr_test policymgr)
+target_link_libraries(policymgr_test jsoncpp_lib)
 target_link_libraries(policymgr_test tool)
+target_link_libraries(policymgr_test boost_system)

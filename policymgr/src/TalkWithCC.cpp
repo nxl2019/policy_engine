@@ -2,7 +2,7 @@
 #include "tool.h"
 #include "log.h"
 
-#define HEAD_X_CSRF_TOKEN    "X-CSRF-TOKEN"
+
 
 TalkWithCC *TalkWithCC::MakeTalk(const std::string& service, const std::string& port, const std::string& user, const std::string& pwd) {
     TalkWithCC *talk = nullptr;
@@ -178,7 +178,7 @@ _cas_login_url(cas_login_url), _login_submit_path(login_submit_path), _login_par
 _login_param_execution(CommonFun::UrlEncode(login_param_execution)) {}
 
 bool TalkWithCCLower::LoginToCAS() {
-    auto req = CtorLoginReq();
+    auto req = ConstructLoginRequest();
     boost::beast::flat_buffer buffer; // This buffer is used for reading and must be persisted
     http::response<http::string_body> res;
     try {
@@ -295,7 +295,7 @@ std::string TalkWithCCLower::CtorLoginBody() {
     return body;
 }
 
-http::request<http::string_body> TalkWithCCLower::CtorLoginReq() {
+http::request<http::string_body> TalkWithCCLower::ConstructLoginRequest() {
     std::string body = CtorLoginBody();
     http::request<http::string_body> req{ http::verb::post, _login_submit_path, 11, body };
 
@@ -305,22 +305,6 @@ http::request<http::string_body> TalkWithCCLower::CtorLoginReq() {
     req.set(http::field::content_length, body.length());
     req.set(http::field::content_type, "application/x-www-form-urlencoded");
     req.set(http::field::accept, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-    return req;
-}
-
-http::request<http::string_body> TalkWithCCLower::CtorSearchComponentReq(const std::string& cid) {
-    //query policy
-    const static std::string strComponentSearchBaseUrl = "/console/api/v1/component/mgmt/active/";
-    const std::string strComponentSearchUrl = strComponentSearchBaseUrl + cid;
-
-    //construct request
-    http::request<http::string_body> req{http::verb::get, strComponentSearchUrl, 11};
-
-    //set headers
-    req.set(http::field::user_agent, "SQLEnforcer-ODBCClient");
-    req.set(http::field::connection, "keep-alive");
-    req.set(http::field::accept, "application/json, text/plain, */*");
-    req.set(http::field::cookie, _set_cookie);
     return req;
 }
 
@@ -362,15 +346,10 @@ std::string TalkWithCC91::CtorLoginBody() {
     return body;
 }
 
-http::request<http::string_body> TalkWithCC91::CtorLoginReq() {
-    auto req = TalkWithCCLower::CtorLoginReq();
+http::request<http::string_body> TalkWithCC91::ConstructLoginRequest() {
+    auto req = TalkWithCCLower::ConstructLoginRequest();
     req.set(http::field::cookie, _login_cookie);
     return req;
 }
 
-http::request<http::string_body> TalkWithCC91::CtorSearchComponentReq(const std::string& cid) {
-    auto req = TalkWithCCLower::CtorSearchComponentReq(cid);
-    req.set(HEAD_X_CSRF_TOKEN, _csfr_token);
-    return req;
-}
 

@@ -1,0 +1,124 @@
+{
+  "statusCode": "1003",
+  "message": "Data found successfully",
+  "data": {
+    "id": 2,
+    "name": "Host",
+    "shortName": "host",
+    "description": "A computer whose attributes may be referenced in a component",
+    "type": "SUBJECT",
+    "status": "ACTIVE",
+    "lastUpdatedDate": 1571996077910,
+    "createdDate": 0,
+    "ownerId": 0,
+    "ownerDisplayName": null,
+    "modifiedById": 0,
+    "modifiedBy": null,
+    "tags": [],
+    "attributes": [
+      {
+        "version": 1,
+        "lastUpdatedDate": 1571996077910,
+        "createdDate": 1571996077893,
+        "ownerId": 0,
+        "lastUpdatedBy": 0,
+        "id": 4900,
+        "name": "inet_address",
+        "shortName": "inet_address",
+        "dataType": "NUMBER",
+        "operatorConfigs": [
+          {
+            "version": 0,
+            "lastUpdatedDate": 1550562154457,
+            "createdDate": 1550562154457,
+            "ownerId": 0,
+            "lastUpdatedBy": 0,
+            "id": 5,
+            "key": "<",
+            "label": "<",
+            "dataType": "NUMBER"
+          },
+          {
+            "version": 0,
+            "lastUpdatedDate": 1550562154457,
+            "createdDate": 1550562154457,
+            "ownerId": 0,
+            "lastUpdatedBy": 0,
+            "id": 7,
+            "key": ">",
+            "label": ">",
+            "dataType": "NUMBER"
+          },
+          {
+            "version": 0,
+            "lastUpdatedDate": 1550562154470,
+            "createdDate": 1550562154470,
+            "ownerId": 0,
+            "lastUpdatedBy": 0,
+            "id": 8,
+            "key": ">=",
+            "label": ">=",
+            "dataType": "NUMBER"
+          },
+          {
+            "version": 0,
+            "lastUpdatedDate": 1550562154457,
+            "createdDate": 1550562154457,
+            "ownerId": 0,
+            "lastUpdatedBy": 0,
+            "id": 4,
+            "key": "!=",
+            "label": "!=",
+            "dataType": "NUMBER"
+          },
+          {
+            "version": 0,
+            "lastUpdatedDate": 1550562154457,
+            "createdDate": 1550562154457,
+            "ownerId": 0,
+            "lastUpdatedBy": 0,
+            "id": 3,
+            "key": "=",
+            "label": "=",
+            "dataType": "NUMBER"
+          },
+          {
+            "version": 0,
+            "lastUpdatedDate": 1550562154457,
+            "createdDate": 1550562154457,
+            "ownerId": 0,
+            "lastUpdatedBy": 0,
+            "id": 6,
+            "key": "<=",
+            "label": "<=",
+            "dataType": "NUMBER"
+          }
+        ],
+        "regExPattern": "",
+        "policyModel": null,
+        "isReferenced": true,
+        "sortOrder": 0
+      }
+    ],
+    "actions": [],
+    "obligations": [],
+    "authorities": [
+      {
+        "authority": "VIEW_POLICY_MODEL"
+      },
+      {
+        "authority": "EDIT_POLICY_MODEL"
+      },
+      {
+        "authority": "DELETE_POLICY_MODEL"
+      },
+      {
+        "authority": "DEPLOY_POLICY_MODEL"
+      },
+      {
+        "authority": "VIEW_POLICY_MODEL"
+      }
+    ],
+    "version": 2
+  }
+}

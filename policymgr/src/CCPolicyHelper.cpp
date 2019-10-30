@@ -238,6 +238,8 @@ void CCPolicyHelper::QueryPolicyDetails(NXLHttpClient &httpClient, const std::st
     if (res.result() == http::status::ok)
     {
         std::stringstream ss(res.body());
+        std::string strjson = ss.str();
+        printf("%s\n", strjson.c_str());
         boost::property_tree::ptree ptBody;
         try
         {
@@ -271,6 +273,8 @@ void CCPolicyHelper::QueryPolicyDetails(NXLHttpClient &httpClient, const std::st
 
                 //subject
                 const pt::ptree &ptSubjects = ptData.get_child(POLICY_JSON_SUBJECTCOMP);
+                std::string substr = ptSubjects.data();
+                printf(substr.c_str());
                 pt::ptree ptPolicySubjects;
                 ExtraceComponentFromPolicy(ptSubjects, ptPolicySubjects);
                 ptreePolicy.push_back(std::make_pair(POLICY_JSON_SUBJECTCOMP, ptPolicySubjects));
@@ -514,49 +518,125 @@ bool CCPolicyHelper::QueryComponent(NXLHttpClient& httpClient, const std::string
      //query policy
     const static std::string strComponentSearchBaseUrl = "/console/api/v1/component/mgmt/active/";
     const std::string strComponentSearchUrl = strComponentSearchBaseUrl + strID;
-
     //construct request
     http::request<http::string_body> req{http::verb::get, strComponentSearchUrl, 11};
-
     //set headers
     req.set(http::field::user_agent, "SQLEnforcer-ODBCClient");
     req.set(http::field::connection, "keep-alive");
     req.set(http::field::accept, "application/json, text/plain, */*");
     req.set(http::field::cookie, strSessionCookie);
-
     //send request
     boost::beast::flat_buffer buffer; // This buffer is used for reading and must be persisted
     http::response<http::string_body> res;
-    try
-    {
+    try  {
         httpClient.Request(req, buffer, res);
     }
-    catch (...)
-    {
+    catch (...)  {
+        handle_exception(" CCLoginHelper::QueryComponent ");
+        return false;
+    }
+    //parse response
+    if (res.result() == http::status::ok)   {
+        try  {
+            std::stringstream ss(res.body());
+            std::string strjson = ss.str();
+            printf("%s\n", strjson.c_str());
+            boost::property_tree::read_json<boost::property_tree::ptree>(ss, ptComponentData);
+            return true;
+        }
+        catch(...) {
+             handle_exception(" CCLoginHelper::QueryComponent ");
+             return false;
+        }
+    } else   {
+        Log::WriteLog(log_error,  "CCPolicyHelper::QueryComponent http status is not OK, status:%d, res:%s",
+                      res.result(), res.body().c_str() );
+    }
+
+    return false;
+}
+
+bool QueryPM(NXLHttpClient& httpClient, const std::string& strSessionCookie,
+             pt::ptree& ptComponentData, const std::string& strID) {
+    //query policy
+    const static std::string strComponentSearchBaseUrl = "/console/api//v1/policyModel/mgmt/active/";
+    const std::string strComponentSearchUrl = strComponentSearchBaseUrl + strID;
+    //construct request
+    http::request<http::string_body> req{http::verb::get, strComponentSearchUrl, 11};
+    //set headers
+    req.set(http::field::user_agent, "SQLEnforcer-ODBCClient");
+    req.set(http::field::connection, "keep-alive");
+    req.set(http::field::accept, "application/json, text/plain, */*");
+    req.set(http::field::cookie, strSessionCookie);
+    //send request
+    boost::beast::flat_buffer buffer; // This buffer is used for reading and must be persisted
+    http::response<http::string_body> res;
+    try   {
+        httpClient.Request(req, buffer, res);
+    }    catch (...)    {
         handle_exception(" CCLoginHelper::QueryComponent ");
         return false;
     }
 
     //parse response
-    if (res.result() == http::status::ok)
-    {
-        try
-        {
+    if (res.result() == http::status::ok)    {
+        try        {
             std::stringstream ss(res.body());
+            std::string strjson = ss.str();
+            printf("%s\n", strjson.c_str());
             boost::property_tree::read_json<boost::property_tree::ptree>(ss, ptComponentData);
             return true;
-        }
-        catch(...)
-        {
-             handle_exception(" CCLoginHelper::QueryComponent ");
-             return false;
+        }        catch(...)        {
+            handle_exception(" CCLoginHelper::QueryComponent ");
+            return false;
         }
     }
-    else
-    {
+    else    {
         Log::WriteLog(log_error,  "CCPolicyHelper::QueryComponent http status is not OK, status:%d, res:%s",
                       res.result(), res.body().c_str() );
     }
+    return false;
+}
 
+
+bool QueryExtraSubjectAttribsPM(NXLHttpClient& httpClient, const std::string& strSessionCookie,
+             pt::ptree& ptComponentData, const std::string& strPmName) {
+//query policy
+    const static std::string strComponentSearchBaseUrl = "/console/api//v1/policyModel/mgmt//extraSubjectAttribs/";
+    const std::string strComponentSearchUrl = strComponentSearchBaseUrl + strPmName;
+
+    //construct request
+    http::request<http::string_body> req{http::verb::get, strComponentSearchUrl, 11};
+    //set headers
+    req.set(http::field::user_agent, "SQLEnforcer-ODBCClient");
+    req.set(http::field::connection, "keep-alive");
+    req.set(http::field::accept, "application/json, text/plain, */*");
+    req.set(http::field::cookie, strSessionCookie);
+    //send request
+    boost::beast::flat_buffer buffer; // This buffer is used for reading and must be persisted
+    http::response<http::string_body> res;
+    try    {
+        httpClient.Request(req, buffer, res);
+    }    catch (...)    {
+        handle_exception(" CCLoginHelper::QueryComponent ");
+        return false;
+    }
+    //parse response
+    if (res.result() == http::status::ok)    {
+        try        {
+            std::stringstream ss(res.body());
+            std::string strjson = ss.str();
+            printf("%s\n", strjson.c_str());
+            boost::property_tree::read_json<boost::property_tree::ptree>(ss, ptComponentData);
+            return true;
+        }        catch(...)        {
+            handle_exception(" CCLoginHelper::QueryComponent ");
+            return false;
+        }
+    }
+    else    {
+        Log::WriteLog(log_error,  "CCPolicyHelper::QueryComponent http status is not OK, status:%d, res:%s",
+                      res.result(), res.body().c_str() );
+    }
     return false;
 }

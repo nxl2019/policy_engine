@@ -1,6 +1,7 @@
 #include "patch.h"
 #include "TalkWithCC.h"
 #include "PolicyModelList.h"
+#include "policy_analyze.h"
 
 #define KEY_ACTION_COMPONENTS           "actionComponents"
 #define KEY_SUBJECT_COMPONENTS          "subjectComponents"
@@ -30,8 +31,8 @@ bool PolicyHelper::DownloadPolicys(const std::string& service, const std::string
         std::string jstr;
         r = talk->SearchPolicyByID(it, jstr);
         assert(r);
-        Json::Value value;
-        /* todo convert to json obj */
+        Json::Value value ;
+        get_policy_jsvalue_from_string(jstr, value);
         policys.push_back(value);
     }
 
@@ -48,8 +49,8 @@ bool PolicyHelper::DownloadPolicys(const std::string& service, const std::string
         std::string jstr;
         r = talk->SearchComponentByID(std::to_string(it.first), jstr);
         if (!r) break;
-        /* todo convert to json obj */
-        Json::Value value;
+        Json::Value value ;
+        get_action_jsvalue_from_string(jstr, value);
         action_from_http.push_back(value);
     }
     if (action_from_http.size() != action_patch_list.size()) {
@@ -63,8 +64,8 @@ bool PolicyHelper::DownloadPolicys(const std::string& service, const std::string
         std::string jstr;
         r = talk->SearchComponentByID(std::to_string(it.first), jstr);
         if (!r) break;
-        /* todo convert to json obj */
         Json::Value value;
+        get_component_jsvalue_from_string(jstr, value);
         component_from_http.push_back(value);
     }
 
@@ -73,7 +74,6 @@ bool PolicyHelper::DownloadPolicys(const std::string& service, const std::string
         return false;
     }
     ComponentApplyPatch(component_patch_list, component_from_http);
-
 
     std::vector<std::string> pmids;
     ComponentAnalyzePolicyModel(component_from_http, pmids);
@@ -141,6 +141,7 @@ bool PolicyHelper::PolicyAnalyzePatch(std::vector<Json::Value>& policy_roots,
             }
         }
     }
+    return true;
 }
 
 bool PolicyHelper::ComponentApplyPatch(const std::map<CID, std::vector<Json::Value *>> &component_patch_list, const std::vector<Json::Value>& from_http) {

@@ -64,17 +64,117 @@ bool PolicyModelList::AddPmByID(uint64_t pmid, PolicyModel& out) {
     if (!r) return false;
     PolicyModel pm;
     pm.ParseFromJson(value);
+    switch (pm._type) {
+        case PolicyModel::PM_SUB_USER:
+        case PolicyModel::PM_SUB_HOST:
+        case PolicyModel::PM_SUB_APP:{
+            std::string out;
+            _talk->SearchPolicyModelPreAttrByName(pm._name, out);
+            pm.AddPreAttribute(out);
+        } break;
+        default:
+            break;
+    }
     _models.push_back(pm);
     return true;
 }
 
 bool PolicyModelList::AddPmByName(const std::string& name, PolicyModel& out) {
     std::string value;
-    bool r = _talk->SearchPolicyModelByName(name, value);
-    if (!r) return false;
-    PolicyModel pm;
-    pm.ParseFromJson(value);
-    _models.push_back(pm);
+
+    auto it = _name2id.find(name);
+    if (_name2id.find(name) == _name2id.end()) {
+        _talk->SearchPolicyModellist(_name2id);
+        it = _name2id.find(name);
+    }
+
+    if (it != _name2id.end()) {
+        uint64_t id = it->second;
+        //if (!CheckExist(id, out))
+            AddPmByID(id, out);
+    }  else {
+        //name is incorrect.
+        return  false;
+    }
     return true;
 }
 
+#include <json/json.h>
+#include "tool.h"
+AttributeInfo::ATTR_TYPE get_attribute_type(const std::string & strtype) {
+    if (CommonFun::StrCaseCmp(strtype.c_str(), "STRING") == 0) {
+        return AttributeInfo::A_STRING;
+    } else if (CommonFun::StrCaseCmp(strtype.c_str(), "NUMBER") == 0) {
+        return AttributeInfo::A_NUMBER;
+    } else if (CommonFun::StrCaseCmp(strtype.c_str(), "MULTIVAL") == 0) {
+        return AttributeInfo::A_MULTI;
+    } else  {
+        return AttributeInfo::A_ERR;
+    }
+}
+PolicyModel::PM_TYPE get_pm_type(const std::string & strtype, int id) {
+    //PM_RES, PM_SUB_USER, PM_SUB_APP, PM_SUB_HOST, PM_ERR
+    if (CommonFun::StrCaseCmp(strtype.c_str(), "SUBJECT") == 0) {
+        if (id == 1) {
+            return PolicyModel::PM_SUB_USER;
+        } else if (id == 2) {
+            return PolicyModel::PM_SUB_HOST;
+        } else if (id ==3) {
+            return PolicyModel::PM_SUB_APP;
+        } else {
+            return PolicyModel::PM_ERR;
+        }
+    } else if (CommonFun::StrCaseCmp(strtype.c_str(), "RESOURCE") == 0) {
+        return PolicyModel::PM_RES;
+    } else {
+        return PolicyModel::PM_ERR;
+    }
+}
+void PolicyModel::ParseFromJson(const std::string& json) {
+    Json::CharReaderBuilder builder;
+    Json::CharReader *pread = builder.newCharReader();
+    Json::Value root;
+    if (!pread->parse(json.c_str(), json.c_str() + json.length(), &root, nullptr)) {
+        delete (pread);
+        printf("json string is incorrect");
+        return ;
+    }
+    delete (pread);
+    pread = nullptr;
+
+    Json::Value &jsdata = root["data"];
+    _id = jsdata["id"].asInt();
+    _type = get_pm_type(jsdata["type"].asString(), _id);
+    _name = jsdata["shortName"].asString();
+
+    Json::Value &jsattr = jsdata["attributes"];
+    assert(jsattr.isArray());
+    for (auto it = jsattr.begin(); it != jsattr.end(); ++it) {
+        AttributeInfo info;
+        info._attribute = (*it)["shortName"].asString();
+        info._type = get_attribute_type((*it)["dataType"].asString());
+        _attributes[(*it)["shortName"].asString()] = info;
+    }
+}
+void PolicyModel::AddPreAttribute(const std::string& json) {
+    Json::CharReaderBuilder builder;
+    Json::CharReader *pread = builder.newCharReader();
+    Json::Value root;
+    if (!pread->parse(json.c_str(), json.c_str() + json.length(), &root, nullptr)) {
+        delete (pread);
+        printf("json string is incorrect");
+        return ;
+    }
+    delete (pread);
+    pread = nullptr;
+
+    Json::Value &jsdata = root["data"];
+    assert(jsdata.isArray());
+    for (auto it = jsdata.begin(); it != jsdata.end(); ++it) {
+        AttributeInfo info;
+        info._attribute = (*it)["shortName"].asString();
+        info._type = get_attribute_type((*it)["dataType"].asString());
+        _attributes[(*it)["shortName"].asString()] = info;
+
+    }
+}

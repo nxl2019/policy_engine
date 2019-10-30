@@ -15,7 +15,9 @@ struct AttributeInfo {
 struct PolicyModel {
     enum PM_TYPE { PM_RES, PM_SUB_USER, PM_SUB_APP, PM_SUB_HOST, PM_ERR };
     PolicyModel() {}
-    void ParseFromJson(const std::string& json); /* todo */
+    void ParseFromJson(const std::string& json);
+    void AddPreAttribute(const std::string& json);
+
     AttributeInfo::ATTR_TYPE GetTypeByName(const std::string& name) {
         auto fd = _attributes.find(name);
         if (fd == _attributes.end()) return AttributeInfo::A_ERR;
@@ -33,16 +35,18 @@ class PolicyModelList {
 public:
     PolicyModelList() : _talk(nullptr) {}
     PolicyModelList(const std::vector<PolicyModel>& models, TalkWithCC *talk) : _models(models), _talk(talk) {}
+
     PolicyModel::PM_TYPE GetPMTypeByID(uint64_t pmid);
     AttributeInfo::ATTR_TYPE GetAttrTypeByPmidAttrName(uint64_t pmid, const std::string& attr_name);
     AttributeInfo::ATTR_TYPE GetAttrTypeByPmnameAttrName(const std::string& pm_name, const std::string& attr_name);
     TalkWithCC *GetTalk() { return _talk; }
+    bool AddPmByID(uint64_t pmid, PolicyModel& out);
 protected:
     bool CheckExist(uint64_t pmid, PolicyModel& out);
     bool CheckExist(const std::string& pm_name, PolicyModel& out);
-    bool AddPmByID(uint64_t pmid, PolicyModel& out);
     bool AddPmByName(const std::string& name, PolicyModel& out);
 private:
+    std::map<std::string, uint64_t > _name2id;
     std::vector<PolicyModel>    _models;
     TalkWithCC *                _talk;
 };

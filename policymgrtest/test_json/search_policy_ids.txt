@@ -1,0 +1,218 @@
+{
+  "statusCode": "1004",
+  "message": "Data loaded successfully",
+  "data": [
+    {
+      "id": 11282,
+      "name": "pe_test3",
+      "lowercase_name": "pe_test3",
+      "rootFolder": "ROOT_11282",
+      "policyFullName": "ROOT_11282/pe_test3",
+      "description": "pe_test3",
+      "status": "APPROVED",
+      "effectType": "allow",
+      "lastUpdatedDate": 1572061586540,
+      "createdDate": 1571217319961,
+      "hasParent": false,
+      "hasSubPolicies": false,
+      "ownerId": 0,
+      "ownerDisplayName": "Administrator ",
+      "modifiedById": 0,
+      "modifiedBy": "Administrator ",
+      "tags": [
+        {
+          "id": 42,
+          "key": "pe_test",
+          "label": "pe_test",
+          "type": "POLICY_TAG",
+          "status": "ACTIVE"
+        }
+      ],
+      "noOfTags": 1,
+      "parentPolicy": null,
+      "subPolicies": [],
+      "childNodes": [],
+      "authorities": [
+        {
+          "authority": "VIEW_POLICY"
+        },
+        {
+          "authority": "EDIT_POLICY"
+        },
+        {
+          "authority": "DELETE_POLICY"
+        },
+        {
+          "authority": "DEPLOY_POLICY"
+        }
+      ],
+      "manualDeploy": false,
+      "deploymentTime": 1572061586540,
+      "deployed": true,
+      "actionType": "DE",
+      "revisionCount": 3,
+      "version": 6,
+      "deploymentPending": false
+    },
+    {
+      "id": 11274,
+      "name": "pe_test_2",
+      "lowercase_name": "pe_test_2",
+      "rootFolder": "ROOT_11274",
+      "policyFullName": "ROOT_11274/pe_test_2",
+      "description": "pe_test_2 expression",
+      "status": "APPROVED",
+      "effectType": "allow",
+      "lastUpdatedDate": 1572061522182,
+      "createdDate": 1571194407368,
+      "hasParent": false,
+      "hasSubPolicies": false,
+      "ownerId": 0,
+      "ownerDisplayName": "Administrator ",
+      "modifiedById": 0,
+      "modifiedBy": "Administrator ",
+      "tags": [
+        {
+          "id": 42,
+          "key": "pe_test",
+          "label": "pe_test",
+          "type": "POLICY_TAG",
+          "status": "ACTIVE"
+        }
+      ],
+      "noOfTags": 1,
+      "parentPolicy": null,
+      "subPolicies": [],
+      "childNodes": [],
+      "authorities": [
+        {
+          "authority": "VIEW_POLICY"
+        },
+        {
+          "authority": "EDIT_POLICY"
+        },
+        {
+          "authority": "DELETE_POLICY"
+        },
+        {
+          "authority": "DEPLOY_POLICY"
+        }
+      ],
+      "manualDeploy": false,
+      "deploymentTime": 1572061522182,
+      "deployed": true,
+      "actionType": "DE",
+      "revisionCount": 8,
+      "version": 16,
+      "deploymentPending": false
+    },
+    {
+      "id": 11273,
+      "name": "pe_test_1",
+      "lowercase_name": "pe_test_1",
+      "rootFolder": "ROOT_11273",
+      "policyFullName": "ROOT_11273/pe_test_1",
+      "description": "pe_test_1 not expressions",
+      "status": "APPROVED",
+      "effectType": "allow",
+      "lastUpdatedDate": 1572061423515,
+      "createdDate": 1571194109455,
+      "hasParent": false,
+      "hasSubPolicies": false,
+      "ownerId": 0,
+      "ownerDisplayName": "Administrator ",
+      "modifiedById": 0,
+      "modifiedBy": "Administrator ",
+      "tags": [
+        {
+          "id": 42,
+          "key": "pe_test",
+          "label": "pe_test",
+          "type": "POLICY_TAG",
+          "status": "ACTIVE"
+        }
+      ],
+      "noOfTags": 1,
+      "parentPolicy": null,
+      "subPolicies": [],
+      "childNodes": [],
+      "authorities": [
+        {
+          "authority": "VIEW_POLICY"
+        },
+        {
+          "authority": "EDIT_POLICY"
+        },
+        {
+          "authority": "DELETE_POLICY"
+        },
+        {
+          "authority": "DEPLOY_POLICY"
+        }
+      ],
+      "manualDeploy": false,
+      "deploymentTime": 1572061423515,
+      "deployed": true,
+      "actionType": "DE",
+      "revisionCount": 8,
+      "version": 17,
+      "deploymentPending": false
+    },
+    {
+      "id": 11284,
+      "name": "pe_test4",
+      "lowercase_name": "pe_test4",
+      "rootFolder": "ROOT_11284",
+      "policyFullName": "ROOT_11284/pe_test4",
+      "description": "pe_test4( about value type = integer )",
+      "status": "APPROVED",
+      "effectType": "allow",
+      "lastUpdatedDate": 1571638366880,
+      "createdDate": 1571279156959,
+      "hasParent": false,
+      "hasSubPolicies": false,
+      "ownerId": 0,
+      "ownerDisplayName": "Administrator ",
+      "modifiedById": 0,
+      "modifiedBy": "Administrator ",
+      "tags": [
+        {
+          "id": 42,
+          "key": "pe_test",
+          "label": "pe_test",
+          "type": "POLICY_TAG",
+          "status": "ACTIVE"
+        }
+      ],
+      "noOfTags": 1,
+      "parentPolicy": null,
+      "subPolicies": [],
+      "childNodes": [],
+      "authorities": [
+        {
+          "authority": "VIEW_POLICY"
+        },
+        {
+          "authority": "EDIT_POLICY"
+        },
+        {
+          "authority": "DELETE_POLICY"
+        },
+        {
+          "authority": "DEPLOY_POLICY"
+        }
+      ],
+      "manualDeploy": false,
+      "deploymentTime": 1571638366880,
+      "deployed": true,
+      "actionType": "DE",
+      "revisionCount": 13,
+      "version": 29,
+      "deploymentPending": false
+    }
+  ],
+  "pageNo": 0,
+  "pageSize": 20,
+  "totalPages": 1,
+  "totalNoOfRecords": 4
+}

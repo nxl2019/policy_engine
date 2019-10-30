@@ -3,6 +3,7 @@
 
 #include <string>
 #include "NXLHttpClient.h"
+#define HEAD_X_CSRF_TOKEN    "X-CSRF-TOKEN"
 
 class TalkWithCC {
 public:
@@ -14,7 +15,7 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) = 0;
-    virtual bool SearchPolicyModellist( std::vector<std::string>& out) = 0;
+    virtual bool SearchPolicyModellist( std::map<std::string, uint64_t> & outmap) = 0;
     virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) = 0;
 
 public:
@@ -44,9 +45,8 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) override;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) override;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) override;
-    virtual bool SearchPolicyModellist(std::vector<std::string>& out) override ;
+    virtual bool SearchPolicyModellist(std::map<std::string, uint64_t> & outmap) override ;
     virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) override;
-
 
 public:
     virtual bool LoginToCAS() override;
@@ -54,8 +54,13 @@ public:
 
 protected:
     virtual std::string CtorLoginBody();
-    virtual http::request<http::string_body> CtorLoginReq();
-    virtual http::request<http::string_body> CtorSearchComponentReq(const std::string& cid);
+    virtual http::request<http::string_body> ConstructLoginRequest();
+    virtual http::request<http::string_body> ConstructPolicySearchRequestByTag(const std::string& tag, const int page) ;
+    virtual http::request<http::string_body> ConstructPolicyRequestByID(const std::string& cid);
+    virtual http::request<http::string_body> ConstructComponentRequestByID(const std::string& cid);
+    virtual http::request<http::string_body> ConstructPolicyModelRequestByID(const std::string& cid);
+    virtual http::request<http::string_body> ConstructPolicyModelListRequest( const int page);
+    virtual http::request<http::string_body> ConstructPolicyModelPreAttrRequestByName(const std::string& name);
 protected:
     std::string     _cas_login_url;
     std::string     _login_submit_path;
@@ -79,8 +84,13 @@ public:
     virtual bool CasSecurityCheck(http::response<http::string_body>& res) override;
 protected:
     virtual std::string CtorLoginBody() override;
-    virtual http::request<http::string_body> CtorLoginReq() override;
-    virtual http::request<http::string_body> CtorSearchComponentReq(const std::string& cid);
+    virtual http::request<http::string_body> ConstructLoginRequest() override;
+    virtual http::request<http::string_body> ConstructPolicySearchRequestByTag(const std::string& tag, const int page) ;
+    virtual http::request<http::string_body> ConstructPolicyRequestByID(const std::string& cid);
+    virtual http::request<http::string_body> ConstructComponentRequestByID(const std::string& cid);
+    virtual http::request<http::string_body> ConstructPolicyModelRequestByID(const std::string& cid);
+    virtual http::request<http::string_body> ConstructPolicyModelListRequest( const int page);
+    virtual http::request<http::string_body> ConstructPolicyModelPreAttrRequestByName(const std::string& name);
 protected:
     std::string     _login_param_csrf_token;
     std::string     _login_cookie;

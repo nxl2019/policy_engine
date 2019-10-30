@@ -1,0 +1,114 @@
+{
+  "statusCode": "1003",
+  "message": "Data found successfully",
+  "data": {
+    "id": 11293,
+    "name": "pe_subject_test3",
+    "description": "pe_subject_test3",
+    "tags": [
+      {
+        "id": 41,
+        "key": "pe_test",
+        "label": "pe_test",
+        "type": "COMPONENT_TAG",
+        "status": "ACTIVE"
+      }
+    ],
+    "type": "SUBJECT",
+    "category": "COMPONENT",
+    "policyModel": {
+      "id": 1,
+      "name": null,
+      "shortName": null,
+      "description": null,
+      "type": null,
+      "status": null,
+      "lastUpdatedDate": 0,
+      "createdDate": 0,
+      "ownerId": null,
+      "ownerDisplayName": null,
+      "modifiedById": null,
+      "modifiedBy": null,
+      "tags": [],
+      "attributes": [],
+      "actions": [],
+      "obligations": [],
+      "authorities": [],
+      "version": 0
+    },
+    "actions": [],
+    "conditions": [
+      {
+        "attribute": "pe_nums",
+        "operator": "<",
+        "value": "100",
+        "rhsType": "CONSTANT",
+        "rhsvalue": "100"
+      },
+      {
+        "attribute": "pe_nums",
+        "operator": ">",
+        "value": "0",
+        "rhsType": "CONSTANT",
+        "rhsvalue": "0"
+      },
+      {
+        "attribute": "pe_nums",
+        "operator": "<=",
+        "value": "99",
+        "rhsType": "CONSTANT",
+        "rhsvalue": "99"
+      },
+      {
+        "attribute": "pe_nums",
+        "operator": ">=",
+        "value": "1",
+        "rhsType": "CONSTANT",
+        "rhsvalue": "1"
+      }
+    ],
+    "memberConditions": [],
+    "subComponents": [],
+    "status": "APPROVED",
+    "parentId": null,
+    "deploymentTime": 1571293306263,
+    "deployed": true,
+    "actionType": "DE",
+    "revisionCount": 1,
+    "ownerId": 0,
+    "ownerDisplayName": "Administrator ",
+    "createdDate": 1571293293998,
+    "modifiedById": 0,
+    "modifiedBy": "Administrator ",
+    "lastUpdatedDate": 1571293306263,
+    "skipValidate": false,
+    "reIndexAllNow": true,
+    "hidden": false,
+    "authorities": [
+      {
+        "authority": "VIEW_COMPONENT"
+      },
+      {
+        "authority": "EDIT_COMPONENT"
+      },
+      {
+        "authority": "DELETE_COMPONENT"
+      },
+      {
+        "authority": "DEPLOY_COMPONENT"
+      }
+    ],
+    "deploymentRequest": {
+      "id": 11293,
+      "type": "POLICY",
+      "push": false,
+      "deploymentTime": 1572338768675,
+      "deployDependencies": true
+    },
+    "preCreated": false,
+    "version": 3,
+    "pageNo": 0,
+    "pageSize": 20,
+    "deploymentPending": false
+  }
+}
