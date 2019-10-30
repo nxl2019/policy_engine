@@ -57,7 +57,7 @@ public:
     ~AstConstantValue();
     void SetValue(int data);
     void SetValue(const std::string& value);
-    int  GetValueAsInt();
+    int  GetValueAsInt(bool& r);
     const char *GetValueAsStr() { return u._other_data; }
 private:
     union {
@@ -80,13 +80,16 @@ typedef std::vector<AstId*>                 AstIds;
 class AstColumnRef : public AstExpr {
 public:
     enum COL_TYPE { RES, SUB, APP, HOST, ACTION, OTHER };
-    AstColumnRef(COL_TYPE col_type, const AstIds& ids);
+    enum VAL_TYPE { CC_NUMBER, CC_STRING, CC_MULTI, CC_OTHER };
+    AstColumnRef(COL_TYPE col_type, VAL_TYPE val_type, const AstIds& ids);
     ~AstColumnRef();
     COL_TYPE                    GetColType();
+    VAL_TYPE                    GetValType();
     void                        SetColumn(const AstIds& ids);
     const AstIds&               GetColumn();
 private:
     COL_TYPE    _col_type;
+    VAL_TYPE    _val_type;
     AstIds      _ids;
 };
 
