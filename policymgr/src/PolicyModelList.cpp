@@ -15,8 +15,6 @@ PolicyModel::PM_TYPE PolicyModelList::GetPMTypeByID(uint64_t pmid) {
 }
 
 AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmidAttrName(uint64_t pmid, const std::string& attr_name) {
-    std::string temp = attr_name;
-    transform(temp.begin(), temp.end(), temp.begin(), tolower);
     PolicyModel pm1;
     if (!CheckExist(pmid, pm1)) {
         PolicyModel pm;
@@ -24,13 +22,11 @@ AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmidAttrName(uint64_t pmi
         if (!r) {
             return AttributeInfo::A_ERR;
         }
-        return pm.GetTypeByName(temp);
-    } else return pm1.GetTypeByName(temp);
+        return pm.GetTypeByName(attr_name);
+    } else return pm1.GetTypeByName(attr_name);
 }
 
 AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmnameAttrName(const std::string& pm_name, const std::string& attr_name) {
-    std::string temp = attr_name;
-    transform(temp.begin(), temp.end(), temp.begin(), tolower);
     PolicyModel pm1;
     if (!CheckExist(pm_name, pm1)) {
         PolicyModel pm;
@@ -38,8 +34,8 @@ AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmnameAttrName(const std:
         if (!r) {
             return AttributeInfo::A_ERR;
         }
-        return pm.GetTypeByName(temp);
-    } else return pm1.GetTypeByName(temp);
+        return pm.GetTypeByName(attr_name);
+    } else return pm1.GetTypeByName(attr_name);
 }
 
 bool PolicyModelList::CheckExist(uint64_t pmid, PolicyModel& out) {

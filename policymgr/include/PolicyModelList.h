@@ -23,7 +23,9 @@ struct PolicyModel {
     void AddPreAttribute(const std::string& json);
 
     AttributeInfo::ATTR_TYPE GetTypeByName(const std::string& name) {
-        auto fd = _attributes.find(name);
+        std::string temp = name;
+        transform(temp.begin(), temp.end(), temp.begin(), tolower);
+        auto fd = _attributes.find(temp);
         if (fd == _attributes.end()) return AttributeInfo::A_ERR;
         return fd->second._type;
     }
