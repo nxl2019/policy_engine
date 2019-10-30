@@ -15,6 +15,8 @@ PolicyModel::PM_TYPE PolicyModelList::GetPMTypeByID(uint64_t pmid) {
 }
 
 AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmidAttrName(uint64_t pmid, const std::string& attr_name) {
+    std::string temp = attr_name;
+    transform(temp.begin(), temp.end(), temp.begin(), tolower);
     PolicyModel pm1;
     if (!CheckExist(pmid, pm1)) {
         PolicyModel pm;
@@ -22,11 +24,13 @@ AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmidAttrName(uint64_t pmi
         if (!r) {
             return AttributeInfo::A_ERR;
         }
-        return pm.GetTypeByName(attr_name);
-    } else return pm1.GetTypeByName(attr_name);
+        return pm.GetTypeByName(temp);
+    } else return pm1.GetTypeByName(temp);
 }
 
 AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmnameAttrName(const std::string& pm_name, const std::string& attr_name) {
+    std::string temp = attr_name;
+    transform(temp.begin(), temp.end(), temp.begin(), tolower);
     PolicyModel pm1;
     if (!CheckExist(pm_name, pm1)) {
         PolicyModel pm;
@@ -34,8 +38,8 @@ AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmnameAttrName(const std:
         if (!r) {
             return AttributeInfo::A_ERR;
         }
-        return pm.GetTypeByName(attr_name);
-    } else return pm1.GetTypeByName(attr_name);
+        return pm.GetTypeByName(temp);
+    } else return pm1.GetTypeByName(temp);
 }
 
 bool PolicyModelList::CheckExist(uint64_t pmid, PolicyModel& out) {
@@ -148,14 +152,17 @@ void PolicyModel::ParseFromJson(const std::string& json) {
     _id = jsdata["id"].asInt();
     _type = get_pm_type(jsdata["type"].asString(), _id);
     _name = jsdata["shortName"].asString();
+    transform(_name.begin(), _name.end(), _name.begin(), tolower);
 
     Json::Value &jsattr = jsdata["attributes"];
     assert(jsattr.isArray());
     for (auto it = jsattr.begin(); it != jsattr.end(); ++it) {
+        std::string name =(*it)["shortName"].asString();
+        transform(name.begin(), name.end(), name.begin(), tolower);
         AttributeInfo info;
-        info._attribute = (*it)["shortName"].asString();
+        info._attribute = name;
         info._type = get_attribute_type((*it)["dataType"].asString());
-        _attributes[(*it)["shortName"].asString()] = info;
+        _attributes[name] = info;
     }
 }
 void PolicyModel::AddPreAttribute(const std::string& json) {
@@ -173,10 +180,12 @@ void PolicyModel::AddPreAttribute(const std::string& json) {
     Json::Value &jsdata = root["data"];
     assert(jsdata.isArray());
     for (auto it = jsdata.begin(); it != jsdata.end(); ++it) {
+        std::string name =(*it)["shortName"].asString();
+        transform(name.begin(), name.end(), name.begin(), tolower);
         AttributeInfo info;
-        info._attribute = (*it)["shortName"].asString();
+        info._attribute = name;
         info._type = get_attribute_type((*it)["dataType"].asString());
-        _attributes[(*it)["shortName"].asString()] = info;
+        _attributes[name] = info;
 
     }
 }

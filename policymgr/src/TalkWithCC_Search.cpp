@@ -107,6 +107,7 @@ bool parse_name2ids_by_json(const std::string &str, std::map<std::string, uint64
         uint64_t  id = (*it)["id"].asInt();
         assert((*it).isMember("shortName"));
         std::string name = (*it)["shortName"].asString();
+        transform(name.begin(), name.end(), name.begin(), tolower);
         outmap[name] = id;
     }
     int page_now = root["pageNo"].asInt();
