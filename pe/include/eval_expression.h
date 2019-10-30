@@ -10,7 +10,7 @@ class Instruction;
 
 Value::BOOLEAN eval_expression(AstExpr *expr, Subject *subject, const std::string& action, Resource *res, Host *host, App *app);
 
-Value::BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *subject, const std::string& action, Resource *res, Host *host, App *app);
+//Value::BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Subject *subject, const std::string& action, Resource *res, Host *host, App *app);
 
 
 #endif

@@ -4,6 +4,7 @@
 #include "json/json.h"
 #include <map>
 #include <vector>
+#include <set>
 
 typedef uint64_t PID;       /* Policy ID */
 typedef uint64_t CID;       /* Component ID */
@@ -21,7 +22,7 @@ private:
     static bool PolicyAnalyzePatch(std::vector<Json::Value>& policy_roots,
             std::map<CID, std::vector<Json::Value *>> &component_patch_list, std::map<AID, std::vector<Json::Value *>> &action_patch_list);
     static bool ComponentApplyPatch(const std::map<CID, std::vector<Json::Value *>> &component_patch_list, const std::vector<Json::Value>& from_http);
-    static bool ComponentAnalyzePolicyModel(const std::vector<Json::Value>& components, std::vector<std::string> pmids);
+    static bool ComponentAnalyzePolicyModel(const std::vector<Json::Value>& components, std::set<uint64_t>& pmids);
 };
 
 #endif

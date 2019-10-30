@@ -8,9 +8,11 @@
 #define EOI (-1)
 
 const std::map<std::string, Token::TOKEN_TYPE > KEYWORDS {
-        {"HOST",        Token::TK_HOST}, {"USER",       Token::TK_USER},
-        {"APPLICATION", Token::TK_APP }, {"RESOURCE",   Token::TK_RES },
-        {"OR",          Token::TK_OR  }, {"AND",        Token::TK_AND}
+        {"HOST",        Token::TK_HOST},    {"USER",       Token::TK_USER},
+        {"APPLICATION", Token::TK_APP },    {"RESOURCE",   Token::TK_RES },
+        {"OR",          Token::TK_OR  },    {"AND",        Token::TK_AND},
+        {"NOT",         Token::TK_NOT},     {"NULL",       Token::TK_NULL},
+        {"INCLUDES",    Token::TK_INCLUDES},{"EQUALS_UNORDERED", Token::TK_EQUALS_UNORDERED}
 };
 
 bool check_reserved_keyword(const std::string &word, Token& tk) {

@@ -5,6 +5,7 @@
 #include "policy_expression.h"
 #include <string.h>
 #include <assert.h>
+#include <policy_expression.h>
 #include "tool.h"
 //-------------AstExpr----------------
 AstExpr::AstExpr(EXPR_TYPE expr_type):_expr_type(expr_type), _expr_parent(NULL){ }
@@ -30,23 +31,34 @@ AstExpr* AstBinaryOpExpr::GetRight() { return _right; }
 //-------------AstConstantValue---------------
 AstConstantValue::AstConstantValue(EXPR_TYPE expr_type):AstExpr(expr_type){ }
 AstConstantValue::~AstConstantValue(){
-    if (GetExprType() == C_STRING || GetExprType() == C_NUMBER || GetExprType() == C_PATTERN) {
+    if (GetExprType() == C_STRING  || GetExprType() == C_PATTERN) {
         free (u._other_data);
         u._other_data = nullptr;
     }
 }
 void AstConstantValue::SetValue(int data){    u._int_data = data; }
 void AstConstantValue::SetValue(const std::string& value){    u._other_data = strdup(value.c_str()); }
-int  AstConstantValue::GetValueAsInt(){ return atoi(u._other_data); }
+int  AstConstantValue::GetValueAsInt(bool& r) {
+    if (GetExprType() == C_NUMBER) {
+        r = true;
+        return u._int_data;
+    } else {
+        char *end = nullptr;
+        int i = (int)strtol(u._other_data, &end, 10);
+        r = *end == '\0';
+        return i;
+    }
+}
 
 ///-------------AstColumnRef-----------------------------------
-AstColumnRef::AstColumnRef(COL_TYPE col_type, const AstIds& ids):AstExpr(EXPR_COLUMN_REF), _col_type(col_type), _ids(ids){}
+AstColumnRef::AstColumnRef(COL_TYPE col_type, VAL_TYPE val_type, const AstIds& ids):AstExpr(EXPR_COLUMN_REF), _col_type(col_type), _val_type(val_type), _ids(ids){}
 AstColumnRef::~AstColumnRef(){
     for (auto ids:_ids) {
         if (ids) delete ids;
     }
 }
 AstColumnRef::COL_TYPE AstColumnRef::GetColType() { return _col_type; }
+AstColumnRef::VAL_TYPE AstColumnRef::GetValType() { return _val_type; }
 void    AstColumnRef::SetColumn(const AstIds& ids){    _ids = ids; }
 const AstIds&   AstColumnRef::GetColumn(){    return  _ids; }
 

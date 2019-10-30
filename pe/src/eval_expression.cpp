@@ -10,6 +10,34 @@
 #include <regex>
 
 struct RunTimeVars {
+    Value GetRuntimeValue(AstColumnRef::COL_TYPE col_type, AstColumnRef::VAL_TYPE val_type, const std::string& attr) {
+        Dictionary *dic = nullptr;
+        switch (col_type) {
+            case AstColumnRef::RES : {
+                return Value(Value::V_NULL);        /* not support */
+            } break;
+            case AstColumnRef::HOST : { dic = _host; } break;
+            case AstColumnRef::APP : { dic = _app; } break;
+            case AstColumnRef::SUB : { dic = _subject; } break;
+            case AstColumnRef::ACTION : {
+                return *_action;
+            } break;
+            default: return Value(Value::V_NULL);    /* not support */
+        }
+
+        switch (val_type) {
+            case AstColumnRef::CC_NUMBER : {
+                bool r = false;
+                auto v = dic->GetValueAsInt(attr, r);
+                if (r) return v;
+                else return Value(Value::V_NULL);
+            } break;
+            case AstColumnRef::CC_STRING : {
+                return dic->GetValueAsString(attr);
+            } break;
+            default: return Value(Value::V_NULL);
+        }
+    }
     Subject     *_subject;
     Value       *_action;
     Resource    *_resource;
@@ -26,104 +54,92 @@ Value *make_action(const char *action) {
     }
     return act;
 }
-Value eval(AstExpr *expr, RunTimeVars *run_time_vars);
-Value test_int(AstExpr *expr, RunTimeVars *run_time_vars);
-Value test_int_str(AstExpr *expr, RunTimeVars *run_time_vars);
-Value test_like(AstExpr *expr, RunTimeVars *run_time_vars);
 
-Value eval(AstExpr *expr, RunTimeVars *run_time_vars) {
+Value eval(AstExpr *expr, RunTimeVars *run_time_vars, Value::VALUE_TYPE expect = Value::V_NULL);
+
+Value test_compare(AstExpr *expr, RunTimeVars *run_time_vars);
+
+Value test_or(AstBinaryOpExpr *or_expr, RunTimeVars *run_time_vars) {
+    Value l = eval(or_expr->GetLeft(), run_time_vars);
+    if (l.GetType() != Value::V_BOOLEAN) {
+        return Value(Value::B_UNKNOWN);
+    }
+    if (l.GetValueAsBoolean() == Value::B_TRUE) {
+        return Value(Value::B_TRUE);
+    }
+    Value r = eval(or_expr->GetRight(), run_time_vars);
+    if (r.GetType() != Value::V_BOOLEAN) {
+        return Value(Value::B_UNKNOWN);
+    }
+    if (r.GetValueAsBoolean() == Value::B_TRUE) {
+        return Value(Value::B_TRUE);
+    }
+    if (l.GetValueAsBoolean() == Value::B_UNKNOWN || r.GetValueAsBoolean() == Value::B_UNKNOWN) {
+        return Value(Value::B_UNKNOWN);
+    }
+    return r;   /* B_FALSE */
+}
+
+Value test_and(AstBinaryOpExpr *and_expr, RunTimeVars *run_time_vars) {
+    Value l = eval(and_expr->GetLeft(), run_time_vars);
+    if (l.GetType() != Value::V_BOOLEAN) {
+        return Value(Value::B_UNKNOWN);
+    }
+    if (l.GetValueAsBoolean() == Value::B_FALSE) {
+        return Value(Value::B_FALSE);
+    }
+    Value r = eval(and_expr->GetRight(), run_time_vars);
+    if (r.GetType() != Value::V_BOOLEAN) {
+        return Value(Value::B_UNKNOWN);
+    }
+    if (r.GetValueAsBoolean() == Value::B_FALSE) {
+        return Value(Value::B_FALSE);
+    }
+    if (l.GetValueAsBoolean() == Value::B_UNKNOWN || r.GetValueAsBoolean() == Value::B_UNKNOWN) {
+        return Value(Value::B_UNKNOWN);
+    }
+    return r; /* B_TRUE */
+}
+
+Value test_not(AstUnaryOpExpr *not_expr, RunTimeVars *run_time_vars) {
+    Value v = eval(not_expr->GetExpr(), run_time_vars);
+    if (v.GetType() != Value::V_BOOLEAN) {
+        return Value(Value::B_UNKNOWN);
+    }
+    if (v.GetValueAsBoolean() == Value::B_TRUE) {
+        return Value(Value::B_FALSE);
+    } else if (v.GetValueAsBoolean() == Value::B_FALSE) {
+        return Value(Value::B_TRUE);
+    } else {
+        return v;
+    }
+}
+
+Value eval(AstExpr *expr, RunTimeVars *run_time_vars, Value::VALUE_TYPE expect) {
     switch (expr->GetExprType()) {
         case AstExpr::OR: {
-            AstBinaryOpExpr *or_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-            Value l = eval(or_expr->GetLeft(), run_time_vars);
-            if (l.GetType() != Value::V_BOOLEAN) {
-                return Value(Value::B_UNKNOWN);
-            }
-            if (l.GetValueAsBoolean() == Value::B_TRUE) {
-                return Value(Value::B_TRUE);
-            }
-            Value r = eval(or_expr->GetRight(), run_time_vars);
-            if (r.GetType() != Value::V_BOOLEAN) {
-                return Value(Value::B_UNKNOWN);
-            }
-            if (r.GetValueAsBoolean() == Value::B_TRUE) {
-                return Value(Value::B_TRUE);
-            }
-            if (l.GetValueAsBoolean() == Value::B_UNKNOWN || r.GetValueAsBoolean() == Value::B_UNKNOWN) {
-                return Value(Value::B_UNKNOWN);
-            }
-            return r;   /* B_FALSE */
+            auto *or_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
+            return test_or(or_expr, run_time_vars);
         } break;
         case AstExpr::AND: {
-            AstBinaryOpExpr *and_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-            Value l = eval(and_expr->GetLeft(), run_time_vars);
-            if (l.GetType() != Value::V_BOOLEAN) {
-                return Value(Value::B_UNKNOWN);
-            }
-            if (l.GetValueAsBoolean() == Value::B_FALSE) {
-                return Value(Value::B_FALSE);
-            }
-            Value r = eval(and_expr->GetRight(), run_time_vars);
-            if (r.GetType() != Value::V_BOOLEAN) {
-                return Value(Value::B_UNKNOWN);
-            }
-            if (r.GetValueAsBoolean() == Value::B_FALSE) {
-                return Value(Value::B_FALSE);
-            }
-            if (l.GetValueAsBoolean() == Value::B_UNKNOWN || r.GetValueAsBoolean() == Value::B_UNKNOWN) {
-                return Value(Value::B_UNKNOWN);
-            }
-            return r; /* B_TRUE */
+            auto *and_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
+            return test_and(and_expr, run_time_vars);
         } break;
         case AstExpr::COMP_LE: /* go through */
         case AstExpr::COMP_LT: /* go through */
         case AstExpr::COMP_GE: /* go through */
-        case AstExpr::COMP_GT: {
-            return test_int(expr, run_time_vars);
-        } break;
+        case AstExpr::COMP_GT: /* go through */
         case AstExpr::COMP_EQ: /* go through */
         case AstExpr::COMP_NEQ: {
-            return test_int_str(expr, run_time_vars);
-        } break;
-        case AstExpr::LIKE: /* go through */
-        case AstExpr::NOT_LIKE: {
-            return test_like(expr, run_time_vars);
+            return test_compare(expr, run_time_vars);
         } break;
         case AstExpr::NOT: {
-            AstUnaryOpExpr *not_expr = dynamic_cast<AstUnaryOpExpr*>(expr);
-            Value v = eval(not_expr->GetExpr(), run_time_vars);
-            if (v.GetType() != Value::V_BOOLEAN) {
-                return Value(Value::B_UNKNOWN);
-            }
-            if (v.GetValueAsBoolean() == Value::B_TRUE) {
-                return Value(Value::B_FALSE);
-            } else if (v.GetValueAsBoolean() == Value::B_FALSE) {
-                return Value(Value::B_TRUE);
-            } else {
-                return v;
-            }
+            auto *not_expr = dynamic_cast<AstUnaryOpExpr*>(expr);
+            return test_not(not_expr, run_time_vars);
         } break;
         case AstExpr::EXPR_COLUMN_REF: {
-            AstColumnRef *ref = dynamic_cast<AstColumnRef*>(expr);
-            if (ref->GetColType() == AstColumnRef::RES) {
-                return Value(Value::B_UNKNOWN);    /* not support */
-            } else if (ref->GetColType() == AstColumnRef::ACTION) {
-                return *(run_time_vars->_action);
-            } else if (ref->GetColType() == AstColumnRef::HOST) {
-                auto ids = ref->GetColumn();
-                assert(ids.size() > 0);
-                return run_time_vars->_host->GetValueAsString(ids.back()->GetId());
-            } else if (ref->GetColType() == AstColumnRef::APP) {
-                auto ids = ref->GetColumn();
-                assert(ids.size() > 0);
-                return run_time_vars->_app->GetValueAsString(ids.back()->GetId());
-            } else if (ref->GetColType() == AstColumnRef::SUB) {
-                auto ids = ref->GetColumn();
-                assert(ids.size() > 0);
-                return run_time_vars->_subject->GetValueAsString(ids.back()->GetId());
-            } else {
-                assert(false);
-            }
+            auto *ref = dynamic_cast<AstColumnRef*>(expr);
+            return run_time_vars->GetRuntimeValue(ref->GetColType(), ref->GetValType(), ref->GetColumn().back()->GetId());
         } break;
         case AstExpr::C_TRUE: {
             return Value(Value::B_TRUE);
@@ -135,153 +151,155 @@ Value eval(AstExpr *expr, RunTimeVars *run_time_vars) {
             return Value(Value::B_UNKNOWN);
         } break;
         case AstExpr::C_NUMBER: {
-            return Value(dynamic_cast<AstConstantValue*>(expr)->GetValueAsInt());
+            bool r;
+            return Value(dynamic_cast<AstConstantValue*>(expr)->GetValueAsInt(r));
         } break;
         case AstExpr::C_PATTERN: /* go through */
         case AstExpr::C_STRING: {
-            return Value(dynamic_cast<AstConstantValue*>(expr)->GetValueAsStr());
+            // in cc the number literal is like "102" not 102
+            if (expect == Value::V_INT) {
+                bool r = false;
+                int i = dynamic_cast<AstConstantValue*>(expr)->GetValueAsInt(r);
+                if (r) {
+                    return Value(i);
+                } else {
+                    return Value(Value::V_NULL);
+                }
+            } else {
+                return Value(dynamic_cast<AstConstantValue*>(expr)->GetValueAsStr());
+            }
+        } break;
+        case AstExpr::C_NULL: {
+            return Value(Value::V_NULL);
+        } break;
+        case AstExpr::LIKE: /* go through */
+        case AstExpr::NOT_LIKE: {
+            return Value(Value::B_UNKNOWN); /* not support */
+        } break;
+        case AstExpr::INCLUDES: {
+            return Value(Value::B_UNKNOWN); /* not support */
         } break;
         default: {  }
     }
     return Value(Value::B_UNKNOWN);
 }
 
-Value test_int(AstExpr *expr, RunTimeVars *run_time_vars) {
-    AstExpr::EXPR_TYPE op = expr->GetExprType();
-    assert(op == AstExpr::COMP_LE || op == AstExpr::COMP_LT ||
-    op == AstExpr::COMP_GE || op == AstExpr::COMP_GT);
-    AstBinaryOpExpr *le_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-    Value r = eval(le_expr->GetRight(), run_time_vars);
-    if (r.GetType() != Value::V_INT && !r.CanConvertToInt()) {
-        return Value(Value::B_UNKNOWN);
-    }
-    Value l = eval(le_expr->GetLeft(), run_time_vars);
-    if (l.GetType() != Value::V_INT && !l.CanConvertToInt()) {
-        return Value(Value::B_UNKNOWN);
-    }
-    if (op == AstExpr::COMP_LE) {
-        if (l.GetValueAsInt() <= r.GetValueAsInt()) {
-            return Value(Value::B_TRUE);
-        }
-        else {
-            return Value(Value::B_FALSE);
-        }
-    } else if (op == AstExpr::COMP_LT) {
-        if (l.GetValueAsInt() < r.GetValueAsInt()) {
-            return Value(Value::B_TRUE);
-        }
-        else {
-            return Value(Value::B_FALSE);
-        }
-    } else if (op == AstExpr::COMP_GE) {
-        if (l.GetValueAsInt() >= r.GetValueAsInt()) {
-            return Value(Value::B_TRUE);
-        }
-        else {
-            return Value(Value::B_FALSE);
-        }
-    } else if (op == AstExpr::COMP_GT) {
-        if (l.GetValueAsInt() > r.GetValueAsInt()) {
-            return Value(Value::B_TRUE);
-        }
-        else {
-            return Value(Value::B_FALSE);
-        }
+Value bool_to_value(bool b) {
+    if (b) {
+        return Value(Value::B_TRUE);
     } else {
-        assert(false);
+        return Value(Value::B_FALSE);
     }
-    return Value(Value::B_UNKNOWN);
 }
 
-Value test_int_str(AstExpr *expr, RunTimeVars *run_time_vars) {
-    AstExpr::EXPR_TYPE op = expr->GetExprType();
-    assert(op == AstExpr::COMP_EQ || op == AstExpr::COMP_NEQ);
-    AstBinaryOpExpr *le_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-    Value r = eval(le_expr->GetRight(), run_time_vars);
-    if (r.GetType() != Value::V_INT && !r.CanConvertToInt()) {
-        if (r.GetType() == Value::V_STRING) {
-            Value l = eval(le_expr->GetLeft(), run_time_vars);
-            if (l.GetType() != Value::V_STRING) {
+Value test_compare(AstExpr *expr, RunTimeVars *run_time_vars) {
+    auto op = expr->GetExprType();
+    auto comp = dynamic_cast<AstBinaryOpExpr*>(expr);
+
+    AstExpr *left = comp->GetLeft(), *right = comp->GetRight();
+
+    Value::VALUE_TYPE expect = Value::V_NULL;
+    if (left->GetExprType() == AstExpr::EXPR_COLUMN_REF && right->GetExprType() == AstExpr::EXPR_COLUMN_REF) {
+        // check type
+        if (dynamic_cast<AstColumnRef*>(left)->GetValType() != dynamic_cast<AstColumnRef*>(right)->GetValType()) {
+            return Value(Value::B_UNKNOWN);
+        } else if (dynamic_cast<AstColumnRef*>(left)->GetValType() == AstColumnRef::CC_NUMBER) {
+            expect = Value::V_INT;
+        } else if (dynamic_cast<AstColumnRef*>(left)->GetValType() == AstColumnRef::CC_STRING) {
+            expect = Value::V_STRING;
+        } else {
+            return Value(Value::B_UNKNOWN);
+        }
+    } else if (left->GetExprType() == AstExpr::EXPR_COLUMN_REF) {
+        if (dynamic_cast<AstColumnRef*>(left)->GetValType() == AstColumnRef::CC_NUMBER) {
+            expect = Value::V_INT;
+        } else if (dynamic_cast<AstColumnRef*>(left)->GetValType() == AstColumnRef::CC_STRING) {
+            expect = Value::V_STRING;
+        } else {
+            return Value(Value::B_UNKNOWN);
+        }
+    } else if (right->GetExprType() == AstExpr::EXPR_COLUMN_REF) {
+        if (dynamic_cast<AstColumnRef*>(right)->GetValType() == AstColumnRef::CC_NUMBER) {
+            expect = Value::V_INT;
+        } else if (dynamic_cast<AstColumnRef*>(right)->GetValType() == AstColumnRef::CC_STRING) {
+            expect = Value::V_STRING;
+        } else {
+            return Value(Value::B_UNKNOWN);
+        }
+    } else {
+        //  left : <string literal> | <dec number literal> | NULL
+        //  right: <string literal> | <dec number literal> | NULL
+        if (left->GetExprType() == right->GetExprType()) {
+            if (left->GetExprType() == AstExpr::C_NUMBER) {
+                expect = Value::V_INT;
+            } else if (left->GetExprType() == AstExpr::C_STRING) {
+                expect = Value::V_STRING;
+            } else {
                 return Value(Value::B_UNKNOWN);
             }
-            if (op == AstExpr::COMP_EQ) {
-                if (CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) == 0) return Value(Value::B_TRUE);
-                else return Value(Value::B_FALSE);
-            } else if (op == AstExpr::COMP_NEQ) {
-                if (CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) == 0) return Value(Value::B_FALSE);
-                else return Value(Value::B_TRUE);
-            } else {
-                assert(false);
-            }
-        }
-        return Value(Value::B_UNKNOWN);
-    }
-    Value l = eval(le_expr->GetLeft(), run_time_vars);
-    if (l.GetType() != Value::V_INT && !l.CanConvertToInt()) {
-        return Value(Value::B_UNKNOWN);
-    }
-    if (op == AstExpr::COMP_EQ) {
-        if (l.GetValueAsInt() == r.GetValueAsInt()) {
-            return Value(Value::B_TRUE);
-        }
-        else {
-            return Value(Value::B_FALSE);
-        }
-    } else if (op == AstExpr::COMP_NEQ) {
-        if (l.GetValueAsInt() != r.GetValueAsInt()) {
-            return Value(Value::B_TRUE);
-        }
-        else {
-            return Value(Value::B_FALSE);
-        }
-    }  else {
-        assert(false);
-    }
-    return Value(Value::B_UNKNOWN);
-}
-
-std::regex to_regex(const std::string& v) {
-    /* todo */
-    std::stringstream buf{};
-    for (size_t i = 0; i < v.length(); ++i) {
-        if (v.at(i) == '*' && (i+1 < v.length()) && v.at(i+1) == '*') {
-            buf << ".*";
-            ++i;    /* skip one '*' */
         } else {
-            buf << v.at(i);
+            return Value(Value::B_UNKNOWN);
         }
     }
-    std::string ttt = buf.str();
-    return std::regex(buf.str());
-}
 
-Value test_like(AstExpr *expr, RunTimeVars *run_time_vars) {
-#if 0
-    AstExpr::EXPR_TYPE op = expr->GetExprType();
-    assert(op == AstExpr::LIKE || op == AstExpr::NOT_LIKE);
-    AstBinaryOpExpr *binary_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
-    Value r = eval(binary_expr->GetRight(), run_time_vars);
-    if (r.GetType() != Value::V_STRING) {
-        return Value(B_UNKNOWN);
+    Value l = eval(left, run_time_vars, expect);
+    Value r = eval(right, run_time_vars, expect);
+
+    if (l.GetType() != r.GetType()) {
+        return Value(Value::B_UNKNOWN);
     }
-    std::regex pattern = to_regex(r.GetValueAsStr());
-    Value l = eval(binary_expr->GetLeft(), run_time_vars);
-    if (l.GetType() != Value::V_STRING) {
-        return Value(B_UNKNOWN);
+
+    if (l.GetType() != Value::V_INT && l.GetType() != Value::V_STRING) {
+        return Value(Value::B_UNKNOWN);
     }
-    bool matched = std::regex_match(l.GetValueAsStr(), pattern);
-    if (op == AstExpr::LIKE) {
-        if (matched) return Value(B_TRUE);
-        else return Value(B_FALSE);
-    } else {
-        if (matched) return Value(B_FALSE);
-        else return Value(B_TRUE);
+
+    switch (op) {
+        case AstExpr::COMP_LE: {
+            if (expect == Value::V_INT) {
+                return bool_to_value(l.GetValueAsInt() <= r.GetValueAsInt());
+            } else {
+                return bool_to_value(CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) <= 0);
+            }
+        } break;
+        case AstExpr::COMP_LT: {
+            if (expect == Value::V_INT) {
+                return bool_to_value(l.GetValueAsInt() < r.GetValueAsInt());
+            } else {
+                return bool_to_value(CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) < 0);
+            }
+        } break;
+        case AstExpr::COMP_GE: {
+            if (expect == Value::V_INT) {
+                return bool_to_value(l.GetValueAsInt() >= r.GetValueAsInt());
+            } else {
+                return bool_to_value(CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) >= 0);
+            }
+        } break;
+        case AstExpr::COMP_GT: {
+            if (expect == Value::V_INT) {
+                return bool_to_value(l.GetValueAsInt() > r.GetValueAsInt());
+            } else {
+                return bool_to_value(CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) >= 0);
+            }
+        } break;
+        case AstExpr::COMP_EQ: {
+            if (expect == Value::V_INT) {
+                return bool_to_value(l.GetValueAsInt() == r.GetValueAsInt());
+            } else {
+                return bool_to_value(CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) == 0);
+            }
+        } break;
+        case AstExpr::COMP_NEQ: {
+            if (expect == Value::V_INT) {
+                return bool_to_value(l.GetValueAsInt() != r.GetValueAsInt());
+            } else {
+                return bool_to_value(CommonFun::StrCaseCmp(l.GetValueAsStr().c_str(), r.GetValueAsStr().c_str()) != 0);
+            }
+        } break;
+        default: assert(false);
     }
-#else
     return Value(Value::B_UNKNOWN);
-#endif
 }
-
 
 Value::BOOLEAN eval_expression(AstExpr *expr, Subject *subject, const std::string& action, Resource *res, Host *host, App *app) {
     if (expr == nullptr) {
@@ -301,6 +319,7 @@ Value::BOOLEAN eval_expression(AstExpr *expr, Subject *subject, const std::strin
     }
 }
 
+#if 0
 Value *test_int(Value *left, Value *right, AstExpr::EXPR_TYPE op) {
     assert(op == AstExpr::COMP_LE || op == AstExpr::COMP_LT ||
            op == AstExpr::COMP_GE || op == AstExpr::COMP_GT);
@@ -536,3 +555,4 @@ Value::BOOLEAN eval_expression(const std::vector<Instruction*>& instructions, Su
         return Value::B_UNKNOWN;
     }
 }
+#endif

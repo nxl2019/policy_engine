@@ -90,6 +90,9 @@ void translate(AstExpr *expr, std::vector<Instruction*>& rinstructions, unsigned
             AstConstantValue *value = dynamic_cast<AstConstantValue*>(expr);
             rinstructions.push_back(new Instruction(value->GetValueAsStr()));
         } break;
+        case AstExpr::C_NULL: {
+
+        }
         default: { assert(false); }
     }
 }
