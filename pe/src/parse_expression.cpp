@@ -243,26 +243,31 @@ AstExpr *parse_column_ref(Lex *lex, ParseException *e) {
         if (e->_code != ParseException::SUCCESS) {
             return nullptr;
         }
+
         AstColumnRef::VAL_TYPE val_type = AstColumnRef::CC_OTHER;
-        switch (col_type) {
-            case AstColumnRef::SUB: {
-                assert(ids.size() == 1);
-                val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName("user", ids.back()->GetId()));
-            } break;
-            case AstColumnRef::APP: {
-                assert(ids.size() == 1);
-                val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName("application", ids.back()->GetId()));
-            } break;
-            case AstColumnRef::HOST: {
-                assert(ids.size() == 1);
-                val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName("host", ids.back()->GetId()));
-            } break;
-            case AstColumnRef::RES: {
-                assert(ids.size() == 2);
-                val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName(ids[1]->GetId(), ids.back()->GetId()));
-            } break;
-            case AstColumnRef::ACTION: { val_type = AstColumnRef::CC_STRING; } break;
-            default: { val_type = AstColumnRef::CC_OTHER; }
+        if (e->_syms == NULL) { val_type = AstColumnRef::CC_OTHER;
+        } else {
+            switch (col_type) {
+                case AstColumnRef::SUB: {
+                    assert(ids.size() == 1);
+                    val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName("user", ids.back()->GetId()));
+                } break;
+                case AstColumnRef::APP: {
+                    assert(ids.size() == 1);
+                    val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName("application", ids.back()->GetId()));
+                } break;
+                case AstColumnRef::HOST: {
+                    assert(ids.size() == 1);
+                    val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName("host", ids.back()->GetId()));
+                } break;
+                case AstColumnRef::RES: {
+                    assert(ids.size() == 2);
+                    val_type = to_val_type(e->_syms->GetAttrTypeByPmnameAttrName(ids[1]->GetId(), ids.back()->GetId()));
+                } break;
+                case AstColumnRef::ACTION: { val_type = AstColumnRef::CC_STRING; } break;
+                default: { val_type = AstColumnRef::CC_OTHER; }
+            }
+
         }
         return new AstColumnRef(col_type, val_type, ids);
     } else {

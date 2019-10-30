@@ -19,7 +19,7 @@ TEST(parse_policies)
     //--JSON_TEST
     //parse to Policy(ast)
     Policy * ppolicy = new Policy();
-    ppolicy->ParseFromJson(JSON_TEST);
+    ppolicy->ParseFromJson(JSON_TEST,NULL);
    // ppolicy->Dump();
     //traversal ast  validate result
     AstExpr * pexpr = ppolicy->GetAst();
@@ -63,45 +63,43 @@ TEST(parse_policies)
 }
 
 
-
-TEST(internal_api) {
-    Policy * ppolicy = new Policy();
-    ppolicy->ParseFromJson(JSON_TEST);
-
-    ASSERT_NOTNULL(ppolicy);
-    std::set<std::string> ractions;
-    ppolicy->GetAction(ractions);
-    std::set<std::string> rattributes;
-    ppolicy->GetSubjectAttributes(rattributes);
-    //TryMatch
-    std::string key = "groupid";
-    std::string value = "S-1-5-21-2018228179-1005617703-974104760-188953";
-    Dictionary sub(PE_SUBJECT);
-    {
-        sub.InsertValue(key, value);
-    }
-    Dictionary res(PE_RESOURCE);
-    Dictionary host(PE_HOST);
-    Dictionary app(PE_APPLICATION);
-    std::string action = "DELETE";
-    Value::BOOLEAN blret;
-    ppolicy->TryMatch(&sub, action, &res, &host, &app, blret);
-    ppolicy->Dump();
-    printf("TryMatch-------------------------------------\n");
-    printf("  Input:SUB(%s, %s) ACTION(%s) \n", key.c_str(), value.c_str(), action.c_str());
-    if (blret == Value::B_TRUE) {
-        printf("  Output:BOOLEAN::B_TRUE\n");
-    } else if (blret == Value::B_FALSE) {
-        printf("  Output:BOOLEAN::B_FALSE\n");
-    } else {
-        printf("  Output:BOOLEAN::B_UNKNOWN\n");
-    }
-    ASSERT_TRUE(blret == Value::B_UNKNOWN);
-    delete ppolicy;
-
-
-
-}
+//this is invalid  after 2019.10.30 new policymgr library
+//TEST(internal_api) {
+//    Policy * ppolicy = new Policy();
+//    ppolicy->ParseFromJson(JSON_TEST,NULL);
+//
+//    ASSERT_NOTNULL(ppolicy);
+//    std::set<std::string> ractions;
+//    ppolicy->GetAction(ractions);
+//    std::set<std::string> rattributes;
+//    ppolicy->GetSubjectAttributes(rattributes);
+//    //TryMatch
+//    std::string key = "groupid";
+//    std::string value = "S-1-5-21-2018228179-1005617703-974104760-188953";
+//    Dictionary sub(PE_SUBJECT);
+//    {
+//        sub.InsertValue(key, value);
+//    }
+//    Dictionary res(PE_RESOURCE);
+//    Dictionary host(PE_HOST);
+//    Dictionary app(PE_APPLICATION);
+//    std::string action = "DELETE";
+//    Value::BOOLEAN blret;
+//    ppolicy->TryMatch(&sub, action, &res, &host, &app, blret);
+//    ppolicy->Dump();
+//    printf("TryMatch-------------------------------------\n");
+//    printf("  Input:SUB(%s, %s) ACTION(%s) \n", key.c_str(), value.c_str(), action.c_str());
+//    if (blret == Value::B_TRUE) {
+//        printf("  Output:BOOLEAN::B_TRUE\n");
+//    } else if (blret == Value::B_FALSE) {
+//        printf("  Output:BOOLEAN::B_FALSE\n");
+//    } else {
+//        printf("  Output:BOOLEAN::B_UNKNOWN\n");
+//    }
+//    ASSERT_TRUE(blret == Value::B_UNKNOWN);
+//    delete ppolicy;
+//
+//}
 
 
 

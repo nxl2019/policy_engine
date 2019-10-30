@@ -194,7 +194,7 @@ TEST(PARSE_OBLICATION_CASE_6) {
 }
 
 TEST(PARSE_OBLICATION_CASE_7) {
-    LexOb lex("$user.\"loc^ation\" DATA $USER.address $$ $$HOST.abc $$HOST.mn. ");  // incomplete id list
+    LexOb lex("$user.\"loc^$user.ation\" DATA $USER.address $$ $$HOST.abc $$HOST.mn. ");  // incomplete id list
     lex.Next();
     std::vector<AstColumnRef*> refs = parse_oblication(&lex);
     ASSERT_TRUE(refs.size() == 3);

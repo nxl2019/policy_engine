@@ -9,6 +9,33 @@
 #include "Policy.h"
 #include <assert.h>
 #include <vector>
+#include "PolicyModelList.h"
+AstColumnRef::COL_TYPE  transform_type(PolicyModel::PM_TYPE pm_type) {
+    switch (pm_type) {
+        case PolicyModel::PM_RES:
+            return AstColumnRef::RES;
+        case PolicyModel::PM_SUB_USER:
+            return AstColumnRef::SUB;
+        case PolicyModel::PM_SUB_APP:
+            return AstColumnRef::APP;
+        case PolicyModel::PM_SUB_HOST:
+            return AstColumnRef::HOST;
+        default:
+            return AstColumnRef::OTHER;
+    }
+}
+AstColumnRef::VAL_TYPE  transform_type(AttributeInfo::ATTR_TYPE attr_type) {
+    switch (attr_type) {
+        case AttributeInfo::A_NUMBER:
+            return AstColumnRef::CC_NUMBER;
+        case AttributeInfo::A_STRING:
+            return AstColumnRef::CC_STRING;
+        case AttributeInfo::A_MULTI:
+            return AstColumnRef::CC_MULTI;
+        default:
+            return AstColumnRef::CC_OTHER;
+    }
+}
 
 #define COLUMN_REF_ACTION "ACTION"
 
@@ -44,20 +71,20 @@ AstExpr::EXPR_TYPE get_asttype_from_oprtable(const std::string & sopr) {
 //}
 
 
-AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE type);
-AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::COL_TYPE type);
-AstExpr * parse_from_components(const Json::Value & components, AstColumnRef::COL_TYPE type, bool is_not = false);
-AstExpr * parse_from_com_components(const Json::Value & subject_components, AstColumnRef::COL_TYPE type);
+AstExpr * parse_from_condition(const Json::Value & json, PolicyModelList * ppmlst, const uint64_t pm_id);
+AstExpr * parse_from_conditions(const Json::Value & conditions, PolicyModelList * ppmlst, const uint64_t pm_id);
+AstExpr * parse_from_components(const Json::Value & components, PolicyModelList * ppmlst, bool is_not = false);
+AstExpr * parse_from_com_components(const Json::Value & com_components, PolicyModelList * ppmlst);
 
-AstExpr * parse_from_actions(const Json::Value & actions, AstColumnRef::COL_TYPE type );
-AstExpr * parse_from_components_for_action(const Json::Value & components, AstColumnRef::COL_TYPE type, bool is_not = false);
+AstExpr * parse_from_actions(const Json::Value & actions );
+AstExpr * parse_from_components_for_action(const Json::Value & components,  bool is_not = false);
 AstExpr * parse_from_action_components(const Json::Value & action_components);
 
-AstExpr * parse_from_expression(const Json::Value & action_components);
+AstExpr * parse_from_expression(const Json::Value & action_components, PolicyModelList * ppmlst);
 
 void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::set<std::string> & attributes, std::set<std::string> & resourceattrs, std::set<std::string> & rhost, std::set<std::string> & rapp); /* actions and attibutes recursive query function */
 
-bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE & type); /* parser r-value to column-ref */
+bool parse_column_ref( std::string & pm_name, std::string & attr_name, const std::string & s, const AstColumnRef::COL_TYPE  type); /* parser r-value to column-ref */
 
 Policy::~Policy() {
     if(_expr) delete (_expr);
@@ -70,7 +97,7 @@ Policy::~Policy() {
     _obg_cols.clear();
 }
 
-bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYPE & type) {
+bool parse_column_ref( std::string & pm_name, std::string & attr_name, const std::string & s, const AstColumnRef::COL_TYPE  type) {
     if(s.length() < 4) return false;
     if(s[0] != '$') return false;
     if(s[1] != '{') return false;
@@ -93,13 +120,7 @@ bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYP
     start = i;
     while(i <= len-1) {
         if (s[i] == '.' ) {
-            std::string substr = s.substr(start, i - start);
-            if (substr.compare("host") == 0) {
-                type = AstColumnRef::HOST;
-            } else if (substr.compare("application") == 0) {
-                type = AstColumnRef::APP;
-            }
-            ids.push_back(new AstId(substr));
+            pm_name = s.substr(start, i - start);
             i++;
             break;
         }
@@ -109,15 +130,28 @@ bool parse_column_ref(const std::string & s, AstIds & ids, AstColumnRef::COL_TYP
     start = i;
     while (i <= len-1) {
         if (s[i] == '}' && i == len-1) {
-            std::string substr = s.substr(start, i - start);
-            ids.push_back(new AstId(substr));
+            attr_name = s.substr(start, i - start);
         }
         i++;
     }
     return true;
 }
 
-AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE type){
+AstExpr * parse_from_condition(const Json::Value & json, PolicyModelList * ppmlst, const uint64_t pm_id){
+
+    std::string column_ref = json["attribute"].asString();
+    AstId * pastid = new AstId(column_ref);
+    AstIds ids;
+    ids.push_back(pastid);
+    AstExpr * pexpr_left = NULL;
+    if (ppmlst != NULL) {
+        AstColumnRef::COL_TYPE col_type = transform_type(ppmlst->GetPMTypeByID(pm_id));
+        AstColumnRef::VAL_TYPE val_type = transform_type(ppmlst->GetAttrTypeByPmidAttrName(pm_id, column_ref));
+        pexpr_left = new AstColumnRef(col_type, val_type, ids);
+    } else {
+        pexpr_left = new AstColumnRef(AstColumnRef::OTHER, AstColumnRef::CC_OTHER, ids);
+    }
+
 
     AstExpr * pexpr_right = NULL;
     std::string constant_value = json["value"].asString();
@@ -135,25 +169,37 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
 
     } else if (rhs_type.compare("SUBJECT") == 0){
         AstIds ids;
-        AstColumnRef::COL_TYPE type = AstColumnRef::SUB;
-        parse_column_ref(constant_value, ids, type);
-        pexpr_right = new AstColumnRef(type, ids);
+        std::string pm_name, attr_name;
+        parse_column_ref(pm_name, attr_name, constant_value, AstColumnRef::SUB);
+        ids.push_back(new AstId(pm_name));
+        ids.push_back(new AstId(attr_name));
+        if (ppmlst != NULL) {
+            AstColumnRef::COL_TYPE col_type = transform_type(ppmlst->GetPMTypeByPmname(pm_name));
+            AstColumnRef::VAL_TYPE val_type = transform_type(ppmlst->GetAttrTypeByPmnameAttrName(pm_name, attr_name));
+            pexpr_right = new AstColumnRef(col_type, val_type, ids);
+        } else {
+            pexpr_right = new AstColumnRef(AstColumnRef::OTHER, AstColumnRef::CC_OTHER, ids);
+        }
 
     } else if (rhs_type.compare("RESOURCE") == 0) {
         AstIds ids;
-        AstColumnRef::COL_TYPE type = AstColumnRef::RES;
-        parse_column_ref(constant_value, ids, type);
-        pexpr_right = new AstColumnRef(type, ids);
+        std::string pm_name, attr_name;
+        parse_column_ref(pm_name, attr_name, constant_value,AstColumnRef::RES);
+        ids.push_back(new AstId(pm_name));
+        ids.push_back(new AstId(attr_name));
+        if (ppmlst != NULL) {
+            AstColumnRef::COL_TYPE col_type = transform_type(ppmlst->GetPMTypeByPmname(pm_name));
+            AstColumnRef::VAL_TYPE val_type = transform_type(ppmlst->GetAttrTypeByPmnameAttrName(pm_name, attr_name));
+            pexpr_right = new AstColumnRef(col_type, val_type, ids);
+        } else {
+            pexpr_right = new AstColumnRef(AstColumnRef::OTHER, AstColumnRef::CC_OTHER, ids);
+        }
 
     } else {
         return new AstConstantValue(AstExpr::C_UNKNOWN);
     }
 
-    std::string column_ref = json["attribute"].asString();
-    AstId * pastid = new AstId(column_ref);
-    AstIds ids;
-    ids.push_back(pastid);
-    AstExpr * pexpr_left = new AstColumnRef(type, ids);
+
 
     std::string op_cond = json["operator"].asString();
     AstExpr::EXPR_TYPE ast_type = get_asttype_from_oprtable(op_cond);
@@ -173,16 +219,16 @@ AstExpr * parse_from_condition(const Json::Value & json, AstColumnRef::COL_TYPE 
 
 }
 
-AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::COL_TYPE type) {
+AstExpr * parse_from_conditions(const Json::Value & conditions, PolicyModelList * ppmlst, const uint64_t pm_id) {
     Json::Value js_cond = conditions[0];
     ///BinaryExpr
-    AstExpr * pexp = parse_from_condition(js_cond, type);
+    AstExpr * pexp = parse_from_condition(js_cond, ppmlst, pm_id);
 
     int i_cond_size = conditions.size();
     for (int i = 1; i < i_cond_size; ++i) {//AND
         Json::Value js_cond = conditions[i];
         ///BinaryExpr
-        AstExpr * pexpr_condition = parse_from_condition(js_cond, type);
+        AstExpr * pexpr_condition = parse_from_condition(js_cond, ppmlst, pm_id);
         ///
         AstExpr * pexpr_temp = pexp;
         pexp = new AstBinaryOpExpr(AstExpr::AND, pexpr_temp, pexpr_condition);
@@ -191,12 +237,13 @@ AstExpr * parse_from_conditions(const Json::Value & conditions, AstColumnRef::CO
     return  pexp;
 }
 
-AstExpr * parse_from_components(const Json::Value & components, AstColumnRef::COL_TYPE type, bool is_not) {
+AstExpr * parse_from_components(const Json::Value & components, PolicyModelList * ppmlst, bool is_not) {
     Json::Value js_comp = components[0];
-    std::string comp_id = js_comp["id"].asString();
+    uint64_t pm_id = js_comp["policy_model_id"].asInt();
+
     //std::string comp_name = js_comp["name"].asString();
     Json::Value js_conditons = js_comp["conditions"];
-    AstExpr * pexp =  parse_from_conditions(js_conditons, type);
+    AstExpr * pexp =  parse_from_conditions(js_conditons, ppmlst, pm_id);
 
     int i_comp_size = components.size();
     for (int i = 1; i < i_comp_size; ++i) {
@@ -205,7 +252,7 @@ AstExpr * parse_from_components(const Json::Value & components, AstColumnRef::CO
         std::string comp_id = js_comp["id"].asString();
         std::string comp_name = js_comp["name"].asString();
         Json::Value js_conditons = js_comp["conditions"];
-        AstExpr * pexp_sub = parse_from_conditions(js_conditons, type);
+        AstExpr * pexp_sub = parse_from_conditions(js_conditons, ppmlst, pm_id);
         ///
         AstExpr * pexpr_temp = pexp;
         pexp = new AstBinaryOpExpr(AstExpr::OR, pexpr_temp, pexp_sub);
@@ -220,22 +267,22 @@ AstExpr * parse_from_components(const Json::Value & components, AstColumnRef::CO
     return  pexp;
 }
 
-AstExpr * parse_from_com_components(const Json::Value & subject_components, AstColumnRef::COL_TYPE type) {
-    if (subject_components.size() == 0) {
+AstExpr * parse_from_com_components(const Json::Value & com_components, PolicyModelList * ppmlst) {
+    if (com_components.size() == 0) {
         return  new AstConstantValue(AstExpr::C_TRUE);
     }
-    Json::Value js_opcomp = subject_components[0];
+    Json::Value js_opcomp = com_components[0];
     std::string op = js_opcomp["operator"].asString();
     bool is_not = op.compare("IN") != 0;
     Json::Value js_components = js_opcomp["components"];
-    AstExpr * pexp = parse_from_components(js_components, type, is_not);
+    AstExpr * pexp = parse_from_components(js_components, ppmlst, is_not);
 
-    for (unsigned int i = 1; i < subject_components.size(); ++i) {
-        Json::Value js_opcomp = subject_components[i];
+    for (unsigned int i = 1; i < com_components.size(); ++i) {
+        Json::Value js_opcomp = com_components[i];
         std::string op = js_opcomp["operator"].asString();
         bool is_not = op.compare("IN") != 0;
         Json::Value js_components = js_opcomp["components"];
-        AstExpr * pexp_sub = parse_from_components(js_components, type, is_not);
+        AstExpr * pexp_sub = parse_from_components(js_components, ppmlst, is_not);
         AstExpr * pexp_temp = pexp;
         pexp = new AstBinaryOpExpr(AstExpr::OR, pexp_temp, pexp_sub);
     }
@@ -243,7 +290,7 @@ AstExpr * parse_from_com_components(const Json::Value & subject_components, AstC
     return pexp;
 }
 
-AstExpr *  parse_from_actions(const Json::Value & actions, AstColumnRef::COL_TYPE type ){
+AstExpr *  parse_from_actions(const Json::Value & actions ){
     AstExpr * pexp = NULL;
     {
         std::string str_action = actions[0].asString();
@@ -253,7 +300,7 @@ AstExpr *  parse_from_actions(const Json::Value & actions, AstColumnRef::COL_TYP
         AstId * pid = new AstId(COLUMN_REF_ACTION);
         AstIds ids ;
         ids.push_back(pid);
-        AstExpr * pexp_left = new AstColumnRef(type, ids);
+        AstExpr * pexp_left = new AstColumnRef(AstColumnRef::ACTION, AstColumnRef::CC_STRING,  ids);
 
         pexp = new AstBinaryOpExpr(AstExpr::COMP_EQ, pexp_left, pexp_right);
     }
@@ -266,7 +313,7 @@ AstExpr *  parse_from_actions(const Json::Value & actions, AstColumnRef::COL_TYP
         AstId * pid = new AstId(COLUMN_REF_ACTION);
         AstIds ids ;
         ids.push_back(pid);
-        AstExpr * pexp_left = new AstColumnRef(type, ids);
+        AstExpr * pexp_left = new AstColumnRef(AstColumnRef::ACTION, AstColumnRef::CC_STRING,  ids);
 
         AstExpr * pexp_sub = new AstBinaryOpExpr(AstExpr::COMP_EQ, pexp_left, pexp_right);
 
@@ -277,19 +324,19 @@ AstExpr *  parse_from_actions(const Json::Value & actions, AstColumnRef::COL_TYP
     return  pexp;
 }
 
-AstExpr * parse_from_components_for_action(const Json::Value & components, AstColumnRef::COL_TYPE type, bool is_not) {
+AstExpr * parse_from_components_for_action(const Json::Value & components,  bool is_not) {
     Json::Value js_comp = components[0];
     std::string comp_id = js_comp["id"].asString();
     std::string comp_name = js_comp["name"].asString();
     Json::Value js_actions = js_comp["actions"];
-    AstExpr * pexp =  parse_from_actions(js_actions, type);
+    AstExpr * pexp =  parse_from_actions(js_actions);
 
     for (unsigned int i = 1; i < components.size(); ++i) {
         Json::Value js_comp = components[i];
         std::string comp_id = js_comp["id"].asString();
         std::string comp_name = js_comp["name"].asString();
         Json::Value js_actions = js_comp["actions"];
-        AstExpr * pexp_sub =  parse_from_actions(js_actions, type);
+        AstExpr * pexp_sub =  parse_from_actions(js_actions);
         ///
         AstExpr * pexp_temp = pexp;
         pexp = new AstBinaryOpExpr(AstExpr::OR, pexp_temp, pexp_sub);
@@ -312,14 +359,14 @@ AstExpr * parse_from_action_components(const Json::Value & action_components){
     std::string op = js_opcomp["operator"].asString();
     bool is_not = op.compare("IN") != 0;
     Json::Value js_components = js_opcomp["components"];
-    AstExpr * pexp = parse_from_components_for_action(js_components, AstColumnRef::ACTION, is_not);
+    AstExpr * pexp = parse_from_components_for_action(js_components,  is_not);
 
     for ( unsigned int i = 1; i < action_components.size(); ++i) {
         Json::Value js_opcomp = action_components[i];
         std::string op = js_opcomp["operator"].asString();
         bool is_not = op.compare("IN") != 0;
         Json::Value js_components = js_opcomp["components"];
-        AstExpr * pexp_sub = parse_from_components_for_action(js_components, AstColumnRef::ACTION, is_not);
+        AstExpr * pexp_sub = parse_from_components_for_action(js_components,  is_not);
         AstExpr * pexp_temp = pexp;
         pexp = new AstBinaryOpExpr(AstExpr::OR, pexp_temp, pexp_sub);
     }
@@ -327,7 +374,7 @@ AstExpr * parse_from_action_components(const Json::Value & action_components){
     return  pexp;
 }
 
-AstExpr * parse_from_expression(const Json::Value & action_components) {
+AstExpr * parse_from_expression(const Json::Value & action_components, PolicyModelList * ppmlst) {
     std::string str_expression = action_components.asString();
     if (str_expression.compare("null") == 0) {
         return new AstConstantValue(AstExpr::C_TRUE);
@@ -335,6 +382,7 @@ AstExpr * parse_from_expression(const Json::Value & action_components) {
     Lex lex(str_expression);
     lex.Next();
     ParseException e;
+    e._syms = ppmlst;
     AstExpr *expr = parse_boolean_expr(&lex, &e);
 
     if (e._code != ParseException::SUCCESS || lex.GetCurrent()->GetType() != Token::TK_END_P) {
@@ -364,11 +412,11 @@ bool parse_id_from_obligation_json(const Json::Value & json_obgs, std::vector<As
     return true;
 }
 
-PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
+PolicyEngineReturn Policy::ParseFromJson(const std::string& json_str, PolicyModelList * ppmlst) {
     Json::CharReaderBuilder builder;
     Json::CharReader *pread = builder.newCharReader();
     Json::Value root;
-    if (!pread->parse(json_string.c_str(), json_string.c_str() + json_string.length(), &root, nullptr)) {
+    if (!pread->parse(json_str.c_str(), json_str.c_str() + json_str.length(), &root, nullptr)) {
         delete (pread);
         printf("json string is incorrect");
         return POLICY_ENGINE_FAIL;
@@ -376,22 +424,25 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_string) {
     delete (pread);
     pread = nullptr;
 
-    return  ParseFromJson(root);
+    return  ParseFromJson(root, ppmlst);
 }
 
-PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root) {
+PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root, PolicyModelList * ppmlst ) {
+    Json::StreamWriterBuilder builder;
+    const std::string json_file = Json::writeString(builder, root);
+    printf("polic: %s\n", json_file.c_str());
     //action
     Json::Value actions_components = root["actionComponents"];
     AstExpr * pexp_action_comps = parse_from_action_components(actions_components);
     //subject
     Json::Value subject_components = root["subjectComponents"];
-    AstExpr * pexp_subject_comps = parse_from_com_components(subject_components, AstColumnRef::SUB);
+    AstExpr * pexp_subject_comps = parse_from_com_components(subject_components, ppmlst);
     //resource
     Json::Value resource_components = root["fromResourceComponents"];
-    AstExpr * pexp_resource_comps = parse_from_com_components(resource_components, AstColumnRef::RES);
+    AstExpr * pexp_resource_comps = parse_from_com_components(resource_components, ppmlst);
     //advance
     Json::Value expression = root["expression"];
-    AstExpr * pexp_expression = parse_from_expression(expression);
+    AstExpr * pexp_expression = parse_from_expression(expression, ppmlst);
     //printf("aaa=%s\n", expression.asCString());
     Json::Value denyobgs = root["denyObligations"];
     parse_id_from_obligation_json(denyobgs, _obg_cols);

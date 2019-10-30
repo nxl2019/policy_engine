@@ -96,7 +96,7 @@ PolicyEngineReturn PolicyEngine::Update() {
     std::vector<Policy*> tmp;
     for (auto& it : jsons) {
         Policy *policy = new Policy;
-        PolicyEngineReturn r ;/* todo = policy->ParseFromJson(it, syms);*/
+        PolicyEngineReturn r  = policy->ParseFromJson(it, &syms);
         if (r != POLICY_ENGINE_SUCCESS) {
             delete (policy);
             continue;

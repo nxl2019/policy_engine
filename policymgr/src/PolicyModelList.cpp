@@ -14,7 +14,19 @@ PolicyModel::PM_TYPE PolicyModelList::GetPMTypeByID(uint64_t pmid) {
         return pm._type;
     } else return pm1._type;
 }
-
+PolicyModel::PM_TYPE PolicyModelList::GetPMTypeByPmname(const std::string & pm_name) {
+    std::string temp = pm_name;
+    transform(temp.begin(), temp.end(), temp.begin(), tolower);
+    PolicyModel pm1;
+    if (!CheckExist(temp, pm1)) {
+        PolicyModel pm;
+        bool r = AddPmByName(pm_name, pm);
+        if (!r) {
+            return PolicyModel::PM_ERR;
+        }
+        return pm._type;
+    } else return pm1._type;
+}
 AttributeInfo::ATTR_TYPE PolicyModelList::GetAttrTypeByPmidAttrName(uint64_t pmid, const std::string& attr_name) {
     PolicyModel pm1;
     if (!CheckExist(pmid, pm1)) {

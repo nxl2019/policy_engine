@@ -8,7 +8,7 @@ class PolicyModelList;
 
 
 struct ParseException {
-    ParseException() : _code(SUCCESS) {}
+    ParseException() : _code(SUCCESS),_syms(NULL) {}
     void SetFail(Token::TOKEN_TYPE expect, Lex *lex) { _code = FAIL; }
     void SetFail(const std::vector<Token::TOKEN_TYPE >& expects, Lex *lex) { _code = FAIL; }
     enum { SUCCESS, FAIL }  _code = SUCCESS;

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <algorithm>
 
 #define PM_USER_ID 1
 #define PM_HOST_ID 2
@@ -43,6 +44,7 @@ public:
     PolicyModelList(const std::vector<PolicyModel>& models, TalkWithCC *talk) : _models(models), _talk(talk) {}
 
     PolicyModel::PM_TYPE GetPMTypeByID(uint64_t pmid);
+    PolicyModel::PM_TYPE GetPMTypeByPmname(const std::string & pm_name);
     AttributeInfo::ATTR_TYPE GetAttrTypeByPmidAttrName(uint64_t pmid, const std::string& attr_name);
     AttributeInfo::ATTR_TYPE GetAttrTypeByPmnameAttrName(const std::string& pm_name, const std::string& attr_name);
     TalkWithCC *GetTalk() { return _talk; }

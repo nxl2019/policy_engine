@@ -8,6 +8,7 @@
 #include "Handle.h"
 #include "Policy.h"
 #include <json/json.h>
+#include "PolicyModelList.h"
 
 class AstExpr;
 class AstColumnRef;
@@ -16,8 +17,9 @@ class Policy {
 public:
     Policy() : _expr(nullptr) ,_pres_expr(nullptr) {}
     ~Policy();
-    PolicyEngineReturn ParseFromJson(const Json::Value & root);
-    PolicyEngineReturn ParseFromJson(const std::string& json_string);
+    PolicyEngineReturn ParseFromJson(const std::string & json_str, PolicyModelList * ppmlst);
+    PolicyEngineReturn ParseFromJson(const Json::Value & root, PolicyModelList * ppmlst);
+
     void GetAction(std::set<std::string>& ractions);
     void GetSubjectAttributes(std::set<std::string>& subjectattrs);
     void GetResourceAttributes(std::set<std::string>& resourceattrs);
