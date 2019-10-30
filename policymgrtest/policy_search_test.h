@@ -7,6 +7,7 @@
 
 #include "microtest.h"
 #include "TalkWithCC.h"
+#include "PolicyModelList.h"
 
 TalkWithCC * create_talkcc() {
     const std::string cchost = "https://cc87-console.qapf1.qalab01.nextlabs.com";
@@ -80,7 +81,19 @@ TEST(talkwithcc_search_pm_preattr) {
 }
 
 
+TEST(PolicyModelList_test) {
+    std::vector<PolicyModel> models;
+    TalkWithCC * cc = create_talkcc();
+    PolicyModelList pmlist(models, cc);
+    ASSERT_TRUE(PolicyModel::PM_SUB_USER == pmlist.GetPMTypeByID(1));
+    ASSERT_TRUE(AttributeInfo::A_MULTI == pmlist.GetAttrTypeByPmidAttrName(74, "multival_"));
+    ASSERT_TRUE(AttributeInfo::A_NUMBER == pmlist.GetAttrTypeByPmnameAttrName("pe_test", "level"));
+    PolicyModel model;
+    pmlist.AddPmByID(2, model);
+    ASSERT_TRUE(model._attributes.size() == 6);
 
+    delete cc;
+}
 
 
 

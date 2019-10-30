@@ -62,20 +62,22 @@ bool PolicyModelList::AddPmByID(uint64_t pmid, PolicyModel& out) {
     std::string value;
     bool r = _talk->SearchPolicyModelByID(std::to_string(pmid), value);
     if (!r) return false;
-    PolicyModel pm;
-    pm.ParseFromJson(value);
-    switch (pm._type) {
+    out.ParseFromJson(value);
+    switch (out._type) {
         case PolicyModel::PM_SUB_USER:
         case PolicyModel::PM_SUB_HOST:
         case PolicyModel::PM_SUB_APP:{
-            std::string out;
-            _talk->SearchPolicyModelPreAttrByName(pm._name, out);
-            pm.AddPreAttribute(out);
+            std::string jsonstr;
+            _talk->SearchPolicyModelPreAttrByName(out._name, jsonstr);
+            out.AddPreAttribute(jsonstr);
         } break;
         default:
             break;
     }
-    _models.push_back(pm);
+    if (_name2id.find(out._name) == _name2id.end()) {
+        _name2id[out._name] = out._id;
+    }
+    _models.push_back(out);
     return true;
 }
 
@@ -115,11 +117,11 @@ AttributeInfo::ATTR_TYPE get_attribute_type(const std::string & strtype) {
 PolicyModel::PM_TYPE get_pm_type(const std::string & strtype, int id) {
     //PM_RES, PM_SUB_USER, PM_SUB_APP, PM_SUB_HOST, PM_ERR
     if (CommonFun::StrCaseCmp(strtype.c_str(), "SUBJECT") == 0) {
-        if (id == 1) {
+        if (id == PM_USER_ID) {
             return PolicyModel::PM_SUB_USER;
-        } else if (id == 2) {
+        } else if (id == PM_HOST_ID) {
             return PolicyModel::PM_SUB_HOST;
-        } else if (id ==3) {
+        } else if (id ==PM_APPLICATION_ID) {
             return PolicyModel::PM_SUB_APP;
         } else {
             return PolicyModel::PM_ERR;

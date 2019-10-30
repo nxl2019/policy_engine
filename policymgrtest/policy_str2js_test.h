@@ -64,9 +64,12 @@ TEST(str2policymodel) {
     model.AddPreAttribute(strattr);
 
     ASSERT_TRUE(model._type == PolicyModel::PM_SUB_HOST);
+    ASSERT_TRUE(model._name.compare("host") == 0);
     ASSERT_TRUE(model._attributes.size() == 6);
 
 }
+
+
 
 
 
