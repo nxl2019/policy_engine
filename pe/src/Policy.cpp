@@ -268,7 +268,7 @@ AstExpr * parse_from_com_components(const Json::Value & com_components, PolicyMo
         Json::Value js_components = js_opcomp["components"];
         AstExpr * pexp_sub = parse_from_components(js_components, ppmlst, is_not);
         AstExpr * pexp_temp = pexp;
-        pexp = new AstBinaryOpExpr(AstExpr::OR, pexp_temp, pexp_sub);
+        pexp = new AstBinaryOpExpr(AstExpr::AND, pexp_temp, pexp_sub);
     }
 
     return pexp;
