@@ -1,4 +1,4 @@
-
+#include "tool.h"
 #include "Handle.h"
 #include "policy_expression.h"
 #include "json/json.h"
@@ -39,7 +39,7 @@ AstColumnRef::VAL_TYPE  transform_type(AttributeInfo::ATTR_TYPE attr_type) {
 
 #define COLUMN_REF_ACTION "ACTION"
 
-const std::map<const std::string,const AstExpr::EXPR_TYPE > OPERATOR_TABLE{
+const std::map<std::string,const AstExpr::EXPR_TYPE, CommonFun::IgnoreCaseCmp> OPERATOR_TABLE{
         {"=",   AstExpr::COMP_EQ},
         {"!=",  AstExpr::COMP_NEQ},
         {">",   AstExpr::COMP_GT},
@@ -50,26 +50,10 @@ const std::map<const std::string,const AstExpr::EXPR_TYPE > OPERATOR_TABLE{
         {"EQUALS_UNORDERED",   AstExpr::EQUALS_UNORDERED}
 };
 AstExpr::EXPR_TYPE get_asttype_from_oprtable(const std::string & sopr) {
-    std::string t_str = sopr ;
-    transform(t_str.begin(), t_str.end(), t_str.begin(), toupper);
-    auto it = OPERATOR_TABLE.find(t_str);
+    auto it = OPERATOR_TABLE.find(sopr);
     if (it == OPERATOR_TABLE.end()) return AstExpr::EXPER_NOT_SUPPORT;
     return it->second;
 }
-
-//const std::map<const std::string,const AstColumnRef::COL_TYPE > SUBJECT_TYPES {
-//        {"Resource",    AstColumnRef::RES},
-//        {"User",        AstColumnRef::SUB},
-//        {"Application", AstColumnRef::APP},
-//        {"Host",        AstColumnRef::HOST},
-//        {"ACTION",      AstColumnRef::ACTION}
-//};
-//AstColumnRef::COL_TYPE get_coltype_from_tb(const std::string & sopr) {
-//    auto it = SUBJECT_TYPES.find(sopr);
-//    if (it == SUBJECT_TYPES.end()) return AstColumnRef::OTHER;
-//    return it->second;
-//}
-
 
 AstExpr * parse_from_condition(const Json::Value & json, PolicyModelList * ppmlst, const uint64_t pm_id);
 AstExpr * parse_from_conditions(const Json::Value & conditions, PolicyModelList * ppmlst, const uint64_t pm_id);

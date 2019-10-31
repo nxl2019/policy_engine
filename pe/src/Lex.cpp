@@ -3,11 +3,12 @@
 #include <map>
 #include <algorithm>
 #include <sstream>
+#include "tool.h"
 
 
 #define EOI (-1)
 
-const std::map<std::string, Token::TOKEN_TYPE > KEYWORDS {
+const std::map<std::string, Token::TOKEN_TYPE, CommonFun::IgnoreCaseCmp > KEYWORDS {
         {"HOST",        Token::TK_HOST},    {"USER",       Token::TK_USER},
         {"APPLICATION", Token::TK_APP },    {"RESOURCE",   Token::TK_RES },
         {"OR",          Token::TK_OR  },    {"AND",        Token::TK_AND},
@@ -16,9 +17,7 @@ const std::map<std::string, Token::TOKEN_TYPE > KEYWORDS {
 };
 
 bool check_reserved_keyword(const std::string &word, Token& tk) {
-    std::string big = word;
-    std::transform(big.begin(), big.end(), big.begin(), ::toupper);
-    auto it = KEYWORDS.find(big);
+    auto it = KEYWORDS.find(word);
     if (it != KEYWORDS.end()) {
         tk.Set(it->second, word);
         return true;

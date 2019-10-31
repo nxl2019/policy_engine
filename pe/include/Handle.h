@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "Value.h"
 #include "policy_engine.h"
+#include "tool.h"
 
 
 class Handle {
@@ -47,9 +48,7 @@ public:
     virtual POLICY_ENGINE_HANDLE_TYPE GetHandleType() const override { return _dictionary_type; }
     Dictionary(POLICY_ENGINE_HANDLE_TYPE tp) : _dictionary_type(tp) {}
     Value GetValueAsInt(const std::string& key, bool& r) {
-        std::string key1 = key;
-        std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
-        auto fd = _data.find(key1);
+        auto fd = _data.find(key);
         if (fd == _data.end()) return Value();
         else {
             char *end = nullptr;
@@ -59,21 +58,17 @@ public:
         }
     }
     Value GetValueAsString(const std::string& key) {
-        std::string key1 = key;
-        std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
-        auto fd = _data.find(key1);
+        auto fd = _data.find(key);
         if (fd == _data.end()) return Value();
         else return Value(fd->second.c_str());
     }
     void InsertValue(const std::string& key, const std::string& value) {
-        std::string key1 = key;
-        std::transform(key1.begin(), key1.end(), key1.begin(), ::tolower);
-        _data[key1] = value;
+        _data[key] = value;
     }
     size_t size() { return _data.size(); }
 private:
-    POLICY_ENGINE_HANDLE_TYPE _dictionary_type;
-    std::map<std::string, std::string> _data;
+    POLICY_ENGINE_HANDLE_TYPE                                    _dictionary_type;
+    std::map<std::string, std::string, CommonFun::IgnoreCaseCmp> _data;
 };
 
 typedef Dictionary Subject;
