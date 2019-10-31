@@ -116,6 +116,40 @@ TEST(PARSE_EXPRESSION_CASE_9) {
     delete (expr);
 }
 
+TEST(PARSE_EXPRESSION_CASE_10) {
+    Lex lex("user.department includes \"R&D\"");
+    lex.Next();
+    ParseException e;
+    AstExpr *expr = parse_boolean_expr(&lex, &e);
+    ASSERT_TRUE(e._code == ParseException::SUCCESS && lex.GetCurrent()->GetType() == Token::TK_END_P);
+    ASSERT_TRUE(expr->GetExprType() == AstExpr::INCLUDES);
+    auto includes_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
+    delete (expr);
+}
+
+TEST(PARSE_EXPRESSION_CASE_11) {
+    Lex lex("user.department EQUALS_UNORDERED \"R&D,HR\"");
+    lex.Next();
+    ParseException e;
+    AstExpr *expr = parse_boolean_expr(&lex, &e);
+    ASSERT_TRUE(e._code == ParseException::SUCCESS && lex.GetCurrent()->GetType() == Token::TK_END_P);
+    ASSERT_TRUE(expr->GetExprType() == AstExpr::EQUALS_UNORDERED);
+    auto equal_unordered = dynamic_cast<AstBinaryOpExpr*>(expr);
+    delete (expr);
+}
+
+TEST(PARSE_EXPRESSION_CASE_12) {
+    Lex lex("user.uid = null");
+    lex.Next();
+    ParseException e;
+    AstExpr *expr = parse_boolean_expr(&lex, &e);
+    ASSERT_TRUE(e._code == ParseException::SUCCESS && lex.GetCurrent()->GetType() == Token::TK_END_P);
+    ASSERT_TRUE(expr->GetExprType() == AstExpr::COMP_EQ);
+    auto eq_expr = dynamic_cast<AstBinaryOpExpr*>(expr);
+    ASSERT_TRUE(eq_expr->GetRight()->GetExprType() == AstExpr::C_NULL);
+    delete (expr);
+}
+
 
 TEST(PARSE_OBLICATION_CASE_1) {
     LexOb lex("$user.location");
