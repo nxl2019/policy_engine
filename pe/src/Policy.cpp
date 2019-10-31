@@ -428,9 +428,6 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_str, PolicyMode
 }
 
 PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root, PolicyModelList * ppmlst ) {
-    Json::StreamWriterBuilder builder;
-    const std::string json_file = Json::writeString(builder, root);
-    printf("polic: %s\n", json_file.c_str());
     //action
     Json::Value actions_components = root["actionComponents"];
     AstExpr * pexp_action_comps = parse_from_action_components(actions_components);
@@ -477,7 +474,9 @@ void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::s
         case AstExpr::COMP_GT:
         case AstExpr::COMP_GE:
         case AstExpr::COMP_LT:
-        case AstExpr::COMP_LE: {
+        case AstExpr::COMP_LE:
+        case AstExpr::INCLUDES:
+        case AstExpr::EQUALS_UNORDERED:{
             analyze_reference(dynamic_cast< AstBinaryOpExpr*>(pexpr)->GetLeft(), actions, attributes, resourceattrs, rhost, rapp);
             analyze_reference(dynamic_cast< AstBinaryOpExpr*>(pexpr)->GetRight(), actions, attributes, resourceattrs, rhost, rapp);
         } break;
@@ -571,7 +570,9 @@ void print(AstExpr * pexpr, int lvl){
         case AstExpr::COMP_GT:
         case AstExpr::COMP_GE:
         case AstExpr::COMP_LT:
-        case AstExpr::COMP_LE:{
+        case AstExpr::COMP_LE:
+        case AstExpr::INCLUDES:
+        case AstExpr::EQUALS_UNORDERED:{
             switch (pexpr->GetExprType()) {
                 case AstExpr::OR:printf("|-OR\n"); break;
                 case AstExpr::AND:printf("|-AND\n"); break;
@@ -583,6 +584,8 @@ void print(AstExpr * pexpr, int lvl){
                 case AstExpr::COMP_GE:printf("|-COMP_GE\n"); break;
                 case AstExpr::COMP_LT:printf("|-COMP_LT\n"); break;
                 case AstExpr::COMP_LE:printf("|-COMP_LE\n"); break;
+                case AstExpr::INCLUDES:printf("|-INCLUDES\n"); break;
+                case AstExpr::EQUALS_UNORDERED:printf("|-EQUALS_UNORDERED\n"); break;
                 default:
                     break;
             }
