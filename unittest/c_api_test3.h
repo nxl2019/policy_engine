@@ -128,10 +128,13 @@ TEST(api_test_3_case_1) {
             {
                 PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_SUBJECT, &pdic_subjects);
                 ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "username", "candy");
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "level", "4");
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "pe_nums", "101");
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "windowssid", "123");
+
+                ret = policy_engine_insert_into_dictionary(pdic_subjects, "windowssid", "candyyy");
+                ret = policy_engine_insert_into_dictionary(pdic_subjects, "username", "xxx");
+                ret = policy_engine_insert_into_dictionary(pdic_subjects, "pe_nums", "66");
+                ret = policy_engine_insert_into_dictionary(pdic_subjects, "name", "xxx");
+                ret = policy_engine_insert_into_dictionary(pdic_subjects, "department", "qa");
+                ret = policy_engine_insert_into_dictionary(pdic_subjects, "company", "xxx");
                 ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
             }
             PolicyEngineHandle pdic_host = NULL;
@@ -139,18 +142,19 @@ TEST(api_test_3_case_1) {
                 PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_HOST, &pdic_host);
                 ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
                 ret = policy_engine_insert_into_dictionary(pdic_host, "windowssid", "123");
+                ret = policy_engine_insert_into_dictionary(pdic_host, "machinename", "abc");
                 ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
             }
             PolicyEngineHandle pdic_app = NULL;
             {
                 PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_APPLICATION, &pdic_app);
                 ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-                ret = policy_engine_insert_into_dictionary(pdic_app, "uniquename", "pc-00001");
+                ret = policy_engine_insert_into_dictionary(pdic_app, "displayname", "pc-00001");
                 ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
             }
 
             POLICY_ENGINE_MATCH_RESULT result;
-            ret =  policy_engine_match( pdic_subjects, "VIEW", NULL,pdic_host, pdic_app , &result);
+            ret =  policy_engine_match( pdic_subjects, "DELETE", NULL,pdic_host, pdic_app , &result);
             ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
             ASSERT_TRUE(result == PE_NO_MATCHED);
 
@@ -159,47 +163,6 @@ TEST(api_test_3_case_1) {
             policy_engine_destroy_dictionary(pdic_app);
 
         }
-        // case 4
-        {
-            PolicyEngineHandle pdic_subjects = NULL;
-            {
-                PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_SUBJECT, &pdic_subjects);
-                ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "username", "candy");
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "level", "6");
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "pe_nums", "101");
-                ret = policy_engine_insert_into_dictionary(pdic_subjects, "windowssid", "123");
-                ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-            }
-            PolicyEngineHandle pdic_ress = NULL;
-            PolicyEngineHandle pdic_host = NULL;
-            {
-                PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_HOST, &pdic_host);
-                ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-                ret = policy_engine_insert_into_dictionary(pdic_host, "windowssid", "123");
-                ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-            }
-            PolicyEngineHandle pdic_app = NULL;
-            {
-                PolicyEngineReturn ret = policy_engine_create_dictionary_handle(PE_APPLICATION, &pdic_app);
-                ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-                ret = policy_engine_insert_into_dictionary(pdic_app, "uniquename", "pc-52132");
-                ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-            }
-
-
-            POLICY_ENGINE_MATCH_RESULT result;
-            ret =  policy_engine_match( pdic_subjects, "VIEW", pdic_ress, pdic_host, pdic_app , &result);
-            ASSERT_TRUE(ret == POLICY_ENGINE_SUCCESS);
-            ASSERT_TRUE(result == PE_NEED_MORE_WORK);
-
-            policy_engine_destroy_dictionary(pdic_subjects);
-            policy_engine_destroy_dictionary(pdic_host);
-            policy_engine_destroy_dictionary(pdic_app);
-
-        }
-
-
         policy_engine_module_exit();
 
 }
