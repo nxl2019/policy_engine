@@ -30,6 +30,12 @@ namespace CommonFun {
     std::string UrlEncode(const std::string &value);
 
     int StrCaseCmp(const char *s1, const char *s2);
+
+    struct IgnoreCaseCmp : public std::binary_function<std::string, std::string, bool> {
+        bool operator()(const std::string& left, const std::string& right) const {
+            return StrCaseCmp(left.c_str(), right.c_str()) < 0;
+        }
+    };
 }
 
 

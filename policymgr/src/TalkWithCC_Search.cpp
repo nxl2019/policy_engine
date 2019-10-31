@@ -3,9 +3,10 @@
 //
 #include <json/json.h>
 #include "TalkWithCC.h"
+#include "tool.h"
 
 bool parse_ids_by_json(const std::string &str, std::vector<std::string>& out, bool & have_nextpage);
-bool parse_name2ids_by_json(const std::string &str, std::map<std::string, uint64_t> & outmap, bool & have_nextpage);
+bool parse_name2ids_by_json(const std::string &str, std::map<std::string, uint64_t, CommonFun::IgnoreCaseCmp> & outmap, bool & have_nextpage);
 
 bool TalkWithCCLower::SearchPolicyIDsByTag(const std::string& tag, std::vector<std::string>& out)  {
      int ipage = 0;
@@ -37,7 +38,7 @@ bool TalkWithCCLower::SearchPolicyIDsByTag(const std::string& tag, std::vector<s
      //send request
      return GetRequestResult(out,  req);
 }
- bool TalkWithCCLower::SearchPolicyModellist( std::map<std::string, uint64_t> & outmap)  {
+ bool TalkWithCCLower::SearchPolicyModellist( std::map<std::string, uint64_t, CommonFun::IgnoreCaseCmp> & outmap)  {
      //send request
      int ipage = 0;
      bool have_nextpage = true;
@@ -88,7 +89,7 @@ bool parse_ids_by_json(const std::string &str, std::vector<std::string>& out, bo
     return true;
 }
 
-bool parse_name2ids_by_json(const std::string &str, std::map<std::string, uint64_t> & outmap, bool & have_nextpage) {
+bool parse_name2ids_by_json(const std::string &str, std::map<std::string, uint64_t, CommonFun::IgnoreCaseCmp> & outmap, bool & have_nextpage) {
 
     Json::CharReaderBuilder builder;
     Json::CharReader *pread = builder.newCharReader();

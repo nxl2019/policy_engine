@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include "tool.h"
 
 #define PM_USER_ID 1
 #define PM_HOST_ID 2
@@ -24,16 +25,14 @@ struct PolicyModel {
     void AddPreAttribute(const std::string& json);
 
     AttributeInfo::ATTR_TYPE GetTypeByName(const std::string& name) {
-        std::string temp = name;
-        transform(temp.begin(), temp.end(), temp.begin(), tolower);
-        auto fd = _attributes.find(temp);
+        auto fd = _attributes.find(name);
         if (fd == _attributes.end()) return AttributeInfo::A_ERR;
         return fd->second._type;
     }
-    uint64_t                                _id;
-    std::string                             _name;
-    PM_TYPE                                 _type;
-    std::map<std::string, AttributeInfo>    _attributes;
+    uint64_t                                                          _id;
+    std::string                                                       _name;
+    PM_TYPE                                                           _type;
+    std::map<std::string, AttributeInfo, CommonFun::IgnoreCaseCmp>    _attributes;
 };
 
 class TalkWithCC;
@@ -55,7 +54,7 @@ protected:
     bool CheckExist(const std::string& pm_name, PolicyModel& out);
     bool AddPmByName(const std::string& name, PolicyModel& out);
 private:
-    std::map<std::string, uint64_t > _name2id;
+    std::map<std::string, uint64_t, CommonFun::IgnoreCaseCmp> _name2id;
     std::vector<PolicyModel>    _models;
     TalkWithCC *                _talk;
 };

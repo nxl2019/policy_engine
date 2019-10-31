@@ -1,6 +1,7 @@
 #ifndef TALK_WITH_CC
 #define TALK_WITH_CC
 
+#include "tool.h"
 #include <string>
 #include "NXLHttpClient.h"
 #define HEAD_X_CSRF_TOKEN    "X-CSRF-TOKEN"
@@ -15,7 +16,7 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) = 0;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) = 0;
-    virtual bool SearchPolicyModellist( std::map<std::string, uint64_t> & outmap) = 0;
+    virtual bool SearchPolicyModellist( std::map<std::string, uint64_t,CommonFun::IgnoreCaseCmp> & outmap) = 0;
     virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) = 0;
 
 public:
@@ -45,7 +46,7 @@ public:
     virtual bool SearchPolicyByID(const std::string& id, std::string& out) override;
     virtual bool SearchComponentByID(const std::string& id, std::string& out) override;
     virtual bool SearchPolicyModelByID(const std::string& id, std::string& out) override;
-    virtual bool SearchPolicyModellist(std::map<std::string, uint64_t> & outmap) override ;
+    virtual bool SearchPolicyModellist(std::map<std::string, uint64_t,CommonFun::IgnoreCaseCmp> & outmap) override ;
     virtual bool SearchPolicyModelPreAttrByName(const std::string& name, std::string& out) override;
 
 public:
