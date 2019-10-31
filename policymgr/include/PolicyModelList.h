@@ -48,6 +48,7 @@ public:
     AttributeInfo::ATTR_TYPE GetAttrTypeByPmidAttrName(uint64_t pmid, const std::string& attr_name);
     AttributeInfo::ATTR_TYPE GetAttrTypeByPmnameAttrName(const std::string& pm_name, const std::string& attr_name);
     TalkWithCC *GetTalk() { return _talk; }
+    void ClearTalk() { _talk = nullptr; }
     bool AddPmByID(uint64_t pmid, PolicyModel& out);
 protected:
     bool CheckExist(uint64_t pmid, PolicyModel& out);

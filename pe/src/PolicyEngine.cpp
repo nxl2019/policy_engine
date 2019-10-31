@@ -5,6 +5,7 @@
 #include <thread>
 #include "patch.h"
 #include "PolicyModelList.h"
+#include "TalkWithCC.h"
 
 PolicyEngine *PolicyEngine::_ins = nullptr;
 bool PolicyEngine::_running_flag = false;
@@ -104,6 +105,7 @@ PolicyEngineReturn PolicyEngine::Update() {
             tmp.push_back(policy);
         }
     }
+    delete (syms.GetTalk()); syms.ClearTalk();
     {
         std::lock_guard<std::shared_timed_mutex> writerLock(__mutex);
         _policys.swap(tmp);
