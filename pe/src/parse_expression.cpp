@@ -5,16 +5,6 @@
 #include "operator.h"
 #include <assert.h>
 
-AstColumnRef::COL_TYPE lex_to_col(Token::TOKEN_TYPE tp) {
-    switch (tp) {
-        case Token::TK_HOST:    return AstColumnRef::HOST;
-        case Token::TK_USER:    return AstColumnRef::SUB;
-        case Token::TK_APP:     return AstColumnRef::APP;
-        case Token::TK_RES:     return AstColumnRef::RES;
-        default: { assert(false); }
-    }
-}
-
 AstId   *parse_id(Lex *lex, ParseException *e);
 
 AstIds   parse_ids(Lex *lex, ParseException *e);
