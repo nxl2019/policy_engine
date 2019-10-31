@@ -541,6 +541,22 @@ std::string print_ids(const AstIds & ids) {
     return  ref;
 }
 
+std::string print(AstColumnRef::VAL_TYPE type) {
+    switch (type) {
+        case AstColumnRef::CC_STRING:
+            return "val_string";
+        case AstColumnRef::CC_NUMBER:
+            return "val_number";
+        case AstColumnRef::CC_MULTI:
+            return "val_multi";
+        case AstColumnRef::CC_OTHER:
+            return "val_other";
+        default:
+            return "val_other";
+    }
+
+}
+
 void print(AstExpr * pexpr, int lvl){
     for (int i = 0; i < lvl; ++i)
         printf("   ");
@@ -579,13 +595,14 @@ void print(AstExpr * pexpr, int lvl){
         } break;
         case AstExpr::EXPR_COLUMN_REF: {
             AstColumnRef * ptemp = dynamic_cast<AstColumnRef *>(pexpr);
+            AstColumnRef::VAL_TYPE  val_tp = ptemp->GetValType();
             std::string sid = print_ids(ptemp->GetColumn() );
             if (ptemp->GetColType()==AstColumnRef::ACTION) {
-                printf("|-COLUMN_REF-%s-\"%s\"\n", "ACTION", sid.c_str());
+                printf("|-COLUMN_REF-%s-%s-%s\n", "ACTION", print(val_tp).c_str(), sid.c_str());
             } else if (ptemp->GetColType()==AstColumnRef::SUB) {
-                printf("|-COLUMN_REF-%s-\"%s\"\n", "SUBJECT", sid.c_str());
+                printf("|-COLUMN_REF-%s-%s-%s\n", "SUBJECT", print(val_tp).c_str(), sid.c_str());
             } else {
-                printf("|-COLUMN_REF-%s-\"%s\"\n", "RESOURCE", sid.c_str());
+                printf("|-COLUMN_REF-%s-%s-%s\n", "RESOURCE", print(val_tp).c_str(), sid.c_str());
             }
         }
             break;

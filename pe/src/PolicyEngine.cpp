@@ -104,6 +104,7 @@ PolicyEngineReturn PolicyEngine::Update() {
         } else {
             tmp.push_back(policy);
         }
+        policy->Dump();
     }
     delete (syms.GetTalk()); syms.ClearTalk();
     {
