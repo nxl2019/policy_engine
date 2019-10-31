@@ -224,8 +224,6 @@ AstExpr * parse_from_conditions(const Json::Value & conditions, PolicyModelList 
 AstExpr * parse_from_components(const Json::Value & components, PolicyModelList * ppmlst, bool is_not) {
     Json::Value js_comp = components[0];
     uint64_t pm_id = js_comp["policy_model_id"].asInt();
-
-    //std::string comp_name = js_comp["name"].asString();
     Json::Value js_conditons = js_comp["conditions"];
     AstExpr * pexp =  parse_from_conditions(js_conditons, ppmlst, pm_id);
 
@@ -325,7 +323,6 @@ AstExpr * parse_from_components_for_action(const Json::Value & components,  bool
         AstExpr * pexp_temp = pexp;
         pexp = new AstBinaryOpExpr(AstExpr::OR, pexp_temp, pexp_sub);
     }
-
     // NOT
     if (is_not && pexp) {
         AstExpr * pexpr_temp = pexp;
@@ -424,7 +421,7 @@ PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root, PolicyModelLi
     //advance
     Json::Value expression = root["expression"];
     AstExpr * pexp_expression = parse_from_expression(expression, ppmlst);
-    //printf("aaa=%s\n", expression.asCString());
+
     Json::Value denyobgs = root["denyObligations"];
     parse_id_from_obligation_json(denyobgs, _obg_cols);
     Json::Value allowobgs = root["allowObligations"];
@@ -521,7 +518,6 @@ void Policy::GetApp(std::set<std::string>& app) {
 
 PolicyEngineReturn Policy::TryMatch(const Subject *subject, const std::string& action, const Resource *res, const Host *host, const App *app , Value::BOOLEAN& rboolean) {
     if (NULL == subject)  return  POLICY_ENGINE_FAIL;
-//      rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action.c_str());
         rboolean = eval_expression(_expr, const_cast<Subject*>(subject), action, const_cast<Resource*>(res), const_cast<Host*>(host), const_cast<App*>(app));
     return POLICY_ENGINE_SUCCESS;
 }
@@ -571,7 +567,7 @@ void print(AstExpr * pexpr, int lvl){
         case AstExpr::COMP_GE:
         case AstExpr::COMP_LT:
         case AstExpr::COMP_LE:
-        case AstExpr::INCLUDES:
+        case AstExpr::INCLUDES:/* go through */
         case AstExpr::EQUALS_UNORDERED:{
             switch (pexpr->GetExprType()) {
                 case AstExpr::OR:printf("|-OR\n"); break;
@@ -606,7 +602,6 @@ void print(AstExpr * pexpr, int lvl){
             }
         }
             break;
-            // C_TRUE, C_FALSE, C_UNKNOWN, C_NULL, C_NUMBER, C_STRING,
         case AstExpr::C_TRUE: {
             printf("|-C_TRUE\n" );
         }break;

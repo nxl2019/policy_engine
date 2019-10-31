@@ -3,7 +3,6 @@
 #include <assert.h>
 #include "Instruction.h"
 #include <map>
-#include <Instruction.h>
 
 #define make_new_label (_lab++)
 

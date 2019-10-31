@@ -3,11 +3,9 @@
 #include "Handle.h"
 #include "Value.h"
 #include "tool.h"
-#include "Instruction.h"
 #include <assert.h>
 #include <stack>
-#include <Instruction.h>
-#include <regex>
+
 
 struct RunTimeVars {
     Value GetRuntimeValue(AstColumnRef::COL_TYPE col_type, AstColumnRef::VAL_TYPE val_type, const std::string& attr) {
