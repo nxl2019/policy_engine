@@ -10,6 +10,8 @@
 #include <assert.h>
 #include <vector>
 #include "PolicyModelList.h"
+#define PE_FOR_TEST
+
 AstColumnRef::COL_TYPE  transform_type(PolicyModel::PM_TYPE pm_type) {
     switch (pm_type) {
         case PolicyModel::PM_RES:
@@ -409,6 +411,9 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_str, PolicyMode
 }
 
 PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root, PolicyModelList * ppmlst ) {
+#ifdef PE_FOR_TEST
+    if (root.isMember("name")) printf("-----POLICY : %s-----\n", root["name"].asCString());
+#endif
     //action
     Json::Value actions_components = root["actionComponents"];
     AstExpr * pexp_action_comps = parse_from_action_components(actions_components);
@@ -485,7 +490,15 @@ void analyze_reference( AstExpr * pexpr, std::set<std::string> & actions, std::s
         default: break;
     }
 }
-
+#ifdef PE_FOR_TEST
+void print_attr(std::set<std::string> & set, const std::string & name){
+    printf("%s :", name.c_str());
+    for (auto it: set) {
+        printf("%s, " ,it.c_str());
+    }
+    printf("\n");
+}
+#endif
 bool Policy::AnalyzeReference() {
     analyze_reference(_expr, _actions, _subjectattrs, _resourceattrs, _host, _app);
     analyze_reference(_pres_expr, _actions, _subjectattrs, _resourceattrs, _host, _app);
@@ -493,6 +506,13 @@ bool Policy::AnalyzeReference() {
     for (auto it: _obg_cols) {
         analyze_reference(it, _actions, _subjectattrs, _resourceattrs, _host, _app);
     }
+#ifdef PE_FOR_TEST
+    print_attr(_actions, "ACTION");
+    print_attr(_subjectattrs, "SUBJECT(user)");
+    print_attr(_host, "HOST");
+    print_attr(_app, "APPLICATION");
+    print_attr(_resourceattrs, "RESOURCE");
+#endif
     return  true;
 }
 
