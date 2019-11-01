@@ -26,6 +26,7 @@ void get_policy_jsvalue_from_string(const std::string & str, Json::Value & out) 
     Json::Value &jsdata = root["data"];
     out["id"] = jsdata["id"];
     out["name"] = jsdata["name"];
+    out["effectType"] = jsdata["effectType"];
     {///actionComponents
         Json::Value &jsactioncomp = jsdata["actionComponents"];
         Json::Value jsactioncomps_w;

@@ -1,6 +1,6 @@
 {
     "id":"93",
-    "fullname":"ROOT_93/sql-test",
+    "name":"sql-test",
     "description":"for sql test",
     "effectType":"allow",
     "actionComponents":[
