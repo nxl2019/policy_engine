@@ -64,7 +64,23 @@ PolicyEngineReturn PolicyEngine::Analyze(StringList **psubjects_strlist, StringL
 
     return POLICY_ENGINE_SUCCESS;
 }
+#define PE_FOR_TEST
+#ifdef PE_FOR_TEST
+void print_match(std::vector<Value::BOOLEAN > booleans) {
+    printf("MATCH_RESULT: ");
+    for (auto b : booleans) {
+        if (b == Value::B_FALSE ) {
+            printf("B_FALSE, ");
+        } else if (b == Value::B_UNKNOWN) {
+            printf("B_UNKNOWN, ");
+        } else {
+            printf("B_TRUE, ");
+        }
+    }
+    printf("\n");
 
+}
+#endif
 PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& action, Resource *res, Host *host, App *app, POLICY_ENGINE_MATCH_RESULT *presult) {
     if (!_running_flag) return POLICY_ENGINE_MODULE_NOT_INIT;
     std::vector<Value::BOOLEAN > booleans;
@@ -86,6 +102,9 @@ PolicyEngineReturn PolicyEngine::Match(Subject *subject, const std::string& acti
             break;
         }
     }
+#ifdef PE_FOR_TEST
+    print_match(booleans);
+#endif
     return POLICY_ENGINE_SUCCESS;
 }
 
