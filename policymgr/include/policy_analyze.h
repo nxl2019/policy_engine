@@ -42,7 +42,7 @@ void get_policy_jsvalue_from_string(const std::string & str, Json::Value & out) 
                 Json::Value jsaction_w;
                 assert((*itc)["id"]);
                 jsaction_w["id"] = (*itc)["id"];
-                jsaction_w["actions"] =  Json::Value::null;//Json::Value(NULL);
+                jsaction_w["actions"] =  Json::Value(NULL);
                 jscomps_arr.append(jsaction_w);
             }
             jscomps_w["components"] = jscomps_arr;
@@ -66,7 +66,7 @@ void get_policy_jsvalue_from_string(const std::string & str, Json::Value & out) 
                 Json::Value jsconditions_w;
                 assert((*itc)["id"]);
                 jsconditions_w["id"] = (*itc)["id"];
-                jsconditions_w["conditions"] = Json::Value::null;//Json::Value(NULL);
+                jsconditions_w["conditions"] = Json::Value(NULL);
                 jscomps_arr.append(jsconditions_w);
             }
             jscomps_w["components"] = jscomps_arr;
@@ -90,7 +90,7 @@ void get_policy_jsvalue_from_string(const std::string & str, Json::Value & out) 
                 Json::Value jsconditions_w;
                 assert((*itc)["id"]);
                 jsconditions_w["id"] = (*itc)["id"];
-                jsconditions_w["conditions"] = Json::Value::null;//Json::Value(NULL);
+                jsconditions_w["conditions"] = Json::Value(NULL);
                 jscomps_arr.append(jsconditions_w);
             }
             jscomps_w["components"] = jscomps_arr;
