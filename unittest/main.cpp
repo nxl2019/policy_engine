@@ -8,11 +8,11 @@
 #include "handle_test.h"
 #endif
 
-#include "c_api_test3.h"
-//#include "c_api_test.h"
-//#include "c_api_test2.h"
 
-#include "c_api_test_cc91.h"
+//#include "c_api_test3.h"
+#include "c_api_test.h"
+//#include "c_api_test2.h"
+//#include "c_api_test_cc91.h"
 
 
 

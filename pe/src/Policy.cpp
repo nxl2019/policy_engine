@@ -233,8 +233,7 @@ AstExpr * parse_from_components(const Json::Value & components, PolicyModelList 
     for (int i = 1; i < i_comp_size; ++i) {
 
         Json::Value js_comp = components[i];
-        std::string comp_id = js_comp["id"].asString();
-        std::string comp_name = js_comp["name"].asString();
+        pm_id = js_comp["policy_model_id"].asInt();
         Json::Value js_conditons = js_comp["conditions"];
         AstExpr * pexp_sub = parse_from_conditions(js_conditons, ppmlst, pm_id);
         ///
@@ -413,6 +412,9 @@ PolicyEngineReturn Policy::ParseFromJson(const std::string& json_str, PolicyMode
 PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root, PolicyModelList * ppmlst ) {
 #ifdef PE_FOR_TEST
     if (root.isMember("name")) printf("-----POLICY : %s-----\n", root["name"].asCString());
+//    Json::StreamWriterBuilder builder;
+//    const std::string json_file = Json::writeString(builder, root);
+//    printf("%s\n",json_file.c_str());
 #endif
     //action
     Json::Value actions_components = root["actionComponents"];
