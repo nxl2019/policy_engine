@@ -49,12 +49,12 @@ bool TalkWithCC::GetCASLoginParameters(const std::string& service, const std::st
     catch (boost::system::system_error const& e) {
         //disconnected
         Log::WriteLog(log_fatal, "excpetion on CCLoginHelper::GetCASLoginParameters:%s", e.what() );
-        return "";
+        return false;
     }
     catch (...)
     {
         Log::WriteLog(log_fatal, "excpetion on CCLoginHelper::GetCASLoginParameters" );
-        return "";
+        return false;
     }
 
     //get response header
@@ -148,11 +148,11 @@ bool TalkWithCC::GetCASLoginUrl(NXLHttpClient& http_client, const std::string& s
     catch (boost::system::system_error const& e) {
         //disconnected
         Log::WriteLog(log_fatal, "excpetion on CCLoginHelper::GetCASLoginUrl:%s", e.what() );
-        return "";
+        return false;
     }
     catch (...){
         Log::WriteLog(log_fatal, "excpetion on CCLoginHelper::GetCASLoginUrl" );
-        return "";
+        return false;
     }
 
     //get response header
