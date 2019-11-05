@@ -358,7 +358,7 @@ AstExpr * parse_from_action_components(const Json::Value & action_components){
 
 AstExpr * parse_from_expression(const Json::Value & action_components, PolicyModelList * ppmlst) {
     std::string str_expression = action_components.asString();
-    if (str_expression.compare("null") == 0) {
+    if (str_expression.compare("null") == 0 ||str_expression.empty()) {
         return new AstConstantValue(AstExpr::C_TRUE);
     }
     Lex lex(str_expression);
@@ -448,6 +448,8 @@ PolicyEngineReturn Policy::ParseFromJson(const Json::Value & root, PolicyModelLi
     _pres_expr = pexp_resource_comps;
 
     AnalyzeReference();
+
+//    Dump();
 
     return POLICY_ENGINE_SUCCESS;
 }
