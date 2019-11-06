@@ -28,9 +28,7 @@ struct RunTimeVars {
         switch (val_type) {
             case AstColumnRef::CC_NUMBER : {
                 bool r = false;
-                auto v = dic->GetValueAsInt(attr, r);
-                if (r) return v;
-                else return Value();
+                return dic->GetValueAsInt(attr, r);
             } break;
             case AstColumnRef::CC_STRING : {
                 return dic->GetValueAsString(attr);
