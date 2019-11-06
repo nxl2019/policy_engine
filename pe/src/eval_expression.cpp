@@ -12,15 +12,17 @@ struct RunTimeVars {
         Dictionary *dic = nullptr;
         switch (col_type) {
             case AstColumnRef::RES : {
-                return Value(Value::V_NULL);        /* not support */
+                return Value();        /* not support */
             } break;
-            case AstColumnRef::HOST : { dic = _host; } break;
+            case AstColumnRef::HOST : {
+                dic = _host;
+            } break;
             case AstColumnRef::APP : { dic = _app; } break;
             case AstColumnRef::SUB : { dic = _subject; } break;
             case AstColumnRef::ACTION : {
                 return *_action;
             } break;
-            default: return Value(Value::V_NULL);    /* not support */
+            default: return Value();    /* not support */
         }
 
         switch (val_type) {
@@ -28,12 +30,12 @@ struct RunTimeVars {
                 bool r = false;
                 auto v = dic->GetValueAsInt(attr, r);
                 if (r) return v;
-                else return Value(Value::V_NULL);
+                else return Value();
             } break;
             case AstColumnRef::CC_STRING : {
                 return dic->GetValueAsString(attr);
             } break;
-            default: return Value(Value::V_NULL);
+            default: return Value();
         }
     }
     Subject     *_subject;
@@ -161,14 +163,14 @@ Value eval(AstExpr *expr, RunTimeVars *run_time_vars, Value::VALUE_TYPE expect) 
                 if (r) {
                     return Value(i);
                 } else {
-                    return Value(Value::V_NULL);
+                    return Value();
                 }
             } else {
                 return Value(dynamic_cast<AstConstantValue*>(expr)->GetValueAsStr());
             }
         } break;
         case AstExpr::C_NULL: {
-            return Value(Value::V_NULL);
+            return Value();
         } break;
         case AstExpr::LIKE: /* go through */
         case AstExpr::NOT_LIKE: {
