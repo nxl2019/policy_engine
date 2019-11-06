@@ -49,12 +49,19 @@ public:
     Dictionary(POLICY_ENGINE_HANDLE_TYPE tp) : _dictionary_type(tp) {}
     Value GetValueAsInt(const std::string& key, bool& r) {
         auto fd = _data.find(key);
-        if (fd == _data.end()) return Value();
+        if (fd == _data.end()) {
+            r = false;
+            return Value();
+        }
         else {
             char *end = nullptr;
             int i = (int)strtol(fd->second.c_str(), &end, 10);
             r = *end == '\0';
-            return Value(i);
+            if (r) {
+                return Value(i);
+            } else {
+                return Value();
+            }
         }
     }
     Value GetValueAsString(const std::string& key) {
