@@ -13,6 +13,10 @@ AstExpr *parse_column_ref(Lex *lex, ParseException *e);
 
 AstExpr *parse_predicate(Lex *lex, ParseException *e);
 
+typedef std::vector<AstExpr*> AstExprs;
+
+AstExprs parse_array(Lex *lex, ParseException *e);
+
 AstExpr *parse_boolean_expr(Lex *lex, ParseException *e) {
     AstExpr *expr = parse_predicate(lex, e);
     if (e->_code != ParseException::SUCCESS) {
@@ -56,6 +60,22 @@ AstExpr *parse_value(Lex *lex, ParseException *e) {
         AstConstantValue *c = new AstConstantValue(AstExpr::C_NULL);
         lex->Next();
         return c;
+    } else if (lex->GetCurrent()->GetType() == Token::TK_L_BRACKET) {
+        lex->Next();
+        AstExprs array = parse_array(lex, e);
+        if (e->_code != ParseException::SUCCESS) {
+            return nullptr;
+        }
+        if (lex->GetCurrent()->GetType() != Token::TK_R_BRACKET) {
+            e->SetFail(Token::TK_R_BRACKET, lex);
+            for (auto it : array) delete (it);
+            array.clear();
+            return nullptr;
+        }
+        lex->Next();
+        AstConstantValue *r = new AstConstantValue(AstExpr::C_ARRAY);
+        r->SetValue(array);
+        return r;
     } else {
         AstExpr *col_ref = parse_column_ref(lex, e);
         if (e->_code != ParseException::SUCCESS) {
@@ -63,6 +83,26 @@ AstExpr *parse_value(Lex *lex, ParseException *e) {
         }
         return col_ref;
     }
+}
+
+AstExprs parse_array(Lex *lex, ParseException *e) {
+    AstExprs array;
+    AstExpr *item = parse_value(lex, e);
+    if (e->_code != ParseException::SUCCESS) {
+        return array;
+    }
+    array.push_back(item);
+    while (lex->GetCurrent()->GetType() == Token::TK_COMMA) {
+        lex->Next();
+        item = parse_value(lex, e);
+        if (e->_code != ParseException::SUCCESS) {
+            for (auto it : array) delete (it);
+            array.clear();
+            return array;
+        }
+        array.push_back(item);
+    }
+    return array;
 }
 
 AstId   *parse_id(Lex *lex, ParseException *e) {

@@ -644,6 +644,9 @@ void print(AstExpr * pexpr, int lvl){
         case AstExpr::C_PATTERN: {
             printf("|-C_PATTERN-'%s'\n", dynamic_cast<AstConstantValue *>(pexpr)->GetValueAsStr());
         }break;
+        case AstExpr::C_ARRAY: {
+            printf("|-C_ARRAY-'todo'\n");
+        } break;
         case AstExpr::NOT: {
             printf("|-NOT\n");
             print(dynamic_cast<AstUnaryOpExpr*>(pexpr)->GetExpr(), lvl+1);

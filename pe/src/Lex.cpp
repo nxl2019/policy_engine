@@ -102,6 +102,9 @@ void Lex::Next() {
             case '9' : {
                 return ScanfNumber();
             } break;
+            case '[' : /* go through */
+            case ']' : /* go through */
+            case ',' : /* go through */
             case '.' : /* go through */
             case '(' : /* go through */
             case ')' : /* go through */
@@ -231,6 +234,9 @@ void Lex::ScanfStrLiteral() {
 
 void Lex::ScanfOperator() {
     switch (CharAt(Pos())) {
+        case '[' : { _cur_tk.Set(Token::TK_L_BRACKET, "["); PosInc(1); } break;
+        case ']' : { _cur_tk.Set(Token::TK_R_BRACKET, "]"); PosInc(1); } break;
+        case ',' : { _cur_tk.Set(Token::TK_COMMA, ","); PosInc(1); } break;
         case '.' : { _cur_tk.Set(Token::TK_DOT, "."); PosInc(1); } break;
         case '(' : { _cur_tk.Set(Token::TK_L_PAREN, "("); PosInc(1); } break;
         case ')' : { _cur_tk.Set(Token::TK_R_PAREN, ")"); PosInc(1); } break;

@@ -5,6 +5,9 @@
     | NOT <predicate>
 
 <value> ::= <column ref> | <string literal> | <dec number literal> | NULL
+    | <left bracket> <value list> <right bracket>
+
+<value list> ::= <value> { <comma> <value> }...
 
 <column ref> ::= <type> <dot> <identifier list>
     | <identifier>      /* this means a variable defined in cc  */
@@ -32,6 +35,14 @@
 <greater than> ::= >
 
 <greater than or equal> ::= >=
+
+<left paren> ::= (
+
+<right paren> ::= )
+
+<left bracket> ::= [
+
+<right bracket> ::= ]
 
 <identifier> ::= <simple identifier>
     | <string literal>

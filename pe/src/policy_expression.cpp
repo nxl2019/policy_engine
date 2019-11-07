@@ -34,10 +34,14 @@ AstConstantValue::~AstConstantValue(){
     if (GetExprType() == C_STRING  || GetExprType() == C_PATTERN) {
         free (u._other_data);
         u._other_data = nullptr;
+    } else if (GetExprType() == C_ARRAY) {
+        for (auto it : _array) delete (it);
+        _array.clear();
     }
 }
 void AstConstantValue::SetValue(int data){    u._int_data = data; }
-void AstConstantValue::SetValue(const std::string& value){    u._other_data = strdup(value.c_str()); }
+void AstConstantValue::SetValue(const std::string& value){ u._other_data = strdup(value.c_str()); }
+void AstConstantValue::SetValue(const std::vector<AstExpr*>& array) { _array = array; }
 int  AstConstantValue::GetValueAsInt(bool& r) {
     if (GetExprType() == C_NUMBER) {
         r = true;

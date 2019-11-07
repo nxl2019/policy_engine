@@ -18,7 +18,7 @@ public:
         /* UNARY */
                 NOT,
         /* CONSTANT */
-                 C_TRUE, C_FALSE, C_UNKNOWN, C_NULL, C_NUMBER, C_STRING, C_PATTERN,
+                 C_TRUE, C_FALSE, C_UNKNOWN, C_NULL, C_NUMBER, C_STRING, C_PATTERN, C_ARRAY,
         /* EXPR_COLUMN_REF */
                 EXPR_COLUMN_REF,
         /* EXPER_NOT_SUPPORT */
@@ -57,6 +57,7 @@ public:
     ~AstConstantValue();
     void SetValue(int data);
     void SetValue(const std::string& value);
+    void SetValue(const std::vector<AstExpr*>& array);
     int  GetValueAsInt(bool& r);
     const char *GetValueAsStr() { return u._other_data; }
 private:
@@ -64,6 +65,7 @@ private:
         int _int_data;
         char *_other_data;
     } u;
+    std::vector<AstExpr*> _array;
 };
 
 class AstId {
