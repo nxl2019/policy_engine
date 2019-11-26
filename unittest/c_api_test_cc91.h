@@ -64,19 +64,7 @@ TEST(api_test_cc91_case_1) {
     }
     printf("\n");
 
-    // case 1 : when you action is "DELETE" and the action unexpected in policies.
-    bool bexpect = false;
-    for (PolicyEngineStringList it = actlist; it != NULL;  policy_engine_string_list_next(it, &it)) {
-        const char * act = nullptr;
-        ret = policy_engine_string_list_current(it, &act);
-        int ret = CommonFun::StrCaseCmp(act, "DELETE");
-        if (ret == 0) {
-            bexpect = true;
-        }
-    }
-    if (!bexpect) {
-        /* todo */
-    }
+
     policy_engine_destroy_string_list(sublist);
     policy_engine_destroy_string_list(actlist);
     policy_engine_destroy_string_list(resourcelist);
